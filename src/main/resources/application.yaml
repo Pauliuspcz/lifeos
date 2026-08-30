@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: Lifeos
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: root
+    password: password
+    url: jdbc:postgresql://localhost:5432/lifeos_db
+  jpa:
+    generate-ddl: false
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
