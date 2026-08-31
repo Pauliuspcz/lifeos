@@ -1,7 +1,10 @@
 package no.kristiania.lifeos.user;
 import no.kristiania.lifeos.exceptions.NotFoundException;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 
+@Service
 public class UserService {
     private final UserRepo repo;
 
