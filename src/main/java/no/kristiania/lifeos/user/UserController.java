@@ -12,11 +12,11 @@ public class UserController {
         this.userService = userService;
     }
     @PostMapping
-    public ResponseEntity<User> createUser(User user) {
+    public ResponseEntity<User> createUser(@RequestBody User user) {
         return ResponseEntity.ok(userService.save(user));
     }
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(Long id) {
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.findById(id));
     }
     @GetMapping("/all")

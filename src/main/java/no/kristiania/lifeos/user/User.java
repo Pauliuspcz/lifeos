@@ -8,6 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_gen")
@@ -18,5 +19,4 @@ public class User {
     private String lastName;
     private String phoneNumber;
     private String email;
-    private String password;
 }

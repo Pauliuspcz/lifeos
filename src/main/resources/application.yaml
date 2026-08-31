@@ -3,7 +3,7 @@ spring:
     name: Lifeos
   datasource:
     driver-class-name: org.postgresql.Driver
-    username: root
+    username: postgres
     password: password
     url: jdbc:postgresql://localhost:5432/lifeos_db
   jpa:
