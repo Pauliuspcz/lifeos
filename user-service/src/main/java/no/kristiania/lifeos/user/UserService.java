@@ -1,5 +1,5 @@
 package no.kristiania.lifeos.user;
-import no.kristiania.lifeos.exceptions.NotFoundException;
+import no.kristiania.lifeos.user.exceptions.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

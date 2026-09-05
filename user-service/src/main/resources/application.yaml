@@ -1,11 +1,13 @@
+server:
+  port: 8081
 spring:
   application:
-    name: Lifeos
+    name: user-service
   datasource:
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: password
-    url: jdbc:postgresql://localhost:5432/lifeos_db
+    url: jdbc:postgresql://localhost:5432/user_db
   jpa:
     generate-ddl: false
     show-sql: true

@@ -5,5 +5,4 @@ CREATE TABLE IF NOT EXISTS users(
     phone_number VARCHAR(255),
     email VARCHAR(255)
 );
-
 create sequence user_seq increment by 1 start with 1;
