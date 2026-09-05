@@ -6,12 +6,12 @@
         <groupId>no.kristiania</groupId>
         <artifactId>Lifeos</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath>../pom.xml </relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>user-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Lifeos</name>
-    <description>Lifeos</description>
+    <name>user-service</name>
+    <description>user-service</description>
     <url/>
     <licenses>
         <license/>
