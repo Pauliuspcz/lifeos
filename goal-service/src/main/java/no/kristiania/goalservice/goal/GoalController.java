@@ -23,7 +23,7 @@ public class GoalController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Goal>> getAllUsers() {
+    public ResponseEntity<List<Goal>> getAllGoals() {
         return ResponseEntity.ok(goalService.findAll());
     }
 
