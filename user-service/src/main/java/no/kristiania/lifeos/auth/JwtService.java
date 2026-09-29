@@ -1,4 +1,4 @@
-package no.kristiania.lifeos.user;
+package no.kristiania.lifeos.auth;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

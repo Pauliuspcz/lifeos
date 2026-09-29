@@ -1,14 +1,16 @@
-package no.kristiania.lifeos.user;
-import no.kristiania.lifeos.user.exceptions.NotFoundException;
+package no.kristiania.lifeos.profile;
+import no.kristiania.lifeos.exceptions.NotFoundException;
+import no.kristiania.lifeos.user.User;
+import no.kristiania.lifeos.user.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class UserService {
-    private final UserRepo repo;
+public class ProfileService {
+    private final UserRepository repo;
 
-    public UserService(UserRepo repo) {
+    public ProfileService(UserRepository repo) {
         this.repo = repo;
     }
     public User save(User user) {

@@ -5,7 +5,7 @@ import lombok.*;
 import java.time.Instant;
 
 @Entity
-@Getter @Setter @ToString
+@Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(
