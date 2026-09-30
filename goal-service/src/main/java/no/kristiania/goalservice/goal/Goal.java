@@ -24,14 +24,14 @@ public class Goal {
 
     private String description;
 
-    @Column(nullable = false)
-    private int targetCount; //amount of times you must complete the goal within a period, 3x/week = 3.
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private GoalPeriod period;
 
-    private BigDecimal targetValue; //amount required per completion
+    @Column(nullable = false)
+    private int timesPerPeriod;
+
+    private BigDecimal amountPerSession;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

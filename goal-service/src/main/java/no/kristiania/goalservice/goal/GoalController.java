@@ -1,9 +1,9 @@
 package no.kristiania.goalservice.goal;
+import no.kristiania.goalservice.goal.dto.CreateGoalRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/api/goal")
@@ -14,11 +14,12 @@ public class GoalController {
     }
 
     @PostMapping
-    public ResponseEntity<Goal> createGoal(@RequestBody Goal goal) {
-        return ResponseEntity.ok(goalService.save(goal));
+    public ResponseEntity<Goal> createGoal(@RequestBody CreateGoalRequest request) {
+        return ResponseEntity.ok(goalService.create(request));
     }
+
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Goal>> getGoalById(@PathVariable Long id) {
+    public ResponseEntity<Goal> getGoalById(@PathVariable Long id) {
         return ResponseEntity.ok(goalService.findById(id));
     }
 
@@ -31,6 +32,10 @@ public class GoalController {
     public ResponseEntity<String> deleteGoalById(@PathVariable Long id) {
         goalService.deleteById(id);
         return ResponseEntity.ok("Goal with id: " + id + " has been deleted");
+    }
+    @PatchMapping("/{id}/archive")
+    public ResponseEntity<Goal> archiveGoal(@PathVariable Long id) {
+        return ResponseEntity.ok(goalService.archive(id));
     }
 
 }
