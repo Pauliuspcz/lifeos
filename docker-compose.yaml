@@ -7,3 +7,11 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "${USER_DB_PORT}:5432"
+  goal-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${GOAL_DB_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${GOAL_DB_PORT}:5432"
