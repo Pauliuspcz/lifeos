@@ -1,32 +1,21 @@
-/*package no.kristiania.lifeos.profile;
-import no.kristiania.lifeos.user.User;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+package no.kristiania.lifeos.profile;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
+import no.kristiania.lifeos.profile.DTOs.ProfileResponse;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/profile")
+@RequiredArgsConstructor
 public class ProfileController {
+
     private final ProfileService profileService;
-    public ProfileController(ProfileService profileService) {
-        this.profileService = profileService;
+
+    @GetMapping("/me")
+    public ProfileResponse me(@AuthenticationPrincipal Long userId) {
+        return profileService.getProfile(userId);
     }
-    @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        return ResponseEntity.ok(profileService.save(user));
-    }
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        return ResponseEntity.ok(profileService.findById(id));
-    }
-    @GetMapping("/all")
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(profileService.findAll());
-    }
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUserById(@PathVariable Long id) {
-        profileService.deleteById(id);
-        return ResponseEntity.ok("User with id: " + id + " has been deleted");
-    }
-}*/
+}

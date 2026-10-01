@@ -1,29 +1,22 @@
-/*package no.kristiania.lifeos.profile;
-import no.kristiania.lifeos.exceptions.NotFoundException;
+package no.kristiania.lifeos.profile;
+
+import lombok.RequiredArgsConstructor;
+import no.kristiania.lifeos.profile.DTOs.ProfileResponse;
 import no.kristiania.lifeos.user.User;
 import no.kristiania.lifeos.user.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
+@RequiredArgsConstructor
 public class ProfileService {
-    private final UserRepository repo;
 
-    public ProfileService(UserRepository repo) {
-        this.repo = repo;
+    private final UserRepository userRepository;
+
+    public ProfileResponse getProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        return new ProfileResponse(user.getId(), user.getEmail(), user.getName(), user.getProfilePictureUrl());
     }
-    public User save(User user) {
-        return repo.save(user);
-    }
-    public List<User> findAll() {
-        return repo.findAll();
-    }
-    public User findById(Long id) {
-        return repo.findById(id).orElseThrow(()-> new NotFoundException("User not found"));
-    }
-    public void deleteById(Long id) {
-        User user = repo.findById(id).orElseThrow(()-> new NotFoundException("User not found"));
-        repo.delete(user);
-    }
-}*/
+}
