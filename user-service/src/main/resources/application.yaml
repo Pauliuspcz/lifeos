@@ -17,4 +17,9 @@ spring:
       ddl-auto: validate
     properties:
       hibernate:
+app:
+  jwt:
+    access-expiration-minutes: 60
+    refresh-expiration-days: 30
+
 

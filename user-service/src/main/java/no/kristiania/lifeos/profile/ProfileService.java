@@ -1,4 +1,4 @@
-package no.kristiania.lifeos.profile;
+/*package no.kristiania.lifeos.profile;
 import no.kristiania.lifeos.exceptions.NotFoundException;
 import no.kristiania.lifeos.user.User;
 import no.kristiania.lifeos.user.UserRepository;
@@ -26,4 +26,4 @@ public class ProfileService {
         User user = repo.findById(id).orElseThrow(()-> new NotFoundException("User not found"));
         repo.delete(user);
     }
-}
+}*/

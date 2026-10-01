@@ -1,4 +1,4 @@
-package no.kristiania.lifeos.profile;
+/*package no.kristiania.lifeos.profile;
 import no.kristiania.lifeos.user.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,4 +29,4 @@ public class ProfileController {
         profileService.deleteById(id);
         return ResponseEntity.ok("User with id: " + id + " has been deleted");
     }
-}
+}*/
