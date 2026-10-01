@@ -1,11 +1,11 @@
 package no.kristiania.lifeos.profile;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import no.kristiania.lifeos.profile.DTOs.ProfileResponse;
+import no.kristiania.lifeos.profile.DTOs.UpdateProfileRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/profile")
@@ -17,5 +17,10 @@ public class ProfileController {
     @GetMapping("/me")
     public ProfileResponse me(@AuthenticationPrincipal Long userId) {
         return profileService.getProfile(userId);
+    }
+    @PatchMapping("/me")
+    public ProfileResponse update(@AuthenticationPrincipal Long userId,
+                                  @Valid @RequestBody UpdateProfileRequest req) {
+        return profileService.updateProfile(userId, req);
     }
 }
