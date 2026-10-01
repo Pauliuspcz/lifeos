@@ -1,16 +1,14 @@
 package no.kristiania.lifeos.auth;
 
-import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
-import no.kristiania.lifeos.auth.DTOs.AuthResponse;
-import no.kristiania.lifeos.auth.DTOs.LoginRequest;
-import no.kristiania.lifeos.auth.DTOs.RegisterRequest;
-import no.kristiania.lifeos.auth.DTOs.RegisterResponse;
+import no.kristiania.lifeos.auth.DTOs.*;
 import no.kristiania.lifeos.user.User;
 import no.kristiania.lifeos.user.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -36,16 +34,26 @@ public class AuthService {
         User saved = userRepository.save(user);
         return new RegisterResponse(saved.getId(), saved.getEmail(), saved.getName());
     }
+    private AuthResponse issueTokens(User user) {
+        return new AuthResponse(
+                jwtService.generateAccessToken(user),
+                refreshTokenService.create(user.getId()),
+                "Bearer",
+                jwtService.accessExpirySeconds());
+    }
     public AuthResponse login(LoginRequest req) {
         String email = req.email().trim().toLowerCase();
         User user = userRepository.findByEmail(email)
                 .filter(u -> u.getPasswordHash() != null
                         && passwordEncoder.matches(req.password(), u.getPasswordHash()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
-        return new AuthResponse(
-                jwtService.generateAccessToken(user),
-                refreshTokenService.create(user.getId()),
-                "Bearer",
-                jwtService.accessExpirySeconds());
+        return issueTokens(user);
+    }
+
+    public AuthResponse refresh(RefreshRequest req) {
+        RefreshToken stored = refreshTokenService.consume(req.refreshToken());
+        User user = userRepository.findById(stored.getUserId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
+        return issueTokens(user);
     }
 }

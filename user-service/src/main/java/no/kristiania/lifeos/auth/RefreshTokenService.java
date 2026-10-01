@@ -1,9 +1,11 @@
 package no.kristiania.lifeos.auth;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -46,5 +48,25 @@ public class RefreshTokenService {
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    @Transactional(noRollbackFor = ResponseStatusException.class)
+    public RefreshToken consume(String raw) {
+        RefreshToken token = repository.findByTokenHash(hash(raw))
+                .orElseThrow(RefreshTokenService::invalid);
+
+        if (token.isRevoked()) {
+            repository.revokeAllByUserId(token.getUserId());
+            throw invalid();
+        }
+        if (token.getExpiresAt().isBefore(Instant.now())) {
+            throw invalid();
+        }
+        token.setRevoked(true);
+        return token;
+    }
+
+    private static ResponseStatusException invalid() {
+        return new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token");
     }
 }
