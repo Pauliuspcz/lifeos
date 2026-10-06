@@ -8,6 +8,4 @@ public record CreateGoalRequest(
         GoalPeriod period,
         int timesPerPeriod,
         BigDecimal amountPerSession
-
-
 ) {}
