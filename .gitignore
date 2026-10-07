@@ -5,6 +5,8 @@ user-service/.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+**/application-local.yaml
+
 ### STS ###
 .apt_generated
 .classpath
@@ -32,3 +34,4 @@ build/
 
 ### VS Code ###
 .vscode/
+/user-service/src/main/resources/application-local.yaml

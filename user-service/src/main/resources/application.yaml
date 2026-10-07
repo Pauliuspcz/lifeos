@@ -3,6 +3,8 @@ server:
 spring:
   application:
     name: user-service
+  profiles:
+    active: local
   datasource:
     driver-class-name: org.postgresql.Driver
     username: postgres
@@ -11,6 +13,13 @@ spring:
   jpa:
     generate-ddl: false
     show-sql: true
+    hibernate:
+      ddl-auto: validate
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+app:
+  jwt:
+    access-expiration-minutes: 60
+    refresh-expiration-days: 30
+
+
