@@ -5,8 +5,6 @@ spring:
     name: user-service
   config:
     import: optional:file:.env[.properties]
-  profiles:
-    active: local
   datasource:
     driver-class-name: org.postgresql.Driver
     username: postgres
