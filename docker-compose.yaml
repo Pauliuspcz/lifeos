@@ -15,3 +15,11 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "${GOAL_DB_PORT}:5432"
+  progress-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${PROGRESS_DB_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${PROGRESS_DB_PORT}:5432"
