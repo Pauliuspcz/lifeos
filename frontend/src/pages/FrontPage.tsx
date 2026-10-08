@@ -5,6 +5,7 @@ export default function FrontPage() {
         <h1>Welcome to LifeOS :P</h1>
         <p>A page you can better you life with!</p>
         <a href="/login">Login-page</a>
+        <a href="/profile">Profile-page</a>
         <a href="/goal/new">Goal-page</a>
       </div>
     </>
