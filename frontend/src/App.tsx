@@ -4,17 +4,20 @@ import ErrorPage from "./pages/ErrorPage";
 import FrontPage from "./pages/FrontPage";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path={"/"} element={<FrontPage />} />
-        <Route path={"/login"} element={<LoginPage />} />
-        <Route path={"/profile"} element={<ProfilePage />} />
-        <Route path={"/goal/new"} element={<GoalAdd />} />
-        <Route path={"*"} element={<ErrorPage />} />
-      </Routes>
-    </BrowserRouter>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <BrowserRouter>
+        <Routes>
+          <Route path={"/"} element={<FrontPage />} />
+          <Route path={"/login"} element={<LoginPage />} />
+          <Route path={"/profile"} element={<ProfilePage />} />
+          <Route path={"/goal/new"} element={<GoalAdd />} />
+          <Route path={"*"} element={<ErrorPage />} />
+        </Routes>
+      </BrowserRouter>
+    </GoogleOAuthProvider>
   );
 }

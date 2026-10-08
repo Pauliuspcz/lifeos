@@ -1,4 +1,4 @@
-import { request } from "./Client";
+import { request } from "./client";
 
 export type Profile = {
   id: number;

@@ -1,7 +1,8 @@
 import { useState, type SubmitEvent } from "react";
 import { useNavigate } from "react-router";
-import { login, register } from "../api/Auth";
-import { ApiError } from "../api/Client";
+import { googleLogin, login, register } from "../api/auth";
+import { ApiError } from "../api/client";
+import { GoogleLogin } from "@react-oauth/google";
 
 function errorText(err: unknown): string {
   if (err instanceof ApiError) {
@@ -68,6 +69,18 @@ export default function LoginPage() {
         </button>
       </form>
       {error && <p role="alert">{error}</p>}
+      <GoogleLogin
+        onSuccess={async (res) => {
+          if (!res.credential) return;
+          try {
+            await googleLogin(res.credential);
+            navigate("/");
+          } catch (err) {
+            setError(errorText(err));
+          }
+        }}
+        onError={() => setError("Google login failed.")}
+      />
       <button
         type="button"
         onClick={() => setMode(mode === "login" ? "register" : "login")}

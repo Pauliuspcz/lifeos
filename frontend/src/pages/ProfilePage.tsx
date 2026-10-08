@@ -1,8 +1,8 @@
 import React, { useEffect, useState, type SubmitEvent } from "react";
 import { useNavigate } from "react-router";
-import { ApiError } from "../api/Client";
-import { getProfile, updateProfile, type Profile } from "../api/Profile";
-import { tokenStore } from "../api/Tokens";
+import { ApiError } from "../api/client";
+import { getProfile, updateProfile, type Profile } from "../api/profile";
+import { tokenStore } from "../api/tokens";
 import BackButton from "../components/BackButton";
 
 export default function ProfilePage() {
