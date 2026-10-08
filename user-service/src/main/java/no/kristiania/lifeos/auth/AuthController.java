@@ -28,4 +28,9 @@ public class AuthController {
     public AuthResponse refresh(@Valid @RequestBody RefreshRequest req) {
         return authService.refresh(req);
     }
+
+    @PostMapping("/google")
+    public AuthResponse google(@Valid @RequestBody GoogleLoginRequest req) {
+        return authService.googleLogin(req);
+    }
 }

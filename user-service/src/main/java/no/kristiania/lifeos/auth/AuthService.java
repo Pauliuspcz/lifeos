@@ -21,6 +21,8 @@ public class AuthService {
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
 
+    private final GoogleTokenVerifier googleTokenVerifier;
+
     @Transactional
     public RegisterResponse register(RegisterRequest req) {
         String email = req.email().trim().toLowerCase();
@@ -55,5 +57,35 @@ public class AuthService {
         User user = userRepository.findById(stored.getUserId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
         return issueTokens(user);
+    }
+
+    public AuthResponse googleLogin(GoogleLoginRequest req) {
+        GoogleUser g = googleTokenVerifier.verify(req.idToken());
+        User user = userRepository.findByGoogleId(g.sub())
+                .orElseGet(() -> linkOrCreate(g));
+        return issueTokens(user);
+    }
+
+    private User linkOrCreate(GoogleUser g) {
+        String email = g.email().trim().toLowerCase();
+        return userRepository.findByEmail(email)
+                .map(existing -> {
+                    if (existing.getGoogleId() != null && !existing.getGoogleId().equals(g.sub())) {
+                        throw new ResponseStatusException(HttpStatus.CONFLICT, "Account linked to another Google user");
+                    }
+                    existing.setGoogleId(g.sub());
+                    if (existing.getProfilePictureUrl() == null) {
+                        existing.setProfilePictureUrl(g.picture());
+                    }
+                    return userRepository.save(existing);
+                })
+                .orElseGet(() -> {
+                    User u = new User();
+                    u.setEmail(email);
+                    u.setGoogleId(g.sub());
+                    u.setName(g.name() != null ? g.name() : email.substring(0, email.indexOf('@')));
+                    u.setProfilePictureUrl(g.picture());
+                    return userRepository.save(u);
+                });
     }
 }

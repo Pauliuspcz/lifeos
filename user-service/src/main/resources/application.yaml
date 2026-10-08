@@ -21,5 +21,5 @@ app:
   jwt:
     access-expiration-minutes: 60
     refresh-expiration-days: 30
-
-
+  google:
+    client-id: 50962000707-9k6o5mjgi5pkqioakhl9chohu61a99oc.apps.googleusercontent.com
