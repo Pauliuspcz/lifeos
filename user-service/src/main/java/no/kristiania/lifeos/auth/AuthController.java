@@ -33,4 +33,10 @@ public class AuthController {
     public AuthResponse google(@Valid @RequestBody GoogleLoginRequest req) {
         return authService.googleLogin(req);
     }
+
+    @PostMapping("/logout")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void logout(@Valid @RequestBody RefreshRequest req) {
+        authService.logout(req);
+    }
 }

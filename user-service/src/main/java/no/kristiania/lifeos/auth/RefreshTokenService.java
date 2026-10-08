@@ -69,4 +69,9 @@ public class RefreshTokenService {
     private static ResponseStatusException invalid() {
         return new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token");
     }
+
+    @Transactional
+    public void revoke(String raw) {
+        repository.findByTokenHash(hash(raw)).ifPresent(t -> t.setRevoked(true));
+    }
 }

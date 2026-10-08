@@ -2,8 +2,8 @@ import React, { useEffect, useState, type SubmitEvent } from "react";
 import { useNavigate } from "react-router";
 import { ApiError } from "../api/client";
 import { getProfile, updateProfile, type Profile } from "../api/profile";
-import { tokenStore } from "../api/tokens";
 import BackButton from "../components/BackButton";
+import { logout } from "../api/auth";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -39,8 +39,8 @@ export default function ProfilePage() {
     }
   }
 
-  function handleLogout() {
-    tokenStore.clear();
+  async function handleLogout() {
+    await logout();
     navigate("/login");
   }
 

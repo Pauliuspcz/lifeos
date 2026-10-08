@@ -16,3 +16,12 @@ export async function googleLogin(idToken: string) {
   tokenStore.save(auth);
   return auth;
 }
+export async function logout() {
+  const refreshToken = tokenStore.getRefresh();
+  tokenStore.clear();
+  if (refreshToken) {
+    try {
+      await post("/auth/logout", { refreshToken });
+    } catch {}
+  }
+}

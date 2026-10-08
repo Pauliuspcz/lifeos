@@ -88,4 +88,8 @@ public class AuthService {
                     return userRepository.save(u);
                 });
     }
+
+    public void logout(RefreshRequest req) {
+        refreshTokenService.revoke(req.refreshToken());
+    }
 }
