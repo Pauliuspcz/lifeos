@@ -1,8 +1,11 @@
+import { useGoals } from "../hooks/useGoals";
 import React, { useState } from "react";
 import { CreateGoalRequest, GoalPeriod, PERIODS } from "../types/goal";
-import { useGoals } from "../hooks/useGoals";
+import BackButton from "../components/BackButton";
+import { useNavigate } from "react-router";
 
-export function Application() {
+export default function GoalAdd() {
+  const navigate = useNavigate();
   const { goals, loading, loadError, addGoal } = useGoals();
   const [form, setForm] = useState<CreateGoalRequest>({
     title: "",
@@ -12,6 +15,10 @@ export function Application() {
     amountPerSession: null,
   });
   const [error, setError] = useState("");
+
+  function handleBack() {
+    navigate("/");
+  }
 
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -28,7 +35,7 @@ export function Application() {
   }
 
   return (
-    <>
+    <div className="page">
       <h1>Tasks</h1>
       <form onSubmit={handleSubmit}>
         <div>
@@ -74,6 +81,7 @@ export function Application() {
           </li>
         ))}
       </ul>
-    </>
+      <BackButton onBack={handleBack} />
+    </div>
   );
 }
