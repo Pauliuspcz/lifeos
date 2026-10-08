@@ -1,6 +1,5 @@
-package no.kristiania.lifeos.auth;
+package no.kristiania.lifeos.auth.google;
 
-import no.kristiania.lifeos.auth.DTOs.GoogleUser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;

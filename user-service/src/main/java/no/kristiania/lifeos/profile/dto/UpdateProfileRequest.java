@@ -1,4 +1,4 @@
-package no.kristiania.lifeos.profile.DTOs;
+package no.kristiania.lifeos.profile.dto;
 
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;

@@ -1,4 +1,4 @@
-package no.kristiania.lifeos.auth;
+package no.kristiania.lifeos.auth.token;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,7 +52,7 @@ public class RefreshTokenService {
 
     @Transactional(noRollbackFor = ResponseStatusException.class)
     public RefreshToken consume(String raw) {
-        RefreshToken token = repository.findByTokenHash(hash(raw))
+        RefreshToken token = repository.findForUpdateByTokenHash(hash(raw))
                 .orElseThrow(RefreshTokenService::invalid);
 
         if (token.isRevoked()) {

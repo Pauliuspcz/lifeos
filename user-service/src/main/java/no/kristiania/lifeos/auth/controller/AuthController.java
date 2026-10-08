@@ -1,8 +1,10 @@
-package no.kristiania.lifeos.auth;
+package no.kristiania.lifeos.auth.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import no.kristiania.lifeos.auth.DTOs.*;
+import no.kristiania.lifeos.auth.dto.*;
+import no.kristiania.lifeos.auth.google.GoogleAuthService;
+import no.kristiania.lifeos.auth.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final GoogleAuthService googleAuthService;
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
@@ -31,7 +34,7 @@ public class AuthController {
 
     @PostMapping("/google")
     public AuthResponse google(@Valid @RequestBody GoogleLoginRequest req) {
-        return authService.googleLogin(req);
+        return googleAuthService.login(req);
     }
 
     @PostMapping("/logout")

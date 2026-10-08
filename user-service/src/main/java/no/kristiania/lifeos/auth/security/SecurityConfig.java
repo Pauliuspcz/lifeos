@@ -1,5 +1,6 @@
-package no.kristiania.lifeos.auth;
+package no.kristiania.lifeos.auth.security;
 
+import no.kristiania.lifeos.auth.token.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
