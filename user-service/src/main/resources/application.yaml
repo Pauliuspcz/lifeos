@@ -3,8 +3,8 @@ server:
 spring:
   application:
     name: user-service
-  profiles:
-    active: local
+  config:
+    import: optional:file:.env[.properties]
   datasource:
     driver-class-name: org.postgresql.Driver
     username: postgres
@@ -21,5 +21,7 @@ app:
   jwt:
     access-expiration-minutes: 60
     refresh-expiration-days: 30
-
-
+    private-key: ${JWT_PRIVATE_KEY}
+    public-key: ${JWT_PUBLIC_KEY}
+  google:
+    client-id: 50962000707-9k6o5mjgi5pkqioakhl9chohu61a99oc.apps.googleusercontent.com

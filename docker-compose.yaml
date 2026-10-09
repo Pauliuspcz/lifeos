@@ -7,6 +7,28 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "${USER_DB_PORT}:5432"
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${USER_DB_NAME}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  user-service:
+    build: ./user-service
+    depends_on:
+      user-db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://user-db:5432/${USER_DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+    ports:
+      - "8080:8080"
+
   goal-db:
     image: postgres:15-alpine
     environment:
@@ -15,3 +37,9 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "${GOAL_DB_PORT}:5432"
+    volumes:
+      - goal-db-data:/var/lib/postgresql/data
+
+volumes:
+  user-db-data:
+  goal-db-data:
