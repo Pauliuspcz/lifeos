@@ -7,16 +7,14 @@ spring:
     import: optional:file:.env[.properties]
   datasource:
     driver-class-name: org.postgresql.Driver
-    username: postgres
-    password: password
-    url: jdbc:postgresql://localhost:5432/user_db
+    url: jdbc:postgresql://localhost:${USER_DB_PORT:5432}/${USER_DB_NAME:user_db}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD}
   jpa:
-    generate-ddl: false
+    open-in-view: false
     show-sql: true
     hibernate:
       ddl-auto: validate
-    properties:
-      hibernate:
 app:
   jwt:
     access-expiration-minutes: 60
@@ -24,4 +22,4 @@ app:
     private-key: ${JWT_PRIVATE_KEY}
     public-key: ${JWT_PUBLIC_KEY}
   google:
-    client-id: 50962000707-9k6o5mjgi5pkqioakhl9chohu61a99oc.apps.googleusercontent.com
+    client-id: ${GOOGLE_CLIENT_ID}
