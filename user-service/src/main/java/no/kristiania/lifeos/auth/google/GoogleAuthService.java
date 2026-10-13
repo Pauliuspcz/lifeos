@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import no.kristiania.lifeos.auth.dto.AuthResponse;
 import no.kristiania.lifeos.auth.dto.GoogleLoginRequest;
 import no.kristiania.lifeos.auth.service.TokenIssuer;
+import no.kristiania.lifeos.exception.GoogleAccountConflictException;
 import no.kristiania.lifeos.user.Emails;
 import no.kristiania.lifeos.user.User;
 import no.kristiania.lifeos.user.UserRepository;
@@ -37,7 +38,7 @@ public class GoogleAuthService {
 
     private User linkExisting(User existing, GoogleUser google) {
         if (existing.getGoogleId() != null && !existing.getGoogleId().equals(google.sub())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Account linked to another Google user");
+            throw new GoogleAccountConflictException();
         }
         existing.setGoogleId(google.sub());
         if (existing.getProfilePictureUrl() == null) {

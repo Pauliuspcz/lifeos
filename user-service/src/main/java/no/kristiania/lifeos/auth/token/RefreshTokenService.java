@@ -1,6 +1,7 @@
 package no.kristiania.lifeos.auth.token;
 
 import lombok.RequiredArgsConstructor;
+import no.kristiania.lifeos.exception.InvalidRefreshTokenException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -50,7 +51,7 @@ public class RefreshTokenService {
         }
     }
 
-    @Transactional(noRollbackFor = ResponseStatusException.class)
+    @Transactional(noRollbackFor = InvalidRefreshTokenException.class)
     public RefreshToken consume(String raw) {
         RefreshToken token = repository.findForUpdateByTokenHash(hash(raw))
                 .orElseThrow(RefreshTokenService::invalid);
@@ -66,8 +67,8 @@ public class RefreshTokenService {
         return token;
     }
 
-    private static ResponseStatusException invalid() {
-        return new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token");
+    private static InvalidRefreshTokenException invalid() {
+        return new InvalidRefreshTokenException();
     }
 
     @Transactional

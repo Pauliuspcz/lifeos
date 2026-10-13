@@ -1,6 +1,7 @@
 package no.kristiania.lifeos.profile.service;
 
 import lombok.RequiredArgsConstructor;
+import no.kristiania.lifeos.exception.NotFoundException;
 import no.kristiania.lifeos.profile.dto.ProfileResponse;
 import no.kristiania.lifeos.profile.dto.UpdateProfileRequest;
 import no.kristiania.lifeos.user.User;
@@ -37,7 +38,7 @@ public class ProfileService {
 
     private User findUser(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
     private ProfileResponse toResponse(User user) {

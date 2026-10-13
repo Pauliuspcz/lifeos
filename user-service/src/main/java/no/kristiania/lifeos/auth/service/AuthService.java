@@ -5,6 +5,9 @@ import lombok.RequiredArgsConstructor;
 import no.kristiania.lifeos.auth.dto.*;
 import no.kristiania.lifeos.auth.token.RefreshToken;
 import no.kristiania.lifeos.auth.token.RefreshTokenService;
+import no.kristiania.lifeos.exception.EmailAlreadyRegisteredException;
+import no.kristiania.lifeos.exception.InvalidCredentialsException;
+import no.kristiania.lifeos.exception.InvalidRefreshTokenException;
 import no.kristiania.lifeos.user.Emails;
 import no.kristiania.lifeos.user.User;
 import no.kristiania.lifeos.user.UserRepository;
@@ -29,7 +32,7 @@ public class AuthService {
     public RegisterResponse register(RegisterRequest req) {
         String email = Emails.normalize(req.email());
         if (userRepository.existsByEmail(email)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
+            throw new EmailAlreadyRegisteredException();
         }
         User user = new User();
         user.setEmail(email);
@@ -44,14 +47,14 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .filter(u -> u.getPasswordHash() != null
                         && passwordEncoder.matches(req.password(), u.getPasswordHash()))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
+                .orElseThrow(InvalidCredentialsException::new);
         return tokenIssuer.issueFor(user);
     }
 
     public AuthResponse refresh(RefreshRequest req) {
         RefreshToken stored = refreshTokenService.consume(req.refreshToken());
         User user = userRepository.findById(stored.getUserId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
+                .orElseThrow(InvalidRefreshTokenException::new);
         return tokenIssuer.issueFor(user);
     }
 
