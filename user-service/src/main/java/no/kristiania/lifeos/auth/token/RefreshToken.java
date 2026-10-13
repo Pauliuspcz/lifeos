@@ -1,4 +1,4 @@
-package no.kristiania.lifeos.auth;
+package no.kristiania.lifeos.auth.token;
 
 import jakarta.persistence.*;
 import lombok.Getter;

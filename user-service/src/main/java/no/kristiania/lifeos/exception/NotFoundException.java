@@ -1,4 +1,4 @@
-package no.kristiania.lifeos.exceptions;
+package no.kristiania.lifeos.exception;
 
 public class NotFoundException extends RuntimeException {
     public NotFoundException(String message) {

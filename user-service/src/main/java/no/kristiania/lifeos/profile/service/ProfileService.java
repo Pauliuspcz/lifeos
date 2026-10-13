@@ -1,8 +1,8 @@
-package no.kristiania.lifeos.profile;
+package no.kristiania.lifeos.profile.service;
 
 import lombok.RequiredArgsConstructor;
-import no.kristiania.lifeos.profile.DTOs.ProfileResponse;
-import no.kristiania.lifeos.profile.DTOs.UpdateProfileRequest;
+import no.kristiania.lifeos.profile.dto.ProfileResponse;
+import no.kristiania.lifeos.profile.dto.UpdateProfileRequest;
 import no.kristiania.lifeos.user.User;
 import no.kristiania.lifeos.user.UserRepository;
 import org.springframework.http.HttpStatus;
