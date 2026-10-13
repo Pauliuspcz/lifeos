@@ -25,15 +25,6 @@ Authentication and user-profile service for **LifeOS**, a habit and goal tracker
 | Stateless sessions, CSRF disabled                           | Authentication uses the `Authorization: Bearer` header only, no cookies.                                                  |
 | Flyway migrations + `ddl-auto: validate`                    | The schema is versioned in SQL; Hibernate only checks that entities match it.                                             |
 
-## Tech stack
-
-- Java 21, Spring Boot 4.1.1 (Web MVC, Data JPA, Security, Validation)
-- PostgreSQL 15, Flyway
-- jjwt 0.13.0 (signing and parsing of access tokens)
-- Spring Security OAuth2 JOSE (Nimbus) for Google ID-token verification
-- Lombok
-- Docker / Docker Compose
-
 ## Project structure
 
 ```
@@ -176,7 +167,7 @@ Rules: `name` must not be blank, max 255 characters. `profilePictureUrl` max 500
 
 A service that needs to authenticate users only needs the **public key**. It verifies the RS256 signature and expiry of the access token and reads the user ID from `sub`. It should never receive the private key.
 
-### Frontend notes
+### Frontend notes TODO FIX THIS PROBLEM
 
 - Send only one refresh request at a time. Two parallel refreshes with the same token look like token reuse and revoke every session for the user.
 - Replace both tokens after each refresh, and call `/auth/logout` before clearing local storage on logout.
@@ -235,12 +226,20 @@ Use separate key pairs for development and production. If the private key is rep
 
 ### The .env file
 
-`.env` lives next to `docker-compose.yml` in the repository root and is listed in `.gitignore`. It contains the database variables used by Compose plus:
+`.env` lives next to `docker-compose.yml` in the repository root and is listed in `.gitignore`, so it is never committed. Copy `.env.example` to `.env` and fill in the values.
 
-```
-JWT_PRIVATE_KEY=<base64, one line, no quotes>
-JWT_PUBLIC_KEY=<base64, one line, no quotes>
-```
+| Variable                        | Used by                   | Description                                                                                                                                                     |
+| ------------------------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POSTGRES_USER`                 | Compose (all databases)   | Database username                                                                                                                                               |
+| `POSTGRES_PASSWORD`             | Compose (all databases)   | Database password                                                                                                                                               |
+| `USER_DB_NAME`                  | `user-db`, `user-service` | Name of the user database                                                                                                                                       |
+| `USER_DB_PORT`                  | `user-db`                 | Port on your machine that maps to the database (host side only)                                                                                                 |
+| `GOAL_DB_NAME` / `GOAL_DB_PORT` | `goal-db`                 | Same for the goal service. The port must differ from `USER_DB_PORT`                                                                                             |
+| `JWT_PRIVATE_KEY`               | `user-service`            | Base64 of the private PEM, one line, no quotes                                                                                                                  |
+| `JWT_PUBLIC_KEY`                | `user-service`            | Base64 of the public PEM, one line, no quotes                                                                                                                   |
+| `GOOGLE_CLIENT_ID`              | `user-service`            | Google OAuth client ID. It is public, not a secret. The backend uses it to check that a Google ID token was issued for this app. The client secret is not used. |
+
+Example (`.env.example`):
 
 ## Running the service
 
