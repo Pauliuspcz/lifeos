@@ -43,3 +43,5 @@ services:
 volumes:
   user-db-data:
   goal-db-data:
+
+#TODO fikse progress sin compose igjen
