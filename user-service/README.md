@@ -163,6 +163,44 @@ Rules: `name` must not be blank, max 255 characters. `profilePictureUrl` max 500
 - Lifetime: 30 days (`app.jwt.refresh-expiration-days`).
 - Single use: every refresh returns a new token and revokes the old one.
 
+## Error handling
+
+All errors are handled in one place (`GlobalExceptionHandler`) and returned as JSON in the same format:
+
+```json
+{
+  "status": 409,
+  "error": "Conflict",
+  "message": "Email already registered",
+  "timestamp": "2026-10-14T17:00:41.977705286Z"
+}
+```
+
+```json
+{
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Validation failed",
+  "timestamp": "2026-10-14T17:00:41.977705286Z",
+  "fieldErrors": {
+    "email": "must not be blank",
+    "password": "must not be blank",
+    "name": "must not be blank"
+  }
+}
+```
+
+| Status | When                                                                                                                                |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `400`  | Validation failed (the message lists each field and its problem) or the request body is missing or malformed                        |
+| `401`  | Wrong credentials, invalid or expired refresh token, invalid Google token, or a missing or invalid access token on a protected path |
+| `404`  | The user no longer exists                                                                                                           |
+| `409`  | Email already registered, Google account already linked to another user, or a duplicate value in the database                       |
+
+Each case has its own small exception in the `exception` package (for example `InvalidCredentialsException` and `EmailAlreadyRegisteredException`). All of them extend `ApiException`, which carries the HTTP status, so a new error case only needs a new class and no extra handler code.
+
+A refresh token can only be used once. Presenting an already used token returns `401` and revokes all refresh tokens for that user.
+
 ### For other services
 
 A service that needs to authenticate users only needs the **public key**. It verifies the RS256 signature and expiry of the access token and reads the user ID from `sub`. It should never receive the private key.
@@ -261,7 +299,6 @@ This starts `user-db` (PostgreSQL) and the service on port 8080. Flyway creates 
 ## Known limitations and next steps
 
 - Add automated tests (registration, login, refresh rotation, logout, Google login with a mocked verifier).
-- Add a `GlobalExceptionHandler` so all errors share one JSON format, and handle duplicate-email races as `409`.
 - Delete expired and revoked refresh tokens periodically (scheduled job).
-- Move the CORS origin (`http://localhost:5173`) and the Google client ID to environment variables before deploying.
+- Move the CORS origin (`http://localhost:5173`) to environment variables before deploying.
 - Optional: publish the public key through a JWKS endpoint so other services can fetch it and support key rotation.

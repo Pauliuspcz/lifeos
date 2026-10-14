@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    password: test
+app:
+  google:
+    client-id: test-client-id
