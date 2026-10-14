@@ -1,6 +1,7 @@
 package no.kristiania.lifeos.integration;
 
 import com.jayway.jsonpath.JsonPath;
+import no.kristiania.lifeos.auth.google.GoogleTokenVerifier;
 import no.kristiania.lifeos.auth.token.RefreshTokenRepository;
 import no.kristiania.lifeos.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,12 +13,17 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+
 
 
 import java.nio.charset.StandardCharsets;
@@ -88,6 +94,21 @@ public abstract class AbstractIntegrationTest {
         return postJson("/auth/refresh", """
             {"refreshToken":"%s"}""".formatted(refreshToken));
     }
+
+    protected MockHttpServletRequestBuilder authed(MockHttpServletRequestBuilder request, String token) {
+        return request.header("Authorization", "Bearer " + token);
+    }
+
+    protected ResultActions profileOf(Tokens tokens) throws Exception {
+        return mockMvc.perform(authed(get("/profile/me"), tokens.access()));
+    }
+
+    protected int userCount() {
+        return jdbcTemplate.queryForObject("select count(*) from users", Integer.class);
+    }
+
+    @MockitoBean
+    protected GoogleTokenVerifier googleTokenVerifier;
 
     @BeforeEach
     void cleanDatabase() {
