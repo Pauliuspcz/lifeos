@@ -18,4 +18,5 @@ jobs:
           java-version: "21"
           distribution: "temurin"
           cache: "maven"
+      - run: chmod +x mvnw
       - run: ./mvnw -B verify
