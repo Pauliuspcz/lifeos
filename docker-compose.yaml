@@ -41,8 +41,20 @@ services:
     volumes:
       - goal-db-data:/var/lib/postgresql/data
 
+  progress-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${PROGRESS_DB_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${PROGRESS_DB_PORT}:5432"
+    volumes:
+      - progress-db-data:/var/lib/postgresql/data
+
 volumes:
   user-db-data:
   goal-db-data:
+  progress-db-data:
 
-#TODO fikse progress sin compose igjen
+
