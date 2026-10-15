@@ -51,6 +51,7 @@ public class AuthService {
         return tokenIssuer.issueFor(user);
     }
 
+    @Transactional(noRollbackFor = InvalidRefreshTokenException.class)
     public AuthResponse refresh(RefreshRequest req) {
         RefreshToken stored = refreshTokenService.consume(req.refreshToken());
         User user = userRepository.findById(stored.getUserId())

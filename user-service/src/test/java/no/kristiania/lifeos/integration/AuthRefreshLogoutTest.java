@@ -1,7 +1,13 @@
 package no.kristiania.lifeos.integration;
 
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
+
+import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -19,13 +25,26 @@ class AuthRefreshLogoutTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void refresh_withReusedToken_returns401_andRevokesAllTokensForUser() throws Exception {
+    void refresh_reuseWithinGracePeriod_returns401_butKeepsTheNewSession() throws Exception {
         Tokens first = registerAndLogin("kari@example.com");
-        Tokens second = tokensFrom(refresh(first.refresh())
-                .andExpect(status().isOk()).andReturn());
+        Tokens second = tokensFrom(refresh(first.refresh()).andExpect(status().isOk()).andReturn());
 
-        refresh(first.refresh()).andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.status").value(401));
+        refresh(first.refresh()).andExpect(status().isUnauthorized());
+
+        refresh(second.refresh()).andExpect(status().isOk());
+    }
+
+    @Test
+    void refresh_reuseAfterGracePeriod_returns401_andRevokesAllTokensForUser() throws Exception {
+        Tokens first = registerAndLogin("kari@example.com");
+        Tokens second = tokensFrom(refresh(first.refresh()).andExpect(status().isOk()).andReturn());
+        int updated = jdbcTemplate.update(
+                "update refresh_tokens set revoked_at = now() - interval '1 day' where token_hash = ?",
+                sha256Hex(first.refresh()));
+        assertThat(updated).isEqualTo(1);
+
+        refresh(first.refresh()).andExpect(status().isUnauthorized());
+
         refresh(second.refresh()).andExpect(status().isUnauthorized());
     }
 
@@ -75,4 +94,36 @@ class AuthRefreshLogoutTest extends AbstractIntegrationTest {
                 {"refreshToken":"unknown"}""")
                 .andExpect(status().isNoContent());
     }
+
+    @RepeatedTest(10)
+    void refresh_withSameTokenUsedConcurrently_succeedsExactlyOnce() throws Exception {
+        Tokens tokens = registerAndLogin("kari@example.com");
+        int threads = 5;
+        ExecutorService executor = Executors.newFixedThreadPool(threads);
+        CyclicBarrier startTogether = new CyclicBarrier(threads);
+
+        List<Future<Integer>> calls = new ArrayList<>();
+        for (int i = 0; i < threads; i++) {
+            calls.add(executor.submit(() -> {
+                startTogether.await();
+                return refresh(tokens.refresh()).andReturn().getResponse().getStatus();
+            }));
+        }
+
+        List<Integer> statuses = new ArrayList<>();
+        for (Future<Integer> call : calls) {
+            statuses.add(call.get(30, TimeUnit.SECONDS));
+        }
+        executor.shutdown();
+
+        assertThat(statuses).filteredOn(status -> status == 200).hasSize(1);
+        assertThat(statuses).filteredOn(status -> status == 401).hasSize(threads - 1);
+        Integer rows = jdbcTemplate.queryForObject(
+                "select count(*) from refresh_tokens", Integer.class);
+        Integer active = jdbcTemplate.queryForObject(
+                "select count(*) from refresh_tokens where revoked = false", Integer.class);
+        assertThat(rows).isEqualTo(2);
+        assertThat(active).isEqualTo(1);
+    }
+
 }
