@@ -3,10 +3,8 @@ package no.kristiania.lifeos.auth.token;
 import lombok.RequiredArgsConstructor;
 import no.kristiania.lifeos.exception.InvalidRefreshTokenException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -26,6 +24,9 @@ public class RefreshTokenService {
 
     @Value("${app.jwt.refresh-expiration-days}")
     private long refreshDays;
+
+    @Value("${app.jwt.refresh-reuse-grace-seconds:10}")
+    private long reuseGraceSeconds;
 
     @Transactional
     public String create(Long userId) {
@@ -57,14 +58,23 @@ public class RefreshTokenService {
                 .orElseThrow(RefreshTokenService::invalid);
 
         if (token.isRevoked()) {
-            repository.revokeAllByUserId(token.getUserId());
+            if (!rotatedRecently(token)) {
+                repository.revokeAllByUserId(token.getUserId());
+            }
             throw invalid();
         }
         if (token.getExpiresAt().isBefore(Instant.now())) {
             throw invalid();
         }
         token.setRevoked(true);
+        token.setRevokedAt(Instant.now());
         return token;
+    }
+
+    private boolean rotatedRecently(RefreshToken token) {
+        Instant revokedAt = token.getRevokedAt();
+        return revokedAt != null
+                && revokedAt.plusSeconds(reuseGraceSeconds).isAfter(Instant.now());
     }
 
     private static InvalidRefreshTokenException invalid() {

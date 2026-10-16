@@ -56,5 +56,3 @@ volumes:
   user-db-data:
   goal-db-data:
   progress-db-data:
-
-
