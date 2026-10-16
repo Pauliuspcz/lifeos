@@ -51,7 +51,11 @@ src/main/resources
                      V003__add_revoked_at.sql
 src/test/java/no/kristiania/lifeos
 ├── UserServiceApplicationTests
-├── auth/token       RefreshTokenServiceTest (unit)
+├── auth
+│   ├── security     JwtAuthFilterTest (unit)
+│   ├── service      AuthServiceTest (unit)
+│   └── token        JwtServiceTest, RefreshTokenServiceTest (unit)
+├── profile/service  ProfileServiceTest (unit)
 └── integration
     ├── AbstractIntegrationTest, TestcontainersConfiguration
     ├── AuthRegisterTest, AuthLoginTest, AuthRefreshLogoutTest, AuthGoogleTest
@@ -332,7 +336,7 @@ This starts `user-db` (PostgreSQL) and the service on port 8080. Flyway creates 
 
 ## Testing
 
-Run all tests from the `user-service` folder. Docker must be running:
+Run all tests from the `user-service` folder:
 
 ```bash
 ./mvnw test                         # all tests
@@ -341,13 +345,21 @@ Run all tests from the `user-service` folder. Docker must be running:
 
 In IntelliJ, right-click `src/test/java` and choose _Run 'All Tests'_.
 
+**Docker must be running for the integration tests**, because they start a PostgreSQL container through Testcontainers. On Windows, Docker Desktop keeps running in the background after its window is closed, so check the tray icon if you are unsure. You do not need to start `user-db` or anything from `docker-compose.yml`; the tests create and remove their own container.
+
+The unit tests need neither Spring nor Docker. To run only them:
+
+```bash
+./mvnw test -Dtest='RefreshTokenServiceTest,JwtServiceTest,AuthServiceTest,ProfileServiceTest,JwtAuthFilterTest'
+```
+
 ### How the tests are set up
 
 - **Integration tests** (`src/test/java/.../integration`) start the full application against a real PostgreSQL 15 container through Testcontainers. Flyway runs the real migrations, so the schema is tested too.
 - All integration test classes extend `AbstractIntegrationTest`, so they share one container and one Spring context, and the whole suite starts the database only once. The base class also empties the tables before each test and provides helpers such as `register`, `registerAndLogin`, `postJson`, `profileOf` and `userCount`.
 - The test profile (`src/test/resources/application-test.yaml`) needs no `.env` file. An RSA key pair is generated when the tests start, so no private key is stored in the repository.
 - `GoogleTokenVerifier` is replaced with a mock, so the tests never call Google. This means the Google token verification itself (signature, issuer, audience) is not covered, only what the service does with a verified user.
-- **Unit tests** (for example `RefreshTokenServiceTest`) use Mockito and run without Spring or Docker, so they finish in milliseconds. `RefreshTokenServiceTest` sits in the same package as the service because it uses the package-private `hash` method.
+- **Unit tests** use Mockito (or plain objects) and run in milliseconds. `RefreshTokenServiceTest` sits in the same package as the service because it uses the package-private `hash` method.
 
 ### What the tests cover
 
@@ -358,7 +370,11 @@ In IntelliJ, right-click `src/test/java` and choose _Run 'All Tests'_.
 | `AuthRefreshLogoutTest`   | Rotation, reuse inside and after the grace period, expired and unknown tokens, only the hash is stored, logout is idempotent, and concurrent refresh with the same token (repeated 10 times: exactly one `200`, the session of the winner survives) |
 | `AuthGoogleTest`          | New user, existing Google ID, linking by email, `409` on conflict, invalid token, Google-only accounts cannot use a password                                                                                                                        |
 | `ProfileTest`             | `401` without a valid token, read profile, partial update, removing the picture, length and blank validation                                                                                                                                        |
-| `RefreshTokenServiceTest` | Unit tests: hashing (known SHA-256 value), token creation, rotation, reuse detection with and without grace period, expiry, revoke                                                                                                                  |
+| `RefreshTokenServiceTest` | Unit: hashing (known SHA-256 value), token creation, rotation, reuse detection with and without grace period, expiry, revoke                                                                                                                        |
+| `JwtServiceTest`          | Unit: claims and expiry, RS256 header, rejects expired, foreign-key, tampered, unsigned and malformed tokens                                                                                                                                        |
+| `AuthServiceTest`         | Unit: register (normalised email, trimmed name, encoded password, duplicate), every login branch, refresh and logout                                                                                                                                |
+| `ProfileServiceTest`      | Unit: trimming, omitted fields stay unchanged, empty or blank picture URL removes the picture, unknown user                                                                                                                                         |
+| `JwtAuthFilterTest`       | Unit: a valid token sets the user ID as principal; a missing, non-bearer or invalid token, or a non-numeric subject, leaves the request unauthenticated and the chain continues                                                                     |
 
 ### Continuous integration
 
@@ -366,7 +382,6 @@ A GitHub Actions workflow (`.github/workflows/user-service-tests.yml`) runs the 
 
 ## Known limitations and next steps
 
-- Add unit tests for `JwtService` and `Emails` (they run without Spring or Docker).
 - Delete expired and revoked refresh tokens periodically (scheduled job).
 - Move the CORS origin (`http://localhost:5173`) to environment variables before deploying.
 - Optional: publish the public key through a JWKS endpoint so other services can fetch it and support key rotation.
