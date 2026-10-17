@@ -12,11 +12,11 @@ export default function App() {
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <BrowserRouter>
         <Routes>
-          <Route path={"/"} element={<FrontPage />} />
+          <Route path={"/"} element={<DashPage />} />
+          <Route path={"/frontpage"} element={<FrontPage />} />
           <Route path={"/login"} element={<LoginPage />} />
           <Route path={"/profile"} element={<ProfilePage />} />
           <Route path={"/goal/new"} element={<GoalAdd />} />
-          <Route path={"/dashboard"} element={<DashPage />} />
           <Route path={"*"} element={<ErrorPage />} />
         </Routes>
       </BrowserRouter>

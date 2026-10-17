@@ -3,12 +3,12 @@ import { Link, NavLink } from "react-router";
 export default function Topbar() {
   return (
     <header className="topbar">
-      <Link to="/dashboard" className="topbar-logo">
+      <Link to="/frontpage" className="topbar-logo">
         <span className="logo-mark">✓</span>
         LifeOS
       </Link>
       <nav className="topbar-nav">
-        <NavLink to="/dashboard">I dag</NavLink>
+        <NavLink to="/">I dag</NavLink>
         <NavLink to="/goal/new">Mål</NavLink>
         <span>Innsikt</span>
         <span>Journal</span>
