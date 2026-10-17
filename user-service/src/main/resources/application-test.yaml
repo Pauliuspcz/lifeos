@@ -1,6 +1,8 @@
 spring:
   datasource:
     password: test
+  jpa:
+    show-sql: false
 app:
   google:
     client-id: test-client-id
