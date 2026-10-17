@@ -7,6 +7,7 @@ export default function FrontPage() {
         <a href="/login">Login-page</a>
         <a href="/profile">Profile-page</a>
         <a href="/goal/new">Goal-page</a>
+        <a href="/dashboard">Dashboard</a>
       </div>
     </>
   );

@@ -5,6 +5,7 @@ import FrontPage from "./pages/FrontPage";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import DashPage from "./pages/DashPage";
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
           <Route path={"/login"} element={<LoginPage />} />
           <Route path={"/profile"} element={<ProfilePage />} />
           <Route path={"/goal/new"} element={<GoalAdd />} />
+          <Route path={"/dashboard"} element={<DashPage />} />
           <Route path={"*"} element={<ErrorPage />} />
         </Routes>
       </BrowserRouter>

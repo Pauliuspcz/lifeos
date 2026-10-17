@@ -20,3 +20,10 @@ export type CreateGoalRequest = {
   timesPerPeriod: number;
   amountPerSession: number | null;
 };
+
+export const PERIOD_LABEL: Record<GoalPeriod, string> = {
+  DAILY: "dag",
+  WEEKLY: "uke",
+  MONTHLY: "måned",
+  YEARLY: "år",
+};
