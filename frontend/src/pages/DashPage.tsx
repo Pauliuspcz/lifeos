@@ -1,7 +1,4 @@
-import { useRef } from "react";
 import { useGoals } from "../hooks/useGoals";
-import { PERIOD_LABEL } from "../types/goal";
-import GoalForm from "../components/GoalForm";
 import Topbar from "../components/Topbar";
 import GoalsCard from "../components/GoalsCard";
 
@@ -21,7 +18,6 @@ export default function DashPage() {
   const todayIndex = (new Date().getDay() + 6) % 7;
   const { goals, loading, loadError, addGoal } = useGoals();
   const activeGoals = goals.filter((g) => g.status === "ACTIVE");
-  const dialogRef = useRef<HTMLDialogElement>(null);
 
   return (
     <>
