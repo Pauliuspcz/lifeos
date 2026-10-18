@@ -18,3 +18,371 @@ body {
   border-radius: 4px;
   white-space: nowrap;
 }
+
+/* Top bar */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 12px 24px;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+}
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: #111827;
+  text-decoration: none;
+}
+.logo-mark {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: #2563eb;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+.topbar-nav {
+  display: flex;
+  gap: 4px;
+}
+.topbar-nav a,
+.topbar-nav span {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #374151;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.topbar-nav a:hover {
+  background: #f3f4f6;
+}
+.topbar-nav a.active {
+  background: #eff6ff;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.topbar-profile {
+  margin-left: auto;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #374151;
+  text-decoration: none;
+}
+.topbar-profile:hover {
+  background: #f3f4f6;
+}
+
+@media (max-width: 600px) {
+  .topbar {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+  .topbar-nav {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+  }
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-areas:
+    "checkin goals"
+    "scale   streak";
+  gap: 24px;
+  align-items: start;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  color: #111827;
+}
+.checkin-box {
+  grid-area: checkin;
+}
+.scale-box {
+  grid-area: scale;
+}
+.goals-box {
+  grid-area: goals;
+}
+.Streak-box {
+  grid-area: streak;
+}
+
+.goals-box,
+.Streak-box,
+.checkin-box,
+.scale-box {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Shared inside the dashboard */
+.dashboard h2 {
+  font-size: 18px;
+  margin: 0;
+}
+.dashboard .muted {
+  color: #6b7280;
+  font-size: 13px;
+}
+.dashboard .error {
+  color: #dc2626;
+  font-size: 14px;
+}
+.box-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.dashboard .btn-outline {
+  padding: 6px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.dashboard .btn-dark {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #111827;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* New goal dialog */
+.goal-dialog {
+  border: none;
+  border-radius: 12px;
+  padding: 24px;
+  width: min(420px, calc(100vw - 32px));
+  box-sizing: border-box;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+.goal-dialog::backdrop {
+  background: rgba(17, 24, 39, 0.4);
+}
+.goal-dialog form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.goal-dialog input,
+.goal-dialog select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font: inherit;
+}
+.goal-dialog form button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Vaner i dag */
+.habit-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+.habit-row.done {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+.check {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border: 2px solid #d1d5db;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 14px;
+}
+.habit-row.done .check {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+.habit-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.habit-title {
+  font-weight: 600;
+}
+.streak-tag {
+  color: #ea580c;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Logg kjapt */
+.dashboard .label {
+  font-weight: 600;
+  font-size: 14px;
+  margin: 16px 0 8px;
+}
+.scale {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+.scale-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 4px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+.scale-btn:hover {
+  border-color: #2563eb;
+}
+.journal {
+  display: flex;
+  gap: 8px;
+}
+.journal input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font: inherit;
+}
+
+/* Mål */
+.goal-row {
+  padding: 12px 0;
+  border-top: 1px solid #f3f4f6;
+}
+.goal-top {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 14px;
+}
+.progress {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 8px 0 6px;
+}
+.progress-fill {
+  height: 100%;
+  background: #2563eb;
+}
+.goal-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  color: #6b7280;
+}
+.goal-foot .warn {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+/* Denne uka */
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.week-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.week-bar {
+  width: 100%;
+  height: 80px;
+  background: #f3f4f6;
+  border-radius: 6px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+.week-bar.today {
+  outline: 2px solid #2563eb;
+  outline-offset: 1px;
+}
+.week-fill {
+  width: 100%;
+  background: #2563eb;
+}
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #f3f4f6;
+}
+.stats div {
+  display: flex;
+  flex-direction: column;
+}
+.stats strong {
+  font-size: 20px;
+}
+
+@media (max-width: 800px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+    grid-template-areas: "checkin" "goals" "scale" "streak";
+  }
+}
