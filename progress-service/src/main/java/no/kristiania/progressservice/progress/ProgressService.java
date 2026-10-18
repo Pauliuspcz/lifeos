@@ -1,5 +1,6 @@
 package no.kristiania.progressservice.progress;
 import no.kristiania.progressservice.progress.dto.CreateProgressRequest;
+import no.kristiania.progressservice.progress.exceptions.ProgressNotFoundException;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -29,6 +30,11 @@ public class ProgressService {
             return progressRepo.findByUserIdOrderByDateDesc(TEMP_USER_ID);
         }
         return progressRepo.findByGoalIdAndUserIdOrderByDateDesc(goalId, TEMP_USER_ID);
+    }
+    public void delete(Long id) {
+        Progress progress = progressRepo.findByIdAndUserId(id, TEMP_USER_ID)
+                .orElseThrow(() -> new ProgressNotFoundException(id));
+        progressRepo.delete(progress);
     }
 
 }
