@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitConfig {
     public static final String EXCHANGE = "lifeos.progress";
     public static final String ROUTING_KEY_CREATED = "progress.created";
+    public static final String ROUTING_KEY_DELETED = "progress.deleted";
 
     @Bean
     public TopicExchange progressExchange() {

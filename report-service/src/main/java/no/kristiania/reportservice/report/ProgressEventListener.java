@@ -3,6 +3,7 @@ package no.kristiania.reportservice.report;
 import lombok.extern.slf4j.Slf4j;
 import no.kristiania.reportservice.config.RabbitConfig;
 import no.kristiania.reportservice.report.events.ProgressCreatedEvent;
+import no.kristiania.reportservice.report.events.ProgressDeletedEvent;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +14,7 @@ public class ProgressEventListener {
     public ProgressEventListener(ProgressRecordRepo progressRecordRepo) {
         this.progressRecordRepo = progressRecordRepo;
     }
-    @RabbitListener(queues = RabbitConfig.QUEUE)
+    @RabbitListener(queues = RabbitConfig.QUEUE_CREATED)
     public void onProgressCreated(ProgressCreatedEvent event) {
         if(progressRecordRepo.existsByEventId(event.eventId())){
             log.info("Skipping duplicate event {}", event.eventId());
@@ -28,5 +29,11 @@ public class ProgressEventListener {
         entry.setAmount(event.amount());
         progressRecordRepo.save(entry);
         log.info("Saved progress {} for goal {}", event.progressId(), event.goalId());
+    }
+
+    @RabbitListener(queues = RabbitConfig.QUEUE_DELETED)
+    public void onProgressDeleted(ProgressDeletedEvent event) {
+        progressRecordRepo.deleteByProgressId(event.progressId());
+        log.info("Deleted progress {} for goal {}", event.progressId(), event.goalId());
     }
 }

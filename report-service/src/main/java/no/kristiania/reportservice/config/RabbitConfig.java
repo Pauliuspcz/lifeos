@@ -9,8 +9,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitConfig {
     public static final String EXCHANGE = "lifeos.progress";
-    public static final String QUEUE = "report.progress";
-    public static final String ROUTING_PATTERN = "progress.#";
+    public static final String QUEUE_CREATED = "report.progress.created";
+    public static final String QUEUE_DELETED = "report.progress.deleted";
+    public static final String ROUTING_KEY_CREATED = "progress.created";
+    public static final String ROUTING_KEY_DELETED = "progress.deleted";
 
     @Bean
     public TopicExchange progressExchange() {
@@ -18,13 +20,23 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Queue reportQueue() {
-        return QueueBuilder.durable(QUEUE).build();
+    public Queue createdQueue() {
+        return QueueBuilder.durable(QUEUE_CREATED).build();
     }
 
     @Bean
-    public Binding reportBinding(Queue reportQueue, TopicExchange progressExchange) {
-        return BindingBuilder.bind(reportQueue).to(progressExchange).with(ROUTING_PATTERN);
+    public Queue deletedQueue() {
+        return QueueBuilder.durable(QUEUE_DELETED).build();
+    }
+
+    @Bean
+    public Binding createdBinding(){
+        return BindingBuilder.bind(createdQueue()).to(progressExchange()).with(ROUTING_KEY_CREATED);
+    }
+
+    @Bean
+    public Binding deletedBinding(){
+        return BindingBuilder.bind(deletedQueue()).to(progressExchange()).with(ROUTING_KEY_DELETED);
     }
 
     @Bean

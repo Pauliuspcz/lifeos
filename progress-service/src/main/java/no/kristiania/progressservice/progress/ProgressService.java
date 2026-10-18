@@ -3,12 +3,12 @@ import lombok.extern.slf4j.Slf4j;
 import no.kristiania.progressservice.config.RabbitConfig;
 import no.kristiania.progressservice.progress.dto.CreateProgressRequest;
 import no.kristiania.progressservice.progress.events.ProgressCreatedEvent;
+import no.kristiania.progressservice.progress.events.ProgressDeletedEvent;
 import no.kristiania.progressservice.progress.exceptions.ProgressNotFoundException;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import java.util.List;
-
 
 @Slf4j
 @Service
@@ -48,6 +48,12 @@ public class ProgressService {
         Progress progress = progressRepo.findByIdAndUserId(id, TEMP_USER_ID)
                 .orElseThrow(() -> new ProgressNotFoundException(id));
         progressRepo.delete(progress);
+        try{
+            rabbitTemplate.convertAndSend(RabbitConfig.EXCHANGE,
+                    RabbitConfig.ROUTING_KEY_DELETED, ProgressDeletedEvent.from(progress));
+        }catch (AmqpException e) {
+            log.error("Could not publish ProgressDeletedEvent for progress {}", progress.getId(), e);
+        }
     }
 
 }
