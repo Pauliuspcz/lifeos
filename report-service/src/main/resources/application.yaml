@@ -19,4 +19,11 @@ spring:
     port: 5672
     username: ${RABBITMQ_USER:lifeos}
     password: ${RABBITMQ_PASSWORD:lifeos_dev}
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-retries: 3
+        default-requeue-rejected: false
+
 
