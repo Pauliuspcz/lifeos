@@ -3,18 +3,18 @@ import Topbar from "../components/Topbar";
 import GoalsCard from "../components/GoalsCard";
 
 const MOODS = [
-  { n: 1, word: " Tung" },
-  { n: 2, word: " Lav" },
-  { n: 3, word: " Ok" },
-  { n: 4, word: " Bra" },
-  { n: 5, word: " Topp" },
+  { n: 1, word: "Tung" },
+  { n: 2, word: "Lav" },
+  { n: 3, word: "Ok" },
+  { n: 4, word: "Bra" },
+  { n: 5, word: "Topp" },
 ];
 
 const SLEEP = ["≤5", "6", "7", "8", "9+"];
 
 const DAYS = ["Ma", "Ti", "On", "To", "Fr", "Lø", "Sø"];
 
-export default function DashPage() {
+export default function DashboardPage() {
   const todayIndex = (new Date().getDay() + 6) % 7;
   const { goals, loading, loadError, addGoal, archiveGoal } = useGoals();
   const activeGoals = goals.filter((g) => g.status === "ACTIVE");
@@ -30,7 +30,7 @@ export default function DashPage() {
           onCreate={addGoal}
           onArchive={archiveGoal}
         />
-        <div className="Streak-box">
+        <div className="streak-box">
           <div className="box-header">
             <h2>Denne uka</h2>
           </div>

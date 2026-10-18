@@ -18,6 +18,15 @@ export default function GoalsCard({
   onArchive,
 }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+
+  async function handleArchive(goalId: number) {
+    try {
+      await onArchive(goalId);
+    } catch (err) {
+      alert((err as Error).message);
+    }
+  }
+
   return (
     <>
       <div className="goals-box">
@@ -45,13 +54,11 @@ export default function GoalsCard({
               </span>
               <button
                 type="button"
-                className="goal-x"
+                className="goal-archive"
                 aria-label={"Arkiver " + g.title}
-                onClick={() =>
-                  onArchive(g.goalId).catch((e) => alert((e as Error).message))
-                }
+                onClick={() => handleArchive(g.goalId)}
               >
-                x
+                ×
               </button>
             </div>
             {g.description && (

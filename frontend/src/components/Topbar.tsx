@@ -9,7 +9,7 @@ export default function Topbar() {
       </Link>
       <nav className="topbar-nav">
         <NavLink to="/">I dag</NavLink>
-        <NavLink to="/goal/new">Mål</NavLink>
+        <NavLink to="/goals">Mål</NavLink>
         <span>Innsikt</span>
         <span>Journal</span>
       </nav>
