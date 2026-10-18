@@ -7,6 +7,7 @@ type Props = {
   loading: boolean;
   loadError: string;
   onCreate: (req: CreateGoalRequest) => Promise<void>;
+  onArchive: (goalId: number) => Promise<void>;
 };
 
 export default function GoalsCard({
@@ -14,6 +15,7 @@ export default function GoalsCard({
   loading,
   loadError,
   onCreate,
+  onArchive,
 }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   return (
@@ -41,6 +43,16 @@ export default function GoalsCard({
               <span className="muted">
                 {g.timesPerPeriod}× per {PERIOD_LABEL[g.period]}
               </span>
+              <button
+                type="button"
+                className="goal-x"
+                aria-label={"Arkiver " + g.title}
+                onClick={() =>
+                  onArchive(g.goalId).catch((e) => alert((e as Error).message))
+                }
+              >
+                x
+              </button>
             </div>
             {g.description && (
               <div className="goal-foot">

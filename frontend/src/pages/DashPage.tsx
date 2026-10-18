@@ -16,7 +16,7 @@ const DAYS = ["Ma", "Ti", "On", "To", "Fr", "Lø", "Sø"];
 
 export default function DashPage() {
   const todayIndex = (new Date().getDay() + 6) % 7;
-  const { goals, loading, loadError, addGoal } = useGoals();
+  const { goals, loading, loadError, addGoal, archiveGoal } = useGoals();
   const activeGoals = goals.filter((g) => g.status === "ACTIVE");
 
   return (
@@ -28,6 +28,7 @@ export default function DashPage() {
           loading={loading}
           loadError={loadError}
           onCreate={addGoal}
+          onArchive={archiveGoal}
         />
         <div className="Streak-box">
           <div className="box-header">

@@ -18,6 +18,15 @@ export function useGoals() {
       .finally(() => setLoading(false));
   }, []);
 
+  async function archiveGoal(goalId: number) {
+    const res = await fetch(`/api/goal/${goalId}/archive`, { method: "PATCH" });
+    if (!res.ok) throw new Error("Could not archive goal (" + res.status + ")");
+    const updated: Goal = await res.json();
+    setGoals((prev) =>
+      prev.map((g) => (g.goalId === updated.goalId ? updated : g)),
+    );
+  }
+
   async function addGoal(req: CreateGoalRequest) {
     const res = await fetch("/api/goal", {
       method: "POST",
@@ -28,5 +37,5 @@ export function useGoals() {
     const created: Goal = await res.json();
     setGoals((prev) => [...prev, created]);
   }
-  return { goals, loading, loadError, addGoal };
+  return { goals, loading, loadError, addGoal, archiveGoal };
 }
