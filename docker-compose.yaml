@@ -52,6 +52,17 @@ services:
     volumes:
       - progress-db-data:/var/lib/postgresql/data
 
+  report-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${REPORT_DB_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${REPORT_DB_PORT}:5432"
+    volumes:
+      - "report-db-data:/var/lib/postgresql/data"
+
   rabbitmq:
     image: rabbitmq:4.1-management
     environment:
@@ -70,3 +81,4 @@ volumes:
   user-db-data:
   goal-db-data:
   progress-db-data:
+  report-db-data:

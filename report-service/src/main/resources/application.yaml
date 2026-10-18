@@ -1,0 +1,22 @@
+server:
+  port: 8083
+spring:
+  application:
+    name: report-service
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: password
+    url: jdbc:postgresql://localhost:5435/report_db
+  jpa:
+    generate-ddl: false
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: ${RABBITMQ_USER:lifeos}
+    password: ${RABBITMQ_PASSWORD:lifeos_dev}
+
