@@ -14,3 +14,8 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: ${RABBITMQ_USER:lifeos}
+    password: ${RABBITMQ_PASSWORD:lifeos_dev}
