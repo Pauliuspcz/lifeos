@@ -2,7 +2,6 @@ package no.kristiania.goalservice.integration;
 
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -51,8 +50,9 @@ class SecurityTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void request_withValidToken_isNotRejectedAsUnauthenticated() throws Exception {
+    void request_withValidToken_isAuthenticated() throws Exception {
         mockMvc.perform(get("/goals").header(AUTHORIZATION, bearer(tokenFor(1L))))
-                .andExpect(result -> assertThat(result.getResponse().getStatus()).isNotEqualTo(401));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
     }
 }
