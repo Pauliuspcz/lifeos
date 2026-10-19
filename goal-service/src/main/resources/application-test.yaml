@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    password: test
+  jpa:
+    show-sql: false

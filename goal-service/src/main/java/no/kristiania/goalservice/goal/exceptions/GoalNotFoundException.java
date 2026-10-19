@@ -1,10 +1,10 @@
 package no.kristiania.goalservice.goal.exceptions;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.NOT_FOUND)
-public class GoalNotFoundException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class GoalNotFoundException extends ApiException {
+
     public GoalNotFoundException(Long id) {
-        super("goal with id " + id + " not found");
+        super(HttpStatus.NOT_FOUND, "Goal with id " + id + " not found");
     }
 }
