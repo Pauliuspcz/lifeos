@@ -19,7 +19,7 @@ abstract class AbstractGoalApiTest extends AbstractIntegrationTest {
     }
 
     protected ResultActions createGoal(long userId, String body) throws Exception {
-        return mockMvc.perform(post("/goals")
+        return mockMvc.perform(post("/api/goal")
                 .header(AUTHORIZATION, authHeader(userId))
                 .contentType(APPLICATION_JSON)
                 .content(body));
@@ -31,6 +31,6 @@ abstract class AbstractGoalApiTest extends AbstractIntegrationTest {
     }
 
     protected ResultActions getGoal(long userId, long goalId) throws Exception {
-        return mockMvc.perform(get("/goals/{id}", goalId).header(AUTHORIZATION, authHeader(userId)));
+        return mockMvc.perform(get("/api/goal/{id}", goalId).header(AUTHORIZATION, authHeader(userId)));
     }
 }

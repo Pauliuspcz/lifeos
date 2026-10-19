@@ -22,7 +22,7 @@ class GoalOwnershipTest extends AbstractGoalApiTest {
     void user_cannotUpdateAnotherUsersGoal() throws Exception {
         long id = createGoalId(ALICE);
 
-        mockMvc.perform(put("/goals/{id}", id)
+        mockMvc.perform(put("/api/goal/{id}", id)
                         .header(AUTHORIZATION, authHeader(BOB))
                         .contentType(APPLICATION_JSON)
                         .content("{\"title\":\"Hacked\",\"period\":\"DAILY\",\"timesPerPeriod\":1}"))
@@ -35,7 +35,7 @@ class GoalOwnershipTest extends AbstractGoalApiTest {
     void user_cannotArchiveAnotherUsersGoal() throws Exception {
         long id = createGoalId(ALICE);
 
-        mockMvc.perform(patch("/goals/{id}/archive", id).header(AUTHORIZATION, authHeader(BOB)))
+        mockMvc.perform(patch("/api/goal/{id}/archive", id).header(AUTHORIZATION, authHeader(BOB)))
                 .andExpect(status().isNotFound());
 
         getGoal(ALICE, id).andExpect(jsonPath("$.status").value("ACTIVE"));
@@ -45,7 +45,7 @@ class GoalOwnershipTest extends AbstractGoalApiTest {
     void user_cannotDeleteAnotherUsersGoal() throws Exception {
         long id = createGoalId(ALICE);
 
-        mockMvc.perform(delete("/goals/{id}", id).header(AUTHORIZATION, authHeader(BOB)))
+        mockMvc.perform(delete("/api/goal/{id}", id).header(AUTHORIZATION, authHeader(BOB)))
                 .andExpect(status().isNotFound());
 
         getGoal(ALICE, id).andExpect(status().isOk());
@@ -57,9 +57,9 @@ class GoalOwnershipTest extends AbstractGoalApiTest {
         createGoalId(ALICE);
         createGoalId(BOB);
 
-        mockMvc.perform(get("/goals").header(AUTHORIZATION, authHeader(ALICE)))
+        mockMvc.perform(get("/api/goal").header(AUTHORIZATION, authHeader(ALICE)))
                 .andExpect(jsonPath("$.length()").value(2));
-        mockMvc.perform(get("/goals").header(AUTHORIZATION, authHeader(BOB)))
+        mockMvc.perform(get("/api/goal").header(AUTHORIZATION, authHeader(BOB)))
                 .andExpect(jsonPath("$.length()").value(1));
     }
 

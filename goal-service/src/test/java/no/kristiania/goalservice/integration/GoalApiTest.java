@@ -59,19 +59,19 @@ class GoalApiTest extends AbstractGoalApiTest {
     void list_returnsOwnGoals_andFiltersOnStatus() throws Exception {
         long archivedId = createGoalId(USER);
         createGoalId(USER);
-        mockMvc.perform(patch("/goals/{id}/archive", archivedId)
+        mockMvc.perform(patch("/api/goal/{id}/archive", archivedId)
                 .header(AUTHORIZATION, authHeader(USER))).andExpect(status().isOk());
 
-        mockMvc.perform(get("/goals").header(AUTHORIZATION, authHeader(USER)))
+        mockMvc.perform(get("/api/goal").header(AUTHORIZATION, authHeader(USER)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2));
 
-        mockMvc.perform(get("/goals").param("status", "ACTIVE")
+        mockMvc.perform(get("/api/goal").param("status", "ACTIVE")
                         .header(AUTHORIZATION, authHeader(USER)))
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].status").value("ACTIVE"));
 
-        mockMvc.perform(get("/goals").param("status", "ARCHIVED")
+        mockMvc.perform(get("/api/goal").param("status", "ARCHIVED")
                         .header(AUTHORIZATION, authHeader(USER)))
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(archivedId));
@@ -79,7 +79,7 @@ class GoalApiTest extends AbstractGoalApiTest {
 
     @Test
     void list_withInvalidStatus_returns400() throws Exception {
-        mockMvc.perform(get("/goals").param("status", "NOPE")
+        mockMvc.perform(get("/api/goal").param("status", "NOPE")
                         .header(AUTHORIZATION, authHeader(USER)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Invalid value for parameter 'status'"));
@@ -105,7 +105,7 @@ class GoalApiTest extends AbstractGoalApiTest {
     void update_replacesFields_andBumpsVersion() throws Exception {
         long id = createGoalId(USER);
 
-        mockMvc.perform(put("/goals/{id}", id)
+        mockMvc.perform(put("/api/goal/{id}", id)
                         .header(AUTHORIZATION, authHeader(USER))
                         .contentType(APPLICATION_JSON)
                         .content("""
@@ -121,7 +121,7 @@ class GoalApiTest extends AbstractGoalApiTest {
     void update_withInvalidBody_returns400() throws Exception {
         long id = createGoalId(USER);
 
-        mockMvc.perform(put("/goals/{id}", id)
+        mockMvc.perform(put("/api/goal/{id}", id)
                         .header(AUTHORIZATION, authHeader(USER))
                         .contentType(APPLICATION_JSON)
                         .content("{\"title\":\"\",\"period\":\"DAILY\",\"timesPerPeriod\":1}"))
@@ -134,7 +134,7 @@ class GoalApiTest extends AbstractGoalApiTest {
         long id = createGoalId(USER);
 
         for (int i = 0; i < 2; i++) {
-            mockMvc.perform(patch("/goals/{id}/archive", id).header(AUTHORIZATION, authHeader(USER)))
+            mockMvc.perform(patch("/api/goal/{id}/archive", id).header(AUTHORIZATION, authHeader(USER)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.status").value("ARCHIVED"))
                     .andExpect(jsonPath("$.archivedAt").isNotEmpty());
@@ -145,7 +145,7 @@ class GoalApiTest extends AbstractGoalApiTest {
     void delete_returns204_thenGoalIsGone() throws Exception {
         long id = createGoalId(USER);
 
-        mockMvc.perform(delete("/goals/{id}", id).header(AUTHORIZATION, authHeader(USER)))
+        mockMvc.perform(delete("/api/goal/{id}", id).header(AUTHORIZATION, authHeader(USER)))
                 .andExpect(status().isNoContent());
         getGoal(USER, id).andExpect(status().isNotFound());
     }

@@ -15,7 +15,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/goals")
+@RequestMapping("/api/goal")
 public class GoalController {
 
     private final GoalService goalService;
