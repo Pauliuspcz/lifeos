@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    password: test
+  jpa:
+    show-sql: false
+  app:
+    cors:
+      allowed-origins: http://localhost:5173

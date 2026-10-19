@@ -15,17 +15,18 @@ Authentication and user-profile service for **LifeOS**, a habit and goal tracker
 
 ### Design decisions
 
-| Decision                                                    | Why                                                                                                                                                          |
-| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| JWT signed with RS256 (key pair) instead of a shared secret | Only `user-service` holds the private key. Other services get the public key and can verify tokens but cannot forge them.                                    |
-| Opaque refresh tokens, stored only as SHA-256 hashes        | A database leak does not expose usable refresh tokens.                                                                                                       |
-| Refresh token rotation with reuse detection                 | Each refresh token works once. If a token that was rotated a while ago is presented again, all of that user's tokens are revoked.                            |
-| Short grace period for reuse (10 seconds)                   | Two parallel refresh calls from a well-meaning client must not destroy every session. A token rotated just now is rejected, but the other tokens stay valid. |
-| Pessimistic lock when consuming a refresh token             | Two simultaneous refresh calls with the same token cannot both succeed.                                                                                      |
-| Refresh runs in one transaction                             | The old token is consumed and the new pair is issued together. If issuing fails, nothing is committed and the client can retry with the old token.           |
-| Google login via ID-token verification                      | The backend verifies the token against Google's public keys. No client secret is needed.                                                                     |
-| Stateless sessions, CSRF disabled                           | Authentication uses the `Authorization: Bearer` header only, no cookies.                                                                                     |
-| Flyway migrations + `ddl-auto: validate`                    | The schema is versioned in SQL; Hibernate only checks that entities match it.                                                                                |
+| Decision | Why |
+| --- | --- |
+| JWT signed with RS256 (key pair) instead of a shared secret | Only `user-service` holds the private key. Other services get the public key and can verify tokens but cannot forge them. |
+| Opaque refresh tokens, stored only as SHA-256 hashes | A database leak does not expose usable refresh tokens. |
+| Refresh token rotation with reuse detection | Each refresh token works once. If a token that was rotated a while ago is presented again, all of that user's tokens are revoked. |
+| Short grace period for reuse (10 seconds) | Two parallel refresh calls from a well-meaning client must not destroy every session. A token rotated just now is rejected, but the other tokens stay valid. |
+| Pessimistic lock when consuming a refresh token | Two simultaneous refresh calls with the same token cannot both succeed. |
+| Refresh runs in one transaction | The old token is consumed and the new pair is issued together. If issuing fails, nothing is committed and the client can retry with the old token. |
+| Google login via ID-token verification | The backend verifies the token against Google's public keys. No client secret is needed. |
+| Allowed CORS origins come from configuration | No origin is hard-coded. The CORS filter runs before authentication, so preflight requests need no token and even a `401` carries the CORS headers. |
+| Stateless sessions, CSRF disabled | Authentication uses the `Authorization: Bearer` header only, no cookies. |
+| Flyway migrations + `ddl-auto: validate` | The schema is versioned in SQL; Hibernate only checks that entities match it. |
 
 ## Project structure
 
@@ -37,7 +38,7 @@ src/main/java/no/kristiania/lifeos
 │   ├── service      AuthService, TokenIssuer
 │   ├── google       GoogleAuthService, GoogleTokenVerifier, GoogleUser
 │   ├── token        JwtService, RefreshToken, RefreshTokenRepository, RefreshTokenService
-│   ├── security     SecurityConfig, JwtAuthFilter
+│   ├── security     SecurityConfig (JWT filter and CORS), JwtAuthFilter
 │   └── dto          request/response records
 ├── profile
 │   ├── controller   ProfileController
@@ -59,7 +60,7 @@ src/test/java/no/kristiania/lifeos
 └── integration
     ├── AbstractIntegrationTest, TestcontainersConfiguration
     ├── AuthRegisterTest, AuthLoginTest, AuthRefreshLogoutTest, AuthGoogleTest
-    └── ProfileTest
+    └── ProfileTest, CorsTest
 src/test/resources
 └── application-test.yaml
 ```
@@ -68,15 +69,15 @@ src/test/resources
 
 Base URL when running locally: `http://localhost:8080`
 
-| Method | Path             | Auth                       | Purpose                                       | Success                    |
-| ------ | ---------------- | -------------------------- | --------------------------------------------- | -------------------------- |
-| POST   | `/auth/register` | No                         | Create an account with email and password     | `201` + `RegisterResponse` |
-| POST   | `/auth/login`    | No                         | Log in with email and password                | `200` + `AuthResponse`     |
-| POST   | `/auth/google`   | No                         | Log in or sign up with a Google ID token      | `200` + `AuthResponse`     |
-| POST   | `/auth/refresh`  | No (refresh token in body) | Exchange a refresh token for a new token pair | `200` + `AuthResponse`     |
-| POST   | `/auth/logout`   | No (refresh token in body) | Revoke the given refresh token                | `204`                      |
-| GET    | `/profile/me`    | Bearer token               | Get the logged-in user's profile              | `200` + `ProfileResponse`  |
-| PATCH  | `/profile/me`    | Bearer token               | Update name and/or profile picture            | `200` + `ProfileResponse`  |
+| Method | Path | Auth | Purpose | Success |
+| --- | --- | --- | --- | --- |
+| POST | `/auth/register` | No | Create an account with email and password | `201` + `RegisterResponse` |
+| POST | `/auth/login` | No | Log in with email and password | `200` + `AuthResponse` |
+| POST | `/auth/google` | No | Log in or sign up with a Google ID token | `200` + `AuthResponse` |
+| POST | `/auth/refresh` | No (refresh token in body) | Exchange a refresh token for a new token pair | `200` + `AuthResponse` |
+| POST | `/auth/logout` | No (refresh token in body) | Revoke the given refresh token | `204` |
+| GET | `/profile/me` | Bearer token | Get the logged-in user's profile | `200` + `ProfileResponse` |
+| PATCH | `/profile/me` | Bearer token | Update name and/or profile picture | `200` + `ProfileResponse` |
 
 All `/auth/**` endpoints are public. Every other endpoint requires `Authorization: Bearer <accessToken>`; a missing or invalid token gives `401`.
 
@@ -214,12 +215,12 @@ Validation errors (`400`) also include a `fieldErrors` object with one entry per
 }
 ```
 
-| Status | When                                                                                                                                |
-| ------ | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `400`  | Validation failed (`fieldErrors` lists each field and its problem) or the request body is missing or malformed                      |
-| `401`  | Wrong credentials, invalid or expired refresh token, invalid Google token, or a missing or invalid access token on a protected path |
-| `404`  | The user no longer exists                                                                                                           |
-| `409`  | Email already registered, Google account already linked to another user, or a duplicate value in the database                       |
+| Status | When |
+| --- | --- |
+| `400` | Validation failed (`fieldErrors` lists each field and its problem) or the request body is missing or malformed |
+| `401` | Wrong credentials, invalid or expired refresh token, invalid Google token, or a missing or invalid access token on a protected path |
+| `404` | The user no longer exists |
+| `409` | Email already registered, Google account already linked to another user, or a duplicate value in the database |
 
 Each case has its own small exception in the `exception` package (for example `InvalidCredentialsException` and `EmailAlreadyRegisteredException`). All of them extend `ApiException`, which carries the HTTP status, so a new error case only needs a new class and no extra handler code.
 
@@ -227,13 +228,14 @@ A refresh token can only be used once. Presenting an already used token returns 
 
 ### For other services
 
-A service that needs to authenticate users only needs the **public key**. It verifies the RS256 signature and expiry of the access token and reads the user ID from `sub`. It should never receive the private key.
+A service that needs to authenticate users only needs the **public key**. It verifies the RS256 signature and expiry of the access token and reads the user ID from `sub`. It should never receive the private key. `goal-service` works this way.
 
 ### Frontend notes
 
 - Send only one refresh request at a time. The server survives accidental parallel refreshes (one succeeds, the others get `401`, and the session stays valid), but a client that clears its tokens on that `401` would lose the new tokens it just received.
 - Replace both tokens after each refresh, and call `/auth/logout` before clearing local storage on logout.
 - Only clear the stored tokens on a `401` from `/auth/refresh`, not on network or server errors.
+- The frontend origin must be listed in `CORS_ALLOWED_ORIGINS` (default `http://localhost:5173`), otherwise the browser blocks the calls.
 
 ## Database
 
@@ -241,39 +243,40 @@ Managed by Flyway (`src/main/resources/db/migration`). Never edit a migration th
 
 **users**
 
-| Column              | Type            | Notes                                                       |
-| ------------------- | --------------- | ----------------------------------------------------------- |
-| id                  | BIGINT identity | primary key                                                 |
-| email               | VARCHAR(255)    | required, unique (`uk_users_email`)                         |
-| password_hash       | VARCHAR(60)     | BCrypt hash; null for Google-only users                     |
-| google_id           | VARCHAR(255)    | unique (`uk_users_google_id`); null for password-only users |
-| name                | VARCHAR(255)    | required                                                    |
-| profile_picture_url | VARCHAR(500)    | optional                                                    |
-| created_at          | TIMESTAMP       | set on insert                                               |
+| Column | Type | Notes |
+| --- | --- | --- |
+| id | BIGINT identity | primary key |
+| email | VARCHAR(255) | required, unique (`uk_users_email`) |
+| password_hash | VARCHAR(60) | BCrypt hash; null for Google-only users |
+| google_id | VARCHAR(255) | unique (`uk_users_google_id`); null for password-only users |
+| name | VARCHAR(255) | required |
+| profile_picture_url | VARCHAR(500) | optional |
+| created_at | TIMESTAMP | set on insert |
 
 **refresh_tokens**
 
-| Column     | Type            | Notes                                                                                  |
-| ---------- | --------------- | -------------------------------------------------------------------------------------- |
-| id         | BIGINT identity | primary key                                                                            |
-| user_id    | BIGINT          | references `users(id)`, cascades on delete, indexed                                    |
-| token_hash | VARCHAR(64)     | SHA-256 hex, unique                                                                    |
-| expires_at | TIMESTAMP       | required                                                                               |
-| revoked    | BOOLEAN         | default false                                                                          |
-| revoked_at | TIMESTAMP       | set when the token is rotated (starts the grace period); null otherwise and for logout |
-| created_at | TIMESTAMP       | required                                                                               |
+| Column | Type | Notes |
+| --- | --- | --- |
+| id | BIGINT identity | primary key |
+| user_id | BIGINT | references `users(id)`, cascades on delete, indexed |
+| token_hash | VARCHAR(64) | SHA-256 hex, unique |
+| expires_at | TIMESTAMP | required |
+| revoked | BOOLEAN | default false |
+| revoked_at | TIMESTAMP | set when the token is rotated (starts the grace period); null otherwise and for logout |
+| created_at | TIMESTAMP | required |
 
 ## Configuration
 
-| Property                                      | Environment variable                                                                | Description                                                                                                |
-| --------------------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `app.jwt.private-key`                         | `JWT_PRIVATE_KEY`                                                                   | Base64 of the private PEM file (single line). Used for signing.                                            |
-| `app.jwt.public-key`                          | `JWT_PUBLIC_KEY`                                                                    | Base64 of the public PEM file (single line). Used for verification.                                        |
-| `app.jwt.access-expiration-minutes`           |                                                                                     | Default 60                                                                                                 |
-| `app.jwt.refresh-expiration-days`             |                                                                                     | Default 30                                                                                                 |
-| `app.jwt.refresh-reuse-grace-seconds`         |                                                                                     | Default 10. How long after a rotation a reused token is rejected without revoking the user's other tokens. |
-| `app.google.client-id`                        |                                                                                     | Google OAuth client ID. It is public, not a secret. The client secret is not used.                         |
-| `spring.datasource.url / username / password` | `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD` | Database connection. Docker Compose overrides the local defaults.                                          |
+| Property | Environment variable | Description |
+| --- | --- | --- |
+| `app.jwt.private-key` | `JWT_PRIVATE_KEY` | Base64 of the private PEM file (single line). Used for signing. |
+| `app.jwt.public-key` | `JWT_PUBLIC_KEY` | Base64 of the public PEM file (single line). Used for verification. |
+| `app.jwt.access-expiration-minutes` | | Default 60 |
+| `app.jwt.refresh-expiration-days` | | Default 30 |
+| `app.jwt.refresh-reuse-grace-seconds` | | Default 10. How long after a rotation a reused token is rejected without revoking the user's other tokens. |
+| `app.google.client-id` | `GOOGLE_CLIENT_ID` | Google OAuth client ID. It is public, not a secret. The client secret is not used. |
+| `app.cors.allowed-origins` | `CORS_ALLOWED_ORIGINS` | Comma-separated list of browser origins that may call the API. Default `http://localhost:5173`. |
+| `spring.datasource.url / username / password` | `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD` | Database connection. Docker Compose overrides the local defaults. |
 
 ### Generating the key pair
 
@@ -290,18 +293,19 @@ Use separate key pairs for development and production. If the private key is rep
 
 ### The .env file
 
-`.env` lives next to `docker-compose.yml` in the repository root and is listed in `.gitignore`, so it is never committed. Copy `.env.example` to `.env` and fill in the values.
+`.env` lives next to `docker-compose.yaml` in the repository root and is listed in `.gitignore`, so it is never committed. Copy `.env.example` to `.env` and fill in the values. The file is shared by all services.
 
-| Variable                        | Used by                   | Description                                                                                                                                                     |
-| ------------------------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `POSTGRES_USER`                 | Compose (all databases)   | Database username                                                                                                                                               |
-| `POSTGRES_PASSWORD`             | Compose (all databases)   | Database password                                                                                                                                               |
-| `USER_DB_NAME`                  | `user-db`, `user-service` | Name of the user database                                                                                                                                       |
-| `USER_DB_PORT`                  | `user-db`                 | Port on your machine that maps to the database (host side only)                                                                                                 |
-| `GOAL_DB_NAME` / `GOAL_DB_PORT` | `goal-db`                 | Same for the goal service. The port must differ from `USER_DB_PORT`                                                                                             |
-| `JWT_PRIVATE_KEY`               | `user-service`            | Base64 of the private PEM, one line, no quotes                                                                                                                  |
-| `JWT_PUBLIC_KEY`                | `user-service`            | Base64 of the public PEM, one line, no quotes                                                                                                                   |
-| `GOOGLE_CLIENT_ID`              | `user-service`            | Google OAuth client ID. It is public, not a secret. The backend uses it to check that a Google ID token was issued for this app. The client secret is not used. |
+| Variable | Used by | Description |
+| --- | --- | --- |
+| `POSTGRES_USER` | Compose (all databases) | Database username |
+| `POSTGRES_PASSWORD` | Compose (all databases) | Database password |
+| `USER_DB_NAME` | `user-db`, `user-service` | Name of the user database |
+| `USER_DB_PORT` | `user-db` | Port on your machine that maps to the database (host side only) |
+| `GOAL_DB_NAME` / `GOAL_DB_PORT` | `goal-db`, `goal-service` | Same for the goal service. The port must differ from `USER_DB_PORT` |
+| `JWT_PRIVATE_KEY` | `user-service` | Base64 of the private PEM, one line, no quotes |
+| `JWT_PUBLIC_KEY` | `user-service`, `goal-service` | Base64 of the public PEM, one line, no quotes |
+| `GOOGLE_CLIENT_ID` | `user-service` | Google OAuth client ID. It is public, not a secret. The backend uses it to check that a Google ID token was issued for this app. The client secret is not used. |
+| `CORS_ALLOWED_ORIGINS` | `user-service`, `goal-service` | Comma-separated browser origins allowed to call the APIs. Optional, defaults to `http://localhost:5173`. |
 
 Example (`.env.example`, replace every value with your own):
 
@@ -315,6 +319,7 @@ GOAL_DB_PORT=5433
 JWT_PRIVATE_KEY=<base64 of private.pem, one line>
 JWT_PUBLIC_KEY=<base64 of public.pem, one line>
 GOOGLE_CLIENT_ID=<your-client-id>.apps.googleusercontent.com
+CORS_ALLOWED_ORIGINS=http://localhost:5173
 ```
 
 ## Running the service
@@ -345,7 +350,7 @@ Run all tests from the `user-service` folder:
 
 In IntelliJ, right-click `src/test/java` and choose _Run 'All Tests'_.
 
-**Docker must be running for the integration tests**, because they start a PostgreSQL container through Testcontainers. On Windows, Docker Desktop keeps running in the background after its window is closed, so check the tray icon if you are unsure. You do not need to start `user-db` or anything from `docker-compose.yml`; the tests create and remove their own container.
+**Docker must be running for the integration tests**, because they start a PostgreSQL container through Testcontainers. On Windows, Docker Desktop keeps running in the background after its window is closed, so check the tray icon if you are unsure. You do not need to start `user-db` or anything from `docker-compose.yaml`; the tests create and remove their own container.
 
 The unit tests need neither Spring nor Docker. To run only them:
 
@@ -357,24 +362,25 @@ The unit tests need neither Spring nor Docker. To run only them:
 
 - **Integration tests** (`src/test/java/.../integration`) start the full application against a real PostgreSQL 15 container through Testcontainers. Flyway runs the real migrations, so the schema is tested too.
 - All integration test classes extend `AbstractIntegrationTest`, so they share one container and one Spring context, and the whole suite starts the database only once. The base class also empties the tables before each test and provides helpers such as `register`, `registerAndLogin`, `postJson`, `profileOf` and `userCount`.
-- The test profile (`src/test/resources/application-test.yaml`) needs no `.env` file. An RSA key pair is generated when the tests start, so no private key is stored in the repository.
+- The test profile (`src/test/resources/application-test.yaml`) needs no `.env` file. An RSA key pair is generated when the tests start, so no private key is stored in the repository. The allowed CORS origin is fixed to `http://localhost:5173` there.
 - `GoogleTokenVerifier` is replaced with a mock, so the tests never call Google. This means the Google token verification itself (signature, issuer, audience) is not covered, only what the service does with a verified user.
 - **Unit tests** use Mockito (or plain objects) and run in milliseconds. `RefreshTokenServiceTest` sits in the same package as the service because it uses the package-private `hash` method.
 
 ### What the tests cover
 
-| Test class                | Covers                                                                                                                                                                                                                                              |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `AuthRegisterTest`        | Validation, lower-cased email, duplicate email (`409`), BCrypt hash stored instead of the password                                                                                                                                                  |
-| `AuthLoginTest`           | Token pair, wrong password and unknown email give the same `401`, validation                                                                                                                                                                        |
-| `AuthRefreshLogoutTest`   | Rotation, reuse inside and after the grace period, expired and unknown tokens, only the hash is stored, logout is idempotent, and concurrent refresh with the same token (repeated 10 times: exactly one `200`, the session of the winner survives) |
-| `AuthGoogleTest`          | New user, existing Google ID, linking by email, `409` on conflict, invalid token, Google-only accounts cannot use a password                                                                                                                        |
-| `ProfileTest`             | `401` without a valid token, read profile, partial update, removing the picture, length and blank validation                                                                                                                                        |
-| `RefreshTokenServiceTest` | Unit: hashing (known SHA-256 value), token creation, rotation, reuse detection with and without grace period, expiry, revoke                                                                                                                        |
-| `JwtServiceTest`          | Unit: claims and expiry, RS256 header, rejects expired, foreign-key, tampered, unsigned and malformed tokens                                                                                                                                        |
-| `AuthServiceTest`         | Unit: register (normalised email, trimmed name, encoded password, duplicate), every login branch, refresh and logout                                                                                                                                |
-| `ProfileServiceTest`      | Unit: trimming, omitted fields stay unchanged, empty or blank picture URL removes the picture, unknown user                                                                                                                                         |
-| `JwtAuthFilterTest`       | Unit: a valid token sets the user ID as principal; a missing, non-bearer or invalid token, or a non-numeric subject, leaves the request unauthenticated and the chain continues                                                                     |
+| Test class | Covers |
+| --- | --- |
+| `AuthRegisterTest` | Validation, lower-cased email, duplicate email (`409`), BCrypt hash stored instead of the password |
+| `AuthLoginTest` | Token pair, wrong password and unknown email give the same `401`, validation |
+| `AuthRefreshLogoutTest` | Rotation, reuse inside and after the grace period, expired and unknown tokens, only the hash is stored, logout is idempotent, and concurrent refresh with the same token (repeated 10 times: exactly one `200`, the session of the winner survives) |
+| `AuthGoogleTest` | New user, existing Google ID, linking by email, `409` on conflict, invalid token, Google-only accounts cannot use a password |
+| `ProfileTest` | `401` without a valid token, read profile, partial update, removing the picture, length and blank validation |
+| `CorsTest` | Preflight from the allowed origin is accepted on public and protected paths without a token, preflight from an unknown origin is rejected, and a `401` response still carries the CORS header |
+| `RefreshTokenServiceTest` | Unit: hashing (known SHA-256 value), token creation, rotation, reuse detection with and without grace period, expiry, revoke |
+| `JwtServiceTest` | Unit: claims and expiry, RS256 header, rejects expired, foreign-key, tampered, unsigned and malformed tokens |
+| `AuthServiceTest` | Unit: register (normalised email, trimmed name, encoded password, duplicate), every login branch, refresh and logout |
+| `ProfileServiceTest` | Unit: trimming, omitted fields stay unchanged, empty or blank picture URL removes the picture, unknown user |
+| `JwtAuthFilterTest` | Unit: a valid token sets the user ID as principal; a missing, non-bearer or invalid token, or a non-numeric subject, leaves the request unauthenticated and the chain continues |
 
 ### Continuous integration
 
@@ -383,5 +389,5 @@ A GitHub Actions workflow (`.github/workflows/user-service-tests.yml`) runs the 
 ## Known limitations and next steps
 
 - Delete expired and revoked refresh tokens periodically (scheduled job).
-- Move the CORS origin (`http://localhost:5173`) to environment variables before deploying.
+- Set `CORS_ALLOWED_ORIGINS` to the real frontend origin before deploying.
 - Optional: publish the public key through a JWKS endpoint so other services can fetch it and support key rotation.

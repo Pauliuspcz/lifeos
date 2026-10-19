@@ -1,13 +1,11 @@
 package no.kristiania.goalservice;
 
+import no.kristiania.goalservice.integration.AbstractIntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class GoalServiceApplicationTests {
+class GoalServiceApplicationTests extends AbstractIntegrationTest {
 
     @Test
     void contextLoads() {
     }
-
 }

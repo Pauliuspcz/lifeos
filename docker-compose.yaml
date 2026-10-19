@@ -21,6 +21,7 @@ services:
       user-db:
         condition: service_healthy
     environment:
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173}
       SPRING_DATASOURCE_URL: jdbc:postgresql://user-db:5432/${USER_DB_NAME}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
@@ -33,13 +34,32 @@ services:
   goal-db:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: ${GOAL_DB_NAME}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${GOAL_DB_NAME}
     ports:
       - "${GOAL_DB_PORT}:5432"
     volumes:
       - goal-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${GOAL_DB_NAME}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  goal-service:
+    build: ./goal-service
+    depends_on:
+      goal-db:
+        condition: service_healthy
+    environment:
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://goal-db:5432/${GOAL_DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+    ports:
+      - "8081:8081"
 
   progress-db:
     image: postgres:15-alpine

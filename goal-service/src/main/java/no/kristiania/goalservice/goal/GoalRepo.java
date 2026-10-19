@@ -1,7 +1,16 @@
 package no.kristiania.goalservice.goal;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-@Repository
-public interface GoalRepo extends JpaRepository<Goal,Long> {
+import no.kristiania.goalservice.goal.enums.GoalStatus;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface GoalRepo extends JpaRepository<Goal, Long> {
+
+    List<Goal> findAllByUserIdOrderByCreatedAtDesc(Long userId);
+
+    List<Goal> findAllByUserIdAndStatusOrderByCreatedAtDesc(Long userId, GoalStatus status);
+
+    Optional<Goal> findByIdAndUserId(Long id, Long userId);
 }
