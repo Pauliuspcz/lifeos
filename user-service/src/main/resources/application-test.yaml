@@ -6,3 +6,5 @@ spring:
 app:
   google:
     client-id: test-client-id
+  cors:
+    allowed-origins: http://localhost:5173

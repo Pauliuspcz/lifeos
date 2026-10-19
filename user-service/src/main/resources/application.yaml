@@ -23,3 +23,5 @@ app:
     public-key: ${JWT_PUBLIC_KEY}
   google:
     client-id: ${GOOGLE_CLIENT_ID}
+  cors:
+    allowed-origins: http://localhost:5173
