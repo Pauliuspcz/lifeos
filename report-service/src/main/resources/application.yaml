@@ -25,5 +25,3 @@ spring:
           enabled: true
           max-retries: 3
         default-requeue-rejected: false
-
-
