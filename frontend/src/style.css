@@ -126,12 +126,12 @@ body {
 .goals-box {
   grid-area: goals;
 }
-.Streak-box {
+.streak-box {
   grid-area: streak;
 }
 
 .goals-box,
-.Streak-box,
+.streak-box,
 .checkin-box,
 .scale-box {
   background: #fff;
@@ -309,8 +309,31 @@ body {
 .goal-top {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  gap: 8px;
   font-weight: 600;
   font-size: 14px;
+}
+.goal-top > span:first-child {
+  flex: 1;
+}
+.goal-archive {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #9ca3af;
+  font: inherit;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+.goal-archive:hover {
+  background: #fef2f2;
+  color: #dc2626;
 }
 .progress {
   height: 8px;

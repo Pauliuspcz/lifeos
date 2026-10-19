@@ -9,9 +9,9 @@ export default function ErrorPage() {
   }
 
   return (
-    <div>
-      <h1>Page not found</h1>
-      <p>We could not find the page you were looking for</p>
+    <div className="page">
+      <h1>Fant ikke siden</h1>
+      <p>Vi fant ikke siden du lette etter</p>
       <BackButton onBack={handleBack} />
     </div>
   );

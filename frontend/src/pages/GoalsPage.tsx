@@ -1,10 +1,9 @@
 import { useGoals } from "../hooks/useGoals";
-import React from "react";
 import BackButton from "../components/BackButton";
 import { useNavigate } from "react-router";
 import GoalForm from "../components/GoalForm";
 
-export default function GoalAdd() {
+export default function GoalsPage() {
   const navigate = useNavigate();
   const { goals, loading, loadError, addGoal } = useGoals();
 
@@ -13,10 +12,10 @@ export default function GoalAdd() {
   }
   return (
     <div className="page">
-      <h1>Tasks</h1>
+      <h1>Mål</h1>
       <GoalForm onCreate={addGoal} />
-      {loading && <p>Loading...</p>}
-      {loadError && <p style={{ color: "red" }}>{loadError}</p>}
+      {loading && <p>Laster...</p>}
+      {loadError && <p className="error">{loadError}</p>}
       <ul>
         {goals.map((g) => (
           <li key={g.goalId}>

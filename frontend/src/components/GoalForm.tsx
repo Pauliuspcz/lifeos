@@ -1,5 +1,10 @@
-import { CreateGoalRequest, GoalPeriod, PERIODS } from "../types/goal";
-import React, { useState } from "react";
+import {
+  CreateGoalRequest,
+  GoalPeriod,
+  PERIODS,
+  PERIOD_LABEL,
+} from "../types/goal";
+import React, { useState, type SubmitEvent } from "react";
 
 type Props = {
   onCreate: (req: CreateGoalRequest) => Promise<void>;
@@ -15,11 +20,11 @@ export default function GoalForm({ onCreate, onDone }: Props) {
     amountPerSession: null,
   });
   const [error, setError] = useState("");
-  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!form.title.trim()) return setError("Title is required");
+    if (!form.title.trim()) return setError("Tittel må fylles ut");
     if (form.timesPerPeriod < 1)
-      return setError("Times per period must be at least 1");
+      return setError("Antall ganger må være minst 1");
     try {
       await onCreate(form);
       setError("");
@@ -34,7 +39,7 @@ export default function GoalForm({ onCreate, onDone }: Props) {
       <form onSubmit={handleSubmit}>
         <div>
           <input
-            placeholder="Title"
+            placeholder="Tittel"
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
           />
@@ -48,7 +53,7 @@ export default function GoalForm({ onCreate, onDone }: Props) {
           >
             {PERIODS.map((p) => (
               <option key={p} value={p}>
-                {p}
+                per {PERIOD_LABEL[p]}
               </option>
             ))}
           </select>
@@ -56,6 +61,7 @@ export default function GoalForm({ onCreate, onDone }: Props) {
         <div>
           <input
             type="number"
+            placeholder="Ganger per periode"
             min={1}
             value={form.timesPerPeriod}
             onChange={(e) =>
@@ -63,9 +69,9 @@ export default function GoalForm({ onCreate, onDone }: Props) {
             }
           />
         </div>
-        <button>Create</button>
+        <button type="submit">Opprett</button>
       </form>
-      {error && <p style={{ color: "red" }}> {error}</p>}
+      {error && <p className="error">{error}</p>}
     </>
   );
 }
