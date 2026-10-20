@@ -1,4 +1,4 @@
-import { useGoals } from "../features/goals/hooks/useGoals";
+import { useGoals } from "../features/goals";
 import BackButton from "../components/BackButton";
 import { useNavigate } from "react-router";
 import GoalForm from "../components/GoalForm";

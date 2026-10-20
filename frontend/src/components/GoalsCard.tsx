@@ -1,13 +1,9 @@
-import {
-  CreateGoalRequest,
-  PERIOD_LABEL,
-  Types,
-} from "../features/goals/types";
+import { CreateGoalRequest, PERIOD_LABEL, Goal } from "../features/goals";
 import { useRef } from "react";
 import GoalForm from "./GoalForm";
 
 type Props = {
-  goals: Types[];
+  goals: Goal[];
   loading: boolean;
   loadError: string;
   onCreate: (req: CreateGoalRequest) => Promise<void>;

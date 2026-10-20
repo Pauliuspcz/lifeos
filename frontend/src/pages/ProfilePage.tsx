@@ -1,13 +1,13 @@
 import React, { useEffect, useState, type SubmitEvent } from "react";
 import { useNavigate } from "react-router";
 import { ApiError } from "../shared/api/client";
-import { getProfile, updateProfile, type Api } from "../features/profile/api";
+import { getProfile, updateProfile, type Profile } from "../features/profile";
 import BackButton from "../components/BackButton";
-import { logout } from "../features/auth/api";
+import { logout } from "../features/auth";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const [profile, setProfile] = useState<Api | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [name, setName] = useState("");
   const [message, setMessage] = useState<string | null>(null);
 

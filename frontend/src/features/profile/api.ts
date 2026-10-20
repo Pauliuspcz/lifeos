@@ -1,7 +1,7 @@
 import { request } from "../../shared/api/client";
 import { profileEndpoints } from "./endpoints";
 
-export type Api = {
+export type Profile = {
   id: number;
   email: string;
   name: string;
@@ -9,9 +9,9 @@ export type Api = {
 };
 
 export const getProfile = () =>
-  request<Api>("GET", `${profileEndpoints.me}`, undefined, true);
+  request<Profile>("GET", `${profileEndpoints.me}`, undefined, true);
 
 export const updateProfile = (data: {
   name?: string;
   profilePictureUrl?: string;
-}) => request<Api>("PATCH", `${profileEndpoints.me}`, data, true);
+}) => request<Profile>("PATCH", `${profileEndpoints.me}`, data, true);

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { CreateGoalRequest, Types } from "../types";
+import { CreateGoalRequest, Goal } from "../types";
 
 export function useGoals() {
-  const [goals, setGoals] = useState<Types[]>([]);
+  const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
 
@@ -26,7 +26,7 @@ export function useGoals() {
     });
     if (!res.ok)
       throw new Error("Kunne ikke opprette mål (" + res.status + ")");
-    const created: Types = await res.json();
+    const created: Goal = await res.json();
     setGoals((prev) => [...prev, created]);
   }
 
@@ -34,7 +34,7 @@ export function useGoals() {
     const res = await fetch(`/api/goal/${goalId}/archive`, { method: "PATCH" });
     if (!res.ok)
       throw new Error("Kunne ikke arkivere mål (" + res.status + ")");
-    const updated: Types = await res.json();
+    const updated: Goal = await res.json();
     setGoals((prev) =>
       prev.map((g) => (g.goalId === updated.goalId ? updated : g)),
     );

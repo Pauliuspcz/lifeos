@@ -1,4 +1,4 @@
-import { useGoals } from "../features/goals/hooks/useGoals";
+import { useGoals } from "../features/goals";
 import Topbar from "../components/Topbar";
 import GoalsCard from "../components/GoalsCard";
 
