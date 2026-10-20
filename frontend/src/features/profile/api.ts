@@ -1,6 +1,6 @@
-import { request } from "../shared/api/client";
+import { request } from "../../shared/api/client";
 
-export type Profile = {
+export type Api = {
   id: number;
   email: string;
   name: string;
@@ -8,9 +8,9 @@ export type Profile = {
 };
 
 export const getProfile = () =>
-  request<Profile>("GET", "/profile/me", undefined, true);
+  request<Api>("GET", "/profile/me", undefined, true);
 
 export const updateProfile = (data: {
   name?: string;
   profilePictureUrl?: string;
-}) => request<Profile>("PATCH", "/profile/me", data, true);
+}) => request<Api>("PATCH", "/profile/me", data, true);
