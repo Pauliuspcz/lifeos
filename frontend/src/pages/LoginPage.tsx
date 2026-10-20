@@ -1,6 +1,6 @@
 import { useState, type SubmitEvent } from "react";
 import { useNavigate } from "react-router";
-import { googleLogin, login, register } from "../api/auth";
+import { googleLogin, login, register } from "../features/auth/api";
 import { ApiError } from "../shared/api/client";
 import { GoogleLogin } from "@react-oauth/google";
 

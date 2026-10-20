@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { ApiError } from "../shared/api/client";
 import { getProfile, updateProfile, type Profile } from "../api/profile";
 import BackButton from "../components/BackButton";
-import { logout } from "../api/auth";
+import { logout } from "../features/auth/api";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
