@@ -1,8 +1,9 @@
 import { useState, type SubmitEvent } from "react";
-import { useNavigate } from "react-router";
-import { googleLogin, login, register } from "../features/auth";
+import { Navigate, useNavigate } from "react-router";
+import { googleLogin, login, register, useAuth } from "../features/auth";
 import { ApiError } from "../shared/api/client";
 import { GoogleLogin } from "@react-oauth/google";
+import { HOME_PATH } from "../shared/config/routes";
 
 function errorText(err: unknown): string {
   if (err instanceof ApiError) {
@@ -22,6 +23,11 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { isAuthenticated } = useAuth();
+
+  if (isAuthenticated) {
+    return <Navigate to={HOME_PATH} replace />;
+  }
 
   async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -30,7 +36,7 @@ export default function LoginPage() {
     try {
       if (mode === "register") await register(email, password, name);
       await login(email, password);
-      navigate("/");
+      navigate(HOME_PATH);
     } catch (err) {
       setError(errorText(err));
     } finally {
@@ -74,7 +80,7 @@ export default function LoginPage() {
           if (!res.credential) return;
           try {
             await googleLogin(res.credential);
-            navigate("/");
+            navigate(HOME_PATH);
           } catch (err) {
             setError(errorText(err));
           }
