@@ -1,5 +1,5 @@
-import { post } from "./client";
-import { tokenStore, type AuthResponse } from "./tokens";
+import { post } from "../shared/api/client";
+import { tokenStore, type AuthResponse } from "../shared/api/tokens";
 
 export async function login(email: string, password: string) {
   const auth = await post<AuthResponse>("/auth/login", { email, password });

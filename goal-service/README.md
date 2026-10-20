@@ -12,18 +12,18 @@ Goal management service for **LifeOS**, a habit and goal tracker built as part o
 
 ### Design decisions
 
-| Decision | Why |
-| --- | --- |
-| Verify RS256 tokens with the public key only | `goal-service` can check tokens but never forge them. Only `user-service` holds the private key. |
-| User ID comes from the token (`sub`), never from the request body | A client cannot create or access goals on behalf of someone else. A `userId` in a request body is ignored. |
-| Another user's goal gives `404`, not `403` | The API does not reveal that a goal with that ID exists. |
-| Request and response DTOs, entity never exposed | The API contract is independent of the database model. `userId` is not part of any response. |
-| `PUT` replaces all editable fields | The client sends the complete goal. Omitting `description` clears it. |
-| Archiving is idempotent and keeps the first `archivedAt` | Repeating the call is safe and does not rewrite history. |
-| Optimistic locking (`@Version`) | Concurrent modifications give `409` instead of silently overwriting each other. |
-| Allowed CORS origins come from configuration | No origin is hard-coded. The CORS filter runs before authentication, so preflight requests need no token and even a `401` carries the CORS headers. The browser then shows the real status instead of a CORS error. |
-| Stateless sessions, CSRF disabled | Authentication uses the `Authorization: Bearer` header only, no cookies. |
-| Flyway migrations + `ddl-auto: validate` | The schema is versioned in SQL; Hibernate only checks that entities match it. |
+| Decision                                                          | Why                                                                                                                                                                                                                 |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Verify RS256 tokens with the public key only                      | `goal-service` can check tokens but never forge them. Only `user-service` holds the private key.                                                                                                                    |
+| User ID comes from the token (`sub`), never from the request body | A client cannot create or access goals on behalf of someone else. A `userId` in a request body is ignored.                                                                                                          |
+| Another user's goal gives `404`, not `403`                        | The API does not reveal that a goal with that ID exists.                                                                                                                                                            |
+| Request and response DTOs, entity never exposed                   | The API contract is independent of the database model. `userId` is not part of any response.                                                                                                                        |
+| `PUT` replaces all editable fields                                | The client sends the complete goal. Omitting `description` clears it.                                                                                                                                               |
+| Archiving is idempotent and keeps the first `archivedAt`          | Repeating the call is safe and does not rewrite history.                                                                                                                                                            |
+| Optimistic locking (`@Version`)                                   | Concurrent modifications give `409` instead of silently overwriting each other.                                                                                                                                     |
+| Allowed CORS origins come from configuration                      | No origin is hard-coded. The CORS filter runs before authentication, so preflight requests need no token and even a `401` carries the CORS headers. The browser then shows the real status instead of a CORS error. |
+| Stateless sessions, CSRF disabled                                 | Authentication uses the `Authorization: Bearer` header only, no cookies.                                                                                                                                            |
+| Flyway migrations + `ddl-auto: validate`                          | The schema is versioned in SQL; Hibernate only checks that entities match it.                                                                                                                                       |
 
 ## Project structure
 
@@ -56,14 +56,14 @@ Base URL when running locally: `http://localhost:8081`
 
 Every endpoint requires `Authorization: Bearer <accessToken>`. A missing or invalid token gives `401`.
 
-| Method | Path | Purpose | Success |
-| --- | --- | --- | --- |
-| POST | `/api/goal` | Create a goal | `201` + `GoalResponse`, `Location` header |
-| GET | `/api/goal` | List the user's goals, newest first. Optional `?status=ACTIVE` or `ARCHIVED` | `200` + list |
-| GET | `/api/goal/{id}` | Get one goal | `200` + `GoalResponse` |
-| PUT | `/api/goal/{id}` | Replace the editable fields | `200` + `GoalResponse` |
-| PATCH | `/api/goal/{id}/archive` | Archive a goal | `200` + `GoalResponse` |
-| DELETE | `/api/goal/{id}` | Delete a goal | `204` |
+| Method | Path                     | Purpose                                                                      | Success                                   |
+| ------ | ------------------------ | ---------------------------------------------------------------------------- | ----------------------------------------- |
+| POST   | `/api/goal`              | Create a goal                                                                | `201` + `GoalResponse`, `Location` header |
+| GET    | `/api/goal`              | List the user's goals, newest first. Optional `?status=ACTIVE` or `ARCHIVED` | `200` + list                              |
+| GET    | `/api/goal/{id}`         | Get one goal                                                                 | `200` + `GoalResponse`                    |
+| PUT    | `/api/goal/{id}`         | Replace the editable fields                                                  | `200` + `GoalResponse`                    |
+| PATCH  | `/api/goal/{id}/archive` | Archive a goal                                                               | `200` + `GoalResponse`                    |
+| DELETE | `/api/goal/{id}`         | Delete a goal                                                                | `204`                                     |
 
 ### POST /api/goal and PUT /api/goal/{id}
 
@@ -117,12 +117,12 @@ All errors are returned as JSON in the same format as `user-service`:
 
 Validation errors (`400`) also include a `fieldErrors` object with one entry per invalid field.
 
-| Status | When |
-| --- | --- |
-| `400` | Validation failed, the body is missing or malformed (including an unknown `period`), or a parameter has an invalid value (for example `?status=NOPE`) |
-| `401` | Missing, invalid, expired or wrongly signed access token, or a token whose `sub` is not a user ID |
-| `404` | The goal does not exist or belongs to another user |
-| `409` | The goal was modified by another request at the same time |
+| Status | When                                                                                                                                                  |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `400`  | Validation failed, the body is missing or malformed (including an unknown `period`), or a parameter has an invalid value (for example `?status=NOPE`) |
+| `401`  | Missing, invalid, expired or wrongly signed access token, or a token whose `sub` is not a user ID                                                     |
+| `404`  | The goal does not exist or belongs to another user                                                                                                    |
+| `409`  | The goal was modified by another request at the same time                                                                                             |
 
 ## Authentication
 
@@ -136,11 +136,11 @@ Managed by Flyway (`src/main/resources/db/migration`). Never edit a migration th
 
 ## Configuration
 
-| Property | Environment variable | Description |
-| --- | --- | --- |
-| `app.jwt.public-key` | `JWT_PUBLIC_KEY` | Base64 of the public PEM file (single line). Must match the private key used by `user-service`. |
-| `app.cors.allowed-origins` | `CORS_ALLOWED_ORIGINS` | Comma-separated list of browser origins that may call the API. Default `http://localhost:5173`. |
-| `spring.datasource.*` | `POSTGRES_USER`, `POSTGRES_PASSWORD`, `GOAL_DB_NAME`, `GOAL_DB_PORT` | Database connection. Docker Compose overrides the local defaults. |
+| Property                   | Environment variable                                                 | Description                                                                                     |
+| -------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `app.jwt.public-key`       | `JWT_PUBLIC_KEY`                                                     | Base64 of the public PEM file (single line). Must match the private key used by `user-service`. |
+| `app.cors.allowed-origins` | `CORS_ALLOWED_ORIGINS`                                               | Comma-separated list of browser origins that may call the API. Default `http://localhost:5173`. |
+| `spring.datasource.*`      | `POSTGRES_USER`, `POSTGRES_PASSWORD`, `GOAL_DB_NAME`, `GOAL_DB_PORT` | Database connection. Docker Compose overrides the local defaults.                               |
 
 The `.env` file lives in the repository root, is listed in `.gitignore`, and is shared with the other services. See the `user-service` README for how to generate the key pair.
 
@@ -171,13 +171,13 @@ This starts `goal-db` and the service on port 8081. Stop any copy started from I
 - **Integration tests** run the full application against a real PostgreSQL 15 container. All classes extend `AbstractIntegrationTest`, which shares one container and Spring context, empties the `goals` table before each test, and generates an RSA key pair so tests can sign their own tokens.
 - The test profile needs no `.env` file. The allowed CORS origin is fixed to `http://localhost:5173` there.
 
-| Test class | Covers |
-| --- | --- |
-| `SecurityTest` | No token, garbage token, expired token, wrong key, unsigned token and non-numeric `sub` all give `401` with a JSON body; a valid token is accepted |
-| `CorsTest` | Preflight from the allowed origin is accepted without a token, preflight from an unknown origin is rejected, and both `401` and `200` responses carry the CORS header |
-| `GoalApiTest` | Every endpoint: create, validation, unreadable bodies, list and status filter, get, update and version bump, archive, delete |
-| `GoalOwnershipTest` | Another user gets `404` on read, update, archive and delete, and the goal is unchanged afterwards; lists contain only own goals; `userId` in the body is ignored |
-| `GoalServiceTest` | Unit: owner comes from the argument, query selection, not-found, update, idempotent archive, delete |
+| Test class          | Covers                                                                                                                                                                |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SecurityTest`      | No token, garbage token, expired token, wrong key, unsigned token and non-numeric `sub` all give `401` with a JSON body; a valid token is accepted                    |
+| `CorsTest`          | Preflight from the allowed origin is accepted without a token, preflight from an unknown origin is rejected, and both `401` and `200` responses carry the CORS header |
+| `GoalApiTest`       | Every endpoint: create, validation, unreadable bodies, list and status filter, get, update and version bump, archive, delete                                          |
+| `GoalOwnershipTest` | Another user gets `404` on read, update, archive and delete, and the goal is unchanged afterwards; lists contain only own goals; `userId` in the body is ignored      |
+| `GoalServiceTest`   | Unit: owner comes from the argument, query selection, not-found, update, idempotent archive, delete                                                                   |
 
 ### Continuous integration
 

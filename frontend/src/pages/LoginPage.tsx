@@ -1,7 +1,7 @@
 import { useState, type SubmitEvent } from "react";
 import { useNavigate } from "react-router";
 import { googleLogin, login, register } from "../api/auth";
-import { ApiError } from "../api/client";
+import { ApiError } from "../shared/api/client";
 import { GoogleLogin } from "@react-oauth/google";
 
 function errorText(err: unknown): string {
