@@ -1,6 +1,7 @@
 import { tokenStore, type AuthResponse } from "./tokens";
 
 import { API_URL } from "./config";
+import { REFRESH_PATH } from "./endpoints";
 
 export type FieldErrors = Record<string, string>;
 
@@ -31,7 +32,7 @@ async function refreshTokens(): Promise<boolean> {
   const refreshToken = tokenStore.getRefresh();
   if (!refreshToken) return false;
   try {
-    const res = await fetch(`${API_URL}/auth/refresh`, {
+    const res = await fetch(`${API_URL}${REFRESH_PATH}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ refreshToken }),
