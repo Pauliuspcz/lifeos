@@ -2,12 +2,27 @@ import { tokenStore, type AuthResponse } from "./tokens";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
+export type FieldErrors = Record<string, string>;
+
 export class ApiError extends Error {
   status: number;
-  constructor(status: number) {
-    super(`HTTP ${status}`);
+  fieldErrors: FieldErrors;
+
+  constructor(status: number, message?: string, fieldErrors: FieldErrors = {}) {
+    super(message ?? `HTTP ${status}`);
     this.status = status;
+    this.fieldErrors = fieldErrors;
   }
+}
+
+async function toApiError(res: Response): Promise<ApiError> {
+  const body = await res.json().catch(() => null);
+  const message = typeof body?.message === "string" ? body.message : undefined;
+  const fieldErrors =
+    body?.fieldErrors && typeof body.fieldErrors === "object"
+      ? (body.fieldErrors as FieldErrors)
+      : undefined;
+  return new ApiError(res.status, message, fieldErrors);
 }
 
 let refreshPromise: Promise<boolean> | null = null;
@@ -66,7 +81,7 @@ export async function request<T>(
     res = await send(method, path, body, auth);
   }
 
-  if (!res.ok) throw new ApiError(res.status);
+  if (!res.ok) throw await toApiError(res);
   if (res.status === 204) return undefined as T;
   return (await res.json()) as Promise<T>;
 }

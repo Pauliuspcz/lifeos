@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   server: {
@@ -7,5 +7,8 @@ export default defineConfig({
       "/api/goal": "http://localhost:8081",
       "/api/progress": "http://localhost:8082",
     },
+  },
+  test: {
+    environment: "jsdom",
   },
 });
