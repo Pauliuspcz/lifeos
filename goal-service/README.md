@@ -1,6 +1,6 @@
 # goal-service
 
-Goal management service for **LifeOS**, a habit and goal tracker built as part of the PG3402 Microservices coursework.
+Types management service for **LifeOS**, a habit and goal tracker built as part of the PG3402 Microservices coursework.
 
 `goal-service` stores each user's goals (for example "run 3 times a week"). It never handles passwords or logins: it only verifies the JWT access token issued by `user-service` and uses the user ID from the token to decide whose goals a request may touch.
 
@@ -33,7 +33,7 @@ src/main/java/no/kristiania/goalservice
 ├── config       SecurityConfig (JWT and CORS), JsonAuthenticationEntryPoint
 ├── exception    ApiException, ApiError, GlobalExceptionHandler
 └── goal
-    ├── Goal (entity), GoalRepo, GoalService, GoalController
+    ├── Types (entity), GoalRepo, GoalService, GoalController
     ├── dto          CreateGoalRequest, UpdateGoalRequest, GoalResponse
     ├── enums        GoalPeriod, GoalStatus
     └── exceptions   GoalNotFoundException
@@ -110,7 +110,7 @@ All errors are returned as JSON in the same format as `user-service`:
 {
   "status": 404,
   "error": "Not Found",
-  "message": "Goal with id 42 not found",
+  "message": "Types with id 42 not found",
   "timestamp": "2026-10-19T10:00:00.000000000Z"
 }
 ```

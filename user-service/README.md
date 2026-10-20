@@ -2,7 +2,7 @@
 
 Authentication and user-profile service for **LifeOS**, a habit and goal tracker built as part of the PG3402 Microservices coursework.
 
-`user-service` is the only service that creates accounts and issues tokens. Other services (Goal, Progress, Report) never see passwords or Google tokens; they only need to verify the JWT access token this service signs.
+`user-service` is the only service that creates accounts and issues tokens. Other services (Types, Progress, Report) never see passwords or Google tokens; they only need to verify the JWT access token this service signs.
 
 ## Recap: what this service does
 

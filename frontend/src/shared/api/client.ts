@@ -37,7 +37,7 @@ async function refreshTokens(): Promise<boolean> {
       body: JSON.stringify({ refreshToken }),
     });
     if (!res.ok) {
-      tokenStore.clear();
+      if (res.status === 401) tokenStore.clear();
       return false;
     }
     tokenStore.save((await res.json()) as AuthResponse);

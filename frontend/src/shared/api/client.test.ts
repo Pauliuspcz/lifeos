@@ -121,6 +121,30 @@ describe("request", () => {
     expect(tokenStore.getRefresh()).toBeNull();
   });
 
+  it("keeps the tokens when the refresh fails with a server error", async () => {
+    tokenStore.save(tokens(1));
+    respondWith(json({}, 401), json({}, 500));
+
+    await expect(
+      request("GET", "/profile/me", undefined, true),
+    ).rejects.toMatchObject({ status: 401 });
+    expect(tokenStore.getAccess()).toBe("access-1");
+    expect(tokenStore.getRefresh()).toBe("refresh-1");
+  });
+
+  it("keeps the tokens when the refresh request fails on the network", async () => {
+    tokenStore.save(tokens(1));
+    fetchMock.mockImplementation(async (url: string) => {
+      if (url.endsWith("/auth/refresh")) throw new TypeError("Failed to fetch");
+      return json({}, 401);
+    });
+
+    await expect(
+      request("GET", "/profile/me", undefined, true),
+    ).rejects.toMatchObject({ status: 401 });
+    expect(tokenStore.getRefresh()).toBe("refresh-1");
+  });
+
   it("does not call refresh when there is no refresh token", async () => {
     respondWith(json({}, 401));
 
