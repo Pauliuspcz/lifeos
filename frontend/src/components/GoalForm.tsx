@@ -3,7 +3,7 @@ import {
   GoalPeriod,
   PERIODS,
   PERIOD_LABEL,
-} from "../types/goal";
+} from "../features/goals/types";
 import React, { useState, type SubmitEvent } from "react";
 
 type Props = {

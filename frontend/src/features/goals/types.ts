@@ -3,7 +3,7 @@ export type GoalStatus = "ACTIVE" | "ARCHIVED";
 export const PERIODS = ["DAILY", "WEEKLY", "MONTHLY", "YEARLY"] as const;
 export type GoalPeriod = (typeof PERIODS)[number];
 
-export type Goal = {
+export type Types = {
   goalId: number;
   title: string;
   description: string | null;
