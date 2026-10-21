@@ -1,3 +1,4 @@
+import { ApiError, type FieldErrors } from "../../../shared/api/client";
 import { CreateGoalRequest, GoalPeriod, PERIODS, PERIOD_LABEL } from "../types";
 import React, { useState, type SubmitEvent } from "react";
 
@@ -5,6 +6,11 @@ type Props = {
   onCreate: (req: CreateGoalRequest) => Promise<void>;
   onDone?: () => void;
 };
+
+function errorText(err: unknown): string {
+  if (err instanceof ApiError) return `Kunne ikke opprette mål (${err.status})`;
+  return "Kunne ikke opprette mål";
+}
 
 export default function GoalForm({ onCreate, onDone }: Props) {
   const [form, setForm] = useState<CreateGoalRequest>({
@@ -14,21 +20,37 @@ export default function GoalForm({ onCreate, onDone }: Props) {
     timesPerPeriod: 1,
     amountPerSession: null,
   });
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [error, setError] = useState("");
+
   async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!form.title.trim()) return setError("Tittel må fylles ut");
+    setError("");
+
+    const local: FieldErrors = {};
+    if (!form.title.trim()) local.title = "Tittel må fylles ut";
     if (form.timesPerPeriod < 1)
-      return setError("Antall ganger må være minst 1");
+      local.timesPerPeriod = "Antall ganger må være minst 1";
+    if (Object.keys(local).length > 0) {
+      setFieldErrors(local);
+      return;
+    }
+
     try {
       await onCreate(form);
-      setError("");
+      setFieldErrors({});
       setForm({ ...form, title: "" });
       onDone?.();
     } catch (err) {
-      setError((err as Error).message);
+      if (err instanceof ApiError && Object.keys(err.fieldErrors).length > 0) {
+        setFieldErrors(err.fieldErrors);
+      } else {
+        setFieldErrors({});
+        setError(errorText(err));
+      }
     }
   }
+  // return (...) som før, med feilmeldinger under feltene, se under
   return (
     <>
       <form onSubmit={handleSubmit}>
@@ -38,6 +60,7 @@ export default function GoalForm({ onCreate, onDone }: Props) {
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
           />
+          {fieldErrors.title && <p className="error">{fieldErrors.title}</p>}
         </div>
         <div>
           <select
@@ -52,6 +75,7 @@ export default function GoalForm({ onCreate, onDone }: Props) {
               </option>
             ))}
           </select>
+          {fieldErrors.period && <p className="error">{fieldErrors.period}</p>}
         </div>
         <div>
           <input
@@ -63,6 +87,9 @@ export default function GoalForm({ onCreate, onDone }: Props) {
               setForm({ ...form, timesPerPeriod: Number(e.target.value) })
             }
           />
+          {fieldErrors.timesPerPeriod && (
+            <p className="error">{fieldErrors.timesPerPeriod}</p>
+          )}
         </div>
         <button type="submit">Opprett</button>
       </form>
