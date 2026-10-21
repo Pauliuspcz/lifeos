@@ -1,18 +1,18 @@
 import { BrowserRouter, Route, Routes } from "react-router";
-import GoalsPage from "./pages/GoalsPage";
-import ErrorPage from "./pages/ErrorPage";
-import FrontPage from "./pages/FrontPage";
-import LoginPage from "./pages/LoginPage";
-import ProfilePage from "./pages/ProfilePage";
+import GoalsPage from "../pages/GoalsPage";
+import ErrorPage from "../pages/ErrorPage";
+import FrontPage from "../pages/FrontPage";
+import LoginPage from "../pages/LoginPage";
+import ProfilePage from "../pages/ProfilePage";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import DashboardPage from "./pages/DashboardPage";
-import { ProtectedRoute } from "./features/auth";
+import DashboardPage from "../pages/DashboardPage";
+import { ProtectedRoute } from "../features/auth";
 import {
   GOAL_PATH,
   HOME_PATH,
   LOGIN_PATH,
   PROFILE_PATH,
-} from "./shared/config/routes";
+} from "../shared/config/routes";
 
 export default function App() {
   return (
