@@ -1,7 +1,7 @@
 import { useGoals } from "../features/goals";
-import BackButton from "../components/BackButton";
+import BackButton from "../shared/components/BackButton";
 import { useNavigate } from "react-router";
-import GoalForm from "../components/GoalForm";
+import GoalForm from "../features/goals/components/GoalForm";
 
 export default function GoalsPage() {
   const navigate = useNavigate();

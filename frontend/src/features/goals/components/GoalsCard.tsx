@@ -1,4 +1,4 @@
-import { CreateGoalRequest, PERIOD_LABEL, Goal } from "../features/goals";
+import { CreateGoalRequest, PERIOD_LABEL, Goal } from "../index";
 import { useRef } from "react";
 import GoalForm from "./GoalForm";
 
