@@ -15,15 +15,15 @@ const DAYS = ["Ma", "Ti", "On", "To", "Fr", "Lø", "Sø"];
 
 export default function DashboardPage() {
   const todayIndex = (new Date().getDay() + 6) % 7;
-  const { goals, loading, loadError, addGoal, archiveGoal } = useGoals();
-  const activeGoals = goals.filter((g) => g.status === "ACTIVE");
+  const { goals, loading, loadError, addGoal, archiveGoal } =
+    useGoals("ACTIVE");
 
   return (
     <>
       <Topbar />
       <div className="dashboard">
         <GoalsCard
-          goals={activeGoals}
+          goals={goals}
           loading={loading}
           loadError={loadError}
           onCreate={addGoal}

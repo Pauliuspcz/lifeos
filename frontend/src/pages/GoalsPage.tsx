@@ -5,7 +5,8 @@ import { GoalForm, useGoals } from "../features/goals";
 
 export default function GoalsPage() {
   const navigate = useNavigate();
-  const { goals, loading, loadError, addGoal } = useGoals();
+  // const { goals, loading, loadError, addGoal } = useGoals(); TODO: her er eventuelt alle mål hvis vi vil ha det
+  const { goals, loading, loadError, addGoal } = useGoals("ACTIVE");
 
   function handleBack() {
     navigate(HOME_PATH);
