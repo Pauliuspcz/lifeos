@@ -1,6 +1,6 @@
 # LifeOS
 
-Habit and Goal tracker. Group project for PG3402 Mikrotjenester
+Habit and Types tracker. Group project for PG3402 Mikrotjenester
 
 ### Running
 

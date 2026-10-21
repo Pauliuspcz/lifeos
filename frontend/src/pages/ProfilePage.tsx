@@ -1,9 +1,9 @@
 import React, { useEffect, useState, type SubmitEvent } from "react";
 import { useNavigate } from "react-router";
-import { ApiError } from "../api/client";
-import { getProfile, updateProfile, type Profile } from "../api/profile";
+import { ApiError } from "../shared/api/client";
+import { getProfile, updateProfile, type Profile } from "../features/profile";
 import BackButton from "../components/BackButton";
-import { logout } from "../api/auth";
+import { logout } from "../features/auth";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
