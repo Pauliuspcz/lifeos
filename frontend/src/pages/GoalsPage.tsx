@@ -1,8 +1,7 @@
 import BackButton from "../shared/components/BackButton";
 import { useNavigate } from "react-router";
-import GoalForm from "../features/goals/components/GoalForm";
 import { HOME_PATH } from "../shared/config/routes";
-import { useGoals } from "../shared/hooks/useGoals";
+import { GoalForm, useGoals } from "../features/goals";
 
 export default function GoalsPage() {
   const navigate = useNavigate();
