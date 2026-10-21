@@ -1,4 +1,4 @@
-import { CreateGoalRequest, GoalPeriod, PERIODS, PERIOD_LABEL } from "../index";
+import { CreateGoalRequest, GoalPeriod, PERIODS, PERIOD_LABEL } from "../types";
 import React, { useState, type SubmitEvent } from "react";
 
 type Props = {
