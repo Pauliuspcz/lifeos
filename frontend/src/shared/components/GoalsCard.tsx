@@ -1,6 +1,6 @@
-import { CreateGoalRequest, PERIOD_LABEL, Goal } from "../index";
+import { CreateGoalRequest, PERIOD_LABEL, Goal } from "../../features/goals";
 import { useRef } from "react";
-import GoalForm from "./GoalForm";
+import GoalForm from "../../features/goals/components/GoalForm";
 
 type Props = {
   goals: Goal[];

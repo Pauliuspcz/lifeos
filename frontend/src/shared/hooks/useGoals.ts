@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CreateGoalRequest, Goal } from "../types";
+import { CreateGoalRequest, Goal } from "../../features/goals";
 
 export function useGoals() {
   const [goals, setGoals] = useState<Goal[]>([]);

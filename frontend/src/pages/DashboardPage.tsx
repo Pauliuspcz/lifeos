@@ -1,6 +1,6 @@
-import { useGoals } from "../features/goals";
 import Topbar from "../shared/components/Topbar";
-import GoalsCard from "../features/goals/components/GoalsCard";
+import GoalsCard from "../shared/components/GoalsCard";
+import { useGoals } from "../shared/hooks/useGoals";
 
 const MOODS = [
   { n: 1, word: "Tung" },
