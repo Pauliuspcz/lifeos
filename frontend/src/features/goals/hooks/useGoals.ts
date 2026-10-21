@@ -35,9 +35,7 @@ export function useGoals() {
     if (!res.ok)
       throw new Error("Kunne ikke arkivere mål (" + res.status + ")");
     const updated: Goal = await res.json();
-    setGoals((prev) =>
-      prev.map((g) => (g.goalId === updated.goalId ? updated : g)),
-    );
+    setGoals((prev) => prev.map((g) => (g.id === updated.id ? updated : g)));
   }
   return { goals, loading, loadError, addGoal, archiveGoal };
 }

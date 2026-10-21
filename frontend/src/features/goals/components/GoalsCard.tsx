@@ -46,7 +46,7 @@ export default function GoalsCard({
           <p className="muted">Ingen mål ennå.</p>
         )}
         {goals.map((g) => (
-          <div className="goal-row" key={g.goalId}>
+          <div className="goal-row" key={g.id}>
             <div className="goal-top">
               <span>{g.title}</span>
               <span className="muted">
@@ -56,7 +56,7 @@ export default function GoalsCard({
                 type="button"
                 className="goal-archive"
                 aria-label={"Arkiver " + g.title}
-                onClick={() => handleArchive(g.goalId)}
+                onClick={() => handleArchive(g.id)}
               >
                 ×
               </button>

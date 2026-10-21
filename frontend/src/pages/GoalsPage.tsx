@@ -18,7 +18,7 @@ export default function GoalsPage() {
       {loadError && <p className="error">{loadError}</p>}
       <ul>
         {goals.map((g) => (
-          <li key={g.goalId}>
+          <li key={g.id}>
             {g.title} - {g.timesPerPeriod}x {g.period} ({g.status})
           </li>
         ))}
