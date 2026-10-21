@@ -25,6 +25,7 @@ export type CreateGoalRequest = {
   period: GoalPeriod;
   timesPerPeriod: number;
   amountPerSession: number | null;
+  unit: string | null;
 };
 
 export const PERIOD_LABEL: Record<GoalPeriod, string> = {

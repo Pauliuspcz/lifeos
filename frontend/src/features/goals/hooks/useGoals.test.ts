@@ -37,6 +37,7 @@ const newGoal = {
   period: "WEEKLY" as const,
   timesPerPeriod: 1,
   amountPerSession: null,
+  unit: null,
 };
 
 beforeEach(() => {

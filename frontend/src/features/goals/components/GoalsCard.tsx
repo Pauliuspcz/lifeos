@@ -61,9 +61,14 @@ export default function GoalsCard({
                 ×
               </button>
             </div>
-            {g.description && (
+            {(g.description || g.amountPerSession !== null) && (
               <div className="goal-foot">
                 <span>{g.description}</span>
+                {g.amountPerSession !== null && (
+                  <span>
+                    {g.amountPerSession} {g.unit}
+                  </span>
+                )}
               </div>
             )}
           </div>

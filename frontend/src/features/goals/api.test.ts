@@ -45,6 +45,7 @@ describe("goals api", () => {
       period: "WEEKLY" as const,
       timesPerPeriod: 3,
       amountPerSession: null,
+      unit: null,
     };
     requestMock.mockResolvedValue({ id: 5, ...body });
 

@@ -19,6 +19,7 @@ export default function GoalForm({ onCreate, onDone }: Props) {
     period: "WEEKLY",
     timesPerPeriod: 1,
     amountPerSession: null,
+    unit: null,
   });
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [error, setError] = useState("");
@@ -31,6 +32,9 @@ export default function GoalForm({ onCreate, onDone }: Props) {
     if (!form.title.trim()) local.title = "Tittel må fylles ut";
     if (form.timesPerPeriod < 1)
       local.timesPerPeriod = "Antall ganger må være minst 1";
+    //TODO: litt usikker på hva vi gjør med unit og mengde.. tanken er 10(mengde)km(unit)
+    if (form.amountPerSession !== null && form.amountPerSession <= 0)
+      local.amountPerSession = "Mengde må være større enn 0";
     if (Object.keys(local).length > 0) {
       setFieldErrors(local);
       return;
@@ -39,7 +43,7 @@ export default function GoalForm({ onCreate, onDone }: Props) {
     try {
       await onCreate(form);
       setFieldErrors({});
-      setForm({ ...form, title: "" });
+      setForm({ ...form, title: "", description: null });
       onDone?.();
     } catch (err) {
       if (err instanceof ApiError && Object.keys(err.fieldErrors).length > 0) {
@@ -50,7 +54,6 @@ export default function GoalForm({ onCreate, onDone }: Props) {
       }
     }
   }
-  // return (...) som før, med feilmeldinger under feltene, se under
   return (
     <>
       <form onSubmit={handleSubmit}>
@@ -90,6 +93,47 @@ export default function GoalForm({ onCreate, onDone }: Props) {
           {fieldErrors.timesPerPeriod && (
             <p className="error">{fieldErrors.timesPerPeriod}</p>
           )}
+        </div>
+        <div>
+          <input
+            placeholder="Beskrivelse (valgfritt)"
+            maxLength={1000}
+            value={form.description ?? ""}
+            onChange={(e) =>
+              setForm({ ...form, description: e.target.value || null })
+            }
+          />
+          {fieldErrors.description && (
+            <p className="error">{fieldErrors.description}</p>
+          )}
+        </div>
+        <div>
+          <input
+            type="number"
+            placeholder="Mengde per økt"
+            min={0}
+            step="0.01"
+            value={form.amountPerSession ?? ""}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                amountPerSession:
+                  e.target.value === "" ? null : Number(e.target.value),
+              })
+            }
+          />
+          {fieldErrors.amountPerSession && (
+            <p className="error">{fieldErrors.amountPerSession}</p>
+          )}
+        </div>
+        <div>
+          <input
+            placeholder="Enhet (f.eks. km)"
+            maxLength={50}
+            value={form.unit ?? ""}
+            onChange={(e) => setForm({ ...form, unit: e.target.value || null })}
+          />
+          {fieldErrors.unit && <p className="error">{fieldErrors.unit}</p>}
         </div>
         <button type="submit">Opprett</button>
       </form>
