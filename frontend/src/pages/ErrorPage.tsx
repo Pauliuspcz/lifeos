@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import BackButton from "../components/BackButton";
+import BackButton from "../shared/components/BackButton";
 
 export default function ErrorPage() {
   const navigate = useNavigate();

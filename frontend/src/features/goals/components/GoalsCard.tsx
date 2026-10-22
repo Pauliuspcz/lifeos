@@ -1,4 +1,4 @@
-import { CreateGoalRequest, PERIOD_LABEL, Goal } from "../features/goals";
+import { CreateGoalRequest, PERIOD_LABEL, Goal } from "../types";
 import { useRef } from "react";
 import GoalForm from "./GoalForm";
 
@@ -46,7 +46,7 @@ export default function GoalsCard({
           <p className="muted">Ingen mål ennå.</p>
         )}
         {goals.map((g) => (
-          <div className="goal-row" key={g.goalId}>
+          <div className="goal-row" key={g.id}>
             <div className="goal-top">
               <span>{g.title}</span>
               <span className="muted">
@@ -56,14 +56,19 @@ export default function GoalsCard({
                 type="button"
                 className="goal-archive"
                 aria-label={"Arkiver " + g.title}
-                onClick={() => handleArchive(g.goalId)}
+                onClick={() => handleArchive(g.id)}
               >
                 ×
               </button>
             </div>
-            {g.description && (
+            {(g.description || g.amountPerSession !== null) && (
               <div className="goal-foot">
                 <span>{g.description}</span>
+                {g.amountPerSession !== null && (
+                  <span>
+                    {g.amountPerSession} {g.unit}
+                  </span>
+                )}
               </div>
             )}
           </div>

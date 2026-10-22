@@ -1,14 +1,15 @@
-import { useGoals } from "../features/goals";
-import BackButton from "../components/BackButton";
+import BackButton from "../shared/components/BackButton";
 import { useNavigate } from "react-router";
-import GoalForm from "../components/GoalForm";
+import { HOME_PATH } from "../shared/config/routes";
+import { GoalForm, useGoals } from "../features/goals";
 
 export default function GoalsPage() {
   const navigate = useNavigate();
-  const { goals, loading, loadError, addGoal } = useGoals();
+  // const { goals, loading, loadError, addGoal } = useGoals(); TODO: her er eventuelt alle mål hvis vi vil ha det
+  const { goals, loading, loadError, addGoal } = useGoals("ACTIVE");
 
   function handleBack() {
-    navigate("/");
+    navigate(HOME_PATH);
   }
   return (
     <div className="page">
@@ -18,7 +19,7 @@ export default function GoalsPage() {
       {loadError && <p className="error">{loadError}</p>}
       <ul>
         {goals.map((g) => (
-          <li key={g.goalId}>
+          <li key={g.id}>
             {g.title} - {g.timesPerPeriod}x {g.period} ({g.status})
           </li>
         ))}

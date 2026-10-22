@@ -2,8 +2,9 @@ import React, { useEffect, useState, type SubmitEvent } from "react";
 import { useNavigate } from "react-router";
 import { ApiError } from "../shared/api/client";
 import { getProfile, updateProfile, type Profile } from "../features/profile";
-import BackButton from "../components/BackButton";
+import BackButton from "../shared/components/BackButton";
 import { logout } from "../features/auth";
+import { HOME_PATH } from "../shared/config/routes";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -17,11 +18,8 @@ export default function ProfilePage() {
         setProfile(p);
         setName(p.name);
       })
-      .catch((err) => {
-        if (err instanceof ApiError && err.status === 401) navigate("/login");
-        else setMessage("Could not load profile.");
-      });
-  }, [navigate]);
+      .catch(() => setMessage("Could not load profile."));
+  }, []);
 
   async function handleSave(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -41,11 +39,10 @@ export default function ProfilePage() {
 
   async function handleLogout() {
     await logout();
-    navigate("/login");
   }
 
   function handleBack() {
-    navigate("/");
+    navigate(HOME_PATH);
   }
 
   if (!profile) return <div className="page">{message ?? "Loading..."}</div>;

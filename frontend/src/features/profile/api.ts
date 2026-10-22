@@ -9,9 +9,9 @@ export type Profile = {
 };
 
 export const getProfile = () =>
-  request<Profile>("GET", `${profileEndpoints.me}`, undefined, true);
+  request<Profile>("GET", profileEndpoints.me, undefined, true);
 
 export const updateProfile = (data: {
   name?: string;
   profilePictureUrl?: string;
-}) => request<Profile>("PATCH", `${profileEndpoints.me}`, data, true);
+}) => request<Profile>("PATCH", profileEndpoints.me, data, true);

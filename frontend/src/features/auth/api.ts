@@ -3,7 +3,7 @@ import { tokenStore, type AuthResponse } from "../../shared/api/tokens";
 import { authEndpoints } from "./endpoints";
 
 export async function login(email: string, password: string) {
-  const auth = await post<AuthResponse>(`${authEndpoints.login}`, {
+  const auth = await post<AuthResponse>(authEndpoints.login, {
     email,
     password,
   });
@@ -12,11 +12,11 @@ export async function login(email: string, password: string) {
 }
 
 export async function register(email: string, password: string, name: string) {
-  await post(`${authEndpoints.register}`, { email, password, name });
+  await post(authEndpoints.register, { email, password, name });
 }
 
 export async function googleLogin(idToken: string) {
-  const auth = await post<AuthResponse>(`${authEndpoints.google}`, { idToken });
+  const auth = await post<AuthResponse>(authEndpoints.google, { idToken });
   tokenStore.save(auth);
   return auth;
 }
@@ -25,7 +25,7 @@ export async function logout() {
   tokenStore.clear();
   if (refreshToken) {
     try {
-      await post(`${authEndpoints.logout}`, { refreshToken });
+      await post(authEndpoints.logout, { refreshToken });
     } catch {}
   }
 }
