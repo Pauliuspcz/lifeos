@@ -23,7 +23,11 @@ export function periodStart(period: GoalPeriod, now = new Date()): string {
   return start.toLocaleDateString("sv-SE");
 }
 
-export function countInPeriod(entries: Progress[], goal: Goal): number {
-  const start = periodStart(goal.period);
+export function countInPeriod(
+  entries: Progress[],
+  goal: Goal,
+  now = new Date(),
+): number {
+  const start = periodStart(goal.period, now);
   return entries.filter((e) => e.goalId === goal.id && e.date >= start).length;
 }
