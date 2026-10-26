@@ -121,6 +121,8 @@ services:
       rabbitmq:
         condition: service_healthy
     environment:
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
       SPRING_DATASOURCE_URL: jdbc:postgresql://report-db:5432/${REPORT_DB_NAME}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}

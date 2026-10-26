@@ -25,3 +25,10 @@ spring:
           enabled: true
           max-retries: 3
         default-requeue-rejected: false
+
+app:
+  jwt:
+    issuer: ${JWT_ISSUER:lifeos-auth}
+    public-key: ${JWT_PUBLIC_KEY}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
