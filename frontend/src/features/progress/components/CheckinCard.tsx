@@ -1,4 +1,5 @@
-import type { Goal } from "../../goals";
+import { type Goal, PERIOD_LABEL } from "../../goals";
+import { periodStart } from "../period";
 import type { CreateProgressRequest, Progress } from "../types";
 
 type Props = {
@@ -18,6 +19,12 @@ export default function CheckinCard({
 
   const entryToday = (goalId: number) =>
     entries.find((e) => e.goalId === goalId && e.date === today);
+
+  const countThisPeriod = (goal: Goal) => {
+    const start = periodStart(goal.period);
+    return entries.filter((e) => e.goalId === goal.id && e.date >= start)
+      .length;
+  };
 
   async function handleToggle(goal: Goal) {
     const entry = entryToday(goal.id);
@@ -45,6 +52,7 @@ export default function CheckinCard({
       {goals.length === 0 && <p className="muted">Ingen vaner i dag.</p>}
       {goals.map((g) => {
         const done = entryToday(g.id) !== undefined;
+        const count = countThisPeriod(g);
         return (
           <button
             type="button"
@@ -61,6 +69,9 @@ export default function CheckinCard({
                   {g.amountPerSession} {g.unit}
                 </span>
               )}
+            </span>
+            <span className="muted">
+              {count}/{g.timesPerPeriod} per {PERIOD_LABEL[g.period]}
             </span>
           </button>
         );
