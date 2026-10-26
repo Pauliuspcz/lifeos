@@ -56,6 +56,7 @@ public class ProgressService {
         }
         return progressRepo.findByGoalIdAndUserIdOrderByDateDesc(goalId, userId);
     }
+
     public void delete(Long userId, Long id) {
         Progress progress = progressRepo.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new ProgressNotFoundException(id));
