@@ -1,6 +1,7 @@
 import Topbar from "../shared/components/Topbar";
 import { GoalsCard, useGoals } from "../features/goals";
 import { CheckinCard, useProgress } from "../features/progress";
+import { countInPeriod } from "../features/progress";
 
 const MOODS = [
   { n: 1, word: "Tung" },
@@ -30,6 +31,7 @@ export default function DashboardPage() {
           loadError={loadError}
           onCreate={addGoal}
           onArchive={archiveGoal}
+          countFor={(g) => countInPeriod(entries, g)}
         />
         <div className="streak-box">
           <div className="box-header">
