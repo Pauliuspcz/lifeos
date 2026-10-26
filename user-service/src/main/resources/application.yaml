@@ -17,6 +17,7 @@ spring:
       ddl-auto: validate
 app:
   jwt:
+    issuer: ${JWT_ISSUER:lifeos-auth}
     access-expiration-minutes: 60
     refresh-expiration-days: 30
     private-key: ${JWT_PRIVATE_KEY}

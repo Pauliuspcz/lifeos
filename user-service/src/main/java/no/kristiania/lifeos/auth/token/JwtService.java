@@ -24,15 +24,18 @@ public class JwtService {
     private final PrivateKey privateKey;
     private final PublicKey publicKey;
     private final long accessMinutes;
+    private final String issuer;
 
     public JwtService(@Value("${app.jwt.private-key}") String privateKeyB64,
                       @Value("${app.jwt.public-key}") String publicKeyB64,
-                      @Value("${app.jwt.access-expiration-minutes}") long accessMinutes) throws Exception {
+                      @Value("${app.jwt.access-expiration-minutes}") long accessMinutes,
+                      @Value("${app.jwt.issuer}") String issuer) throws Exception {
         this.privateKey = KeyFactory.getInstance("RSA").generatePrivate(
                 new PKCS8EncodedKeySpec(pemToBytes(decode(privateKeyB64))));
         this.publicKey = KeyFactory.getInstance("RSA").generatePublic(
                 new X509EncodedKeySpec(pemToBytes(decode(publicKeyB64))));
         this.accessMinutes = accessMinutes;
+        this.issuer = issuer;
     }
 
     private static String decode(String b64) {
@@ -42,6 +45,7 @@ public class JwtService {
     public String generateAccessToken(User user) {
         Instant now = Instant.now();
         return Jwts.builder()
+                .issuer(issuer)
                 .subject(String.valueOf(user.getId()))
                 .claim("email", user.getEmail())
                 .issuedAt(Date.from(now))

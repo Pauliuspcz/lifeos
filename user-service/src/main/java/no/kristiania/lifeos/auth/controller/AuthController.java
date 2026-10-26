@@ -22,6 +22,7 @@ public class AuthController {
         return authService.register(req);
     }
 
+    //TODO: if time add brute force protection?
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest req) {
         return authService.login(req);

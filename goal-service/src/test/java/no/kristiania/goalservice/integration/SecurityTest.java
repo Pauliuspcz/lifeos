@@ -6,6 +6,8 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import static no.kristiania.goalservice.testSupport.JwtTestSupport.*;
+
 class SecurityTest extends AbstractIntegrationTest {
 
     @Test
@@ -54,5 +56,11 @@ class SecurityTest extends AbstractIntegrationTest {
         mockMvc.perform(get("/api/goal").header(AUTHORIZATION, bearer(tokenFor(1L))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    void request_withWrongIssuer_returns401() throws Exception {
+        mockMvc.perform(get("/api/goal").header(AUTHORIZATION, bearer(tokenWithIssuer(1L, "someone-else"))))
+                .andExpect(status().isUnauthorized());
     }
 }

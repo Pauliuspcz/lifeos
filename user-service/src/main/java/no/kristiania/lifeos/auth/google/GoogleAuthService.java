@@ -8,10 +8,8 @@ import no.kristiania.lifeos.exception.GoogleAccountConflictException;
 import no.kristiania.lifeos.user.Emails;
 import no.kristiania.lifeos.user.User;
 import no.kristiania.lifeos.user.UserRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor

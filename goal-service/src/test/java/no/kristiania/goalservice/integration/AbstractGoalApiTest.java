@@ -8,6 +8,9 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
+import static no.kristiania.goalservice.testSupport.JwtTestSupport.*;
+
+
 abstract class AbstractGoalApiTest extends AbstractIntegrationTest {
 
     protected static final String VALID_GOAL = """
