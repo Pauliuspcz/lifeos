@@ -20,6 +20,7 @@ class JwtServiceTest {
 
     private static KeyPair keyPair;
     private static KeyPair otherKeyPair;
+    private static final String ISSUER = "lifeos-auth";
 
     @BeforeAll
     static void generateKeys() throws Exception {
@@ -40,7 +41,8 @@ class JwtServiceTest {
         return new JwtService(
                 toBase64Pem("PRIVATE KEY", pair.getPrivate().getEncoded()),
                 toBase64Pem("PUBLIC KEY", pair.getPublic().getEncoded()),
-                accessMinutes);
+                accessMinutes,
+                ISSUER);
     }
 
     private static User user(long id, String email) {
@@ -128,5 +130,14 @@ class JwtServiceTest {
 
         assertThatThrownBy(() -> service.parse("not.a.jwt")).isInstanceOf(JwtException.class);
         assertThatThrownBy(() -> service.parse("")).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void generatedToken_containsConfiguredIssuer() throws Exception {
+        JwtService service = serviceWith(keyPair, 60);
+
+        Claims claims = service.parse(service.generateAccessToken(user(1L, "a@example.com")));
+
+        assertThat(claims.getIssuer()).isEqualTo(ISSUER);
     }
 }
