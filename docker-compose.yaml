@@ -71,6 +71,28 @@ services:
       - "${PROGRESS_DB_PORT}:5432"
     volumes:
       - progress-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${PROGRESS_DB_NAME}" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  progress-service:
+    build: ./progress-service
+    depends_on:
+       progress-db:
+          condition: service_healthy
+       rabbitmq:
+         condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://progress-db:5432/${PROGRESS_DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+    ports:
+      - "8082:8082"
 
   report-db:
     image: postgres:15-alpine
