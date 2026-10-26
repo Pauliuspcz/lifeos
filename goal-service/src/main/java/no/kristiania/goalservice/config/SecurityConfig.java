@@ -12,6 +12,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.web.SecurityFilterChain;
@@ -37,18 +38,27 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(entryPoint))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/error").permitAll()
+                        .anyRequest().authenticated())
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(entryPoint))
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .authenticationEntryPoint(entryPoint)
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(this::toAuthentication)))
                 .build();
     }
 
+    /*Validates signature, expiry and issuer*/
     @Bean
-    JwtDecoder jwtDecoder(@Value("${app.jwt.public-key}") String publicKeyBase64Pem) {
-        return NimbusJwtDecoder.withPublicKey(parsePublicKey(publicKeyBase64Pem)).build();
+    JwtDecoder jwtDecoder(@Value("${app.jwt.public-key}") String publicKeyBase64Pem,
+                          @Value("${app.jwt.issuer}") String issuer) {
+        NimbusJwtDecoder decoder = NimbusJwtDecoder
+                .withPublicKey(parsePublicKey(publicKeyBase64Pem)).build();
+        decoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer));
+        return decoder;
     }
 
     private AbstractAuthenticationToken toAuthentication(Jwt jwt) {

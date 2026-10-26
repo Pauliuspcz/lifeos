@@ -9,6 +9,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import static no.kristiania.goalservice.testSupport.JwtTestSupport.*;
+
 class CorsTest extends AbstractIntegrationTest {
 
     private static final String ALLOWED_ORIGIN = "http://localhost:5173";
