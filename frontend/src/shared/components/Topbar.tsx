@@ -5,7 +5,6 @@ export default function Topbar() {
   return (
     <header className="topbar">
       <Link to={HOME_PATH} className="topbar-logo">
-        <span className="logo-mark">✓</span>
         LifeOS
       </Link>
       <nav className="topbar-nav">

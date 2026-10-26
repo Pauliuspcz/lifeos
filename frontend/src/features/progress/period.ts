@@ -1,4 +1,5 @@
-import { GoalPeriod } from "../goals";
+import { type Goal, GoalPeriod } from "../goals";
+import { Progress } from "./types";
 
 export function periodStart(period: GoalPeriod, now = new Date()): string {
   let start: Date;
@@ -20,4 +21,9 @@ export function periodStart(period: GoalPeriod, now = new Date()): string {
       break;
   }
   return start.toLocaleDateString("sv-SE");
+}
+
+export function countInPeriod(entries: Progress[], goal: Goal): number {
+  const start = periodStart(goal.period);
+  return entries.filter((e) => e.goalId === goal.id && e.date >= start).length;
 }
