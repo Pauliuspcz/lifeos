@@ -2,7 +2,7 @@ import { Link, NavLink } from "react-router";
 import {
   GOAL_PATH,
   HOME_PATH,
-  INNSIGHT_PATH,
+  INSIGHT_PATH,
   PROFILE_PATH,
 } from "../config/routes";
 
@@ -15,7 +15,7 @@ export default function Topbar() {
       <nav className="topbar-nav">
         <NavLink to={HOME_PATH}>I dag</NavLink>
         <NavLink to={GOAL_PATH}>Mål</NavLink>
-        <NavLink to={INNSIGHT_PATH}>Innsikt</NavLink>
+        <NavLink to={INSIGHT_PATH}>Innsikt</NavLink>
         <span>Journal</span>
       </nav>
       <Link to={PROFILE_PATH} className="topbar-profile">

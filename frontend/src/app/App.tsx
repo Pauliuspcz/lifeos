@@ -9,7 +9,7 @@ import { ProtectedRoute } from "../features/auth";
 import {
   GOAL_PATH,
   HOME_PATH,
-  INNSIGHT_PATH,
+  INSIGHT_PATH,
   LOGIN_PATH,
   PROFILE_PATH,
 } from "../shared/config/routes";
@@ -25,7 +25,7 @@ export default function App() {
             <Route path={HOME_PATH} element={<DashboardPage />} />
             <Route path={PROFILE_PATH} element={<ProfilePage />} />
             <Route path={GOAL_PATH} element={<GoalsPage />} />
-            <Route path={INNSIGHT_PATH} element={<InsightPage />} />
+            <Route path={INSIGHT_PATH} element={<InsightPage />} />
           </Route>
           <Route path={"*"} element={<ErrorPage />} />
         </Routes>
