@@ -227,6 +227,11 @@ body {
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   margin-bottom: 8px;
+  width: 100%;
+  background: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 .habit-row.done {
   background: #eff6ff;
