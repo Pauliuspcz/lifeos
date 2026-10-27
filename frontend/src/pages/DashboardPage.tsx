@@ -1,5 +1,7 @@
 import Topbar from "../shared/components/Topbar";
 import { GoalsCard, useGoals } from "../features/goals";
+import { CheckinCard, useProgress } from "../features/progress";
+import { countInPeriod } from "../features/progress";
 
 const MOODS = [
   { n: 1, word: "Tung" },
@@ -17,6 +19,7 @@ export default function DashboardPage() {
   const todayIndex = (new Date().getDay() + 6) % 7;
   const { goals, loading, loadError, addGoal, archiveGoal } =
     useGoals("ACTIVE");
+  const { entries, addProgress, removeProgress } = useProgress();
 
   return (
     <>
@@ -28,6 +31,7 @@ export default function DashboardPage() {
           loadError={loadError}
           onCreate={addGoal}
           onArchive={archiveGoal}
+          countFor={(g) => countInPeriod(entries, g)}
         />
         <div className="streak-box">
           <div className="box-header">
@@ -54,15 +58,12 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-
-        <div className="checkin-box">
-          <div className="box-header">
-            <h2>Vaner i dag</h2>
-            <span className="muted">Trykk for å hake av</span>
-          </div>
-          <p className="muted">Ingen vaner i dag.</p>
-        </div>
-
+        <CheckinCard
+          goals={goals}
+          entries={entries}
+          onCheck={addProgress}
+          onUncheck={removeProgress}
+        />
         <div className="scale-box">
           <h2>Logg kjapt</h2>
           <p className="label">Humør i dag</p>

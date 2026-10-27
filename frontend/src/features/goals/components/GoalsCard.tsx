@@ -8,6 +8,7 @@ type Props = {
   loadError: string;
   onCreate: (req: CreateGoalRequest) => Promise<void>;
   onArchive: (goalId: number) => Promise<void>;
+  countFor?: (goal: Goal) => number;
 };
 
 export default function GoalsCard({
@@ -16,6 +17,7 @@ export default function GoalsCard({
   loadError,
   onCreate,
   onArchive,
+  countFor,
 }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -61,6 +63,16 @@ export default function GoalsCard({
                 ×
               </button>
             </div>
+            {countFor && (
+              <div className="progress">
+                <div
+                  className="progress-fill"
+                  style={{
+                    width: `${Math.min(100, (countFor(g) / g.timesPerPeriod) * 100)}%`,
+                  }}
+                />
+              </div>
+            )}
             {(g.description || g.amountPerSession !== null) && (
               <div className="goal-foot">
                 <span>{g.description}</span>

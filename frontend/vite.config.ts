@@ -7,6 +7,7 @@ export default defineConfig({
       "/profile/me": "http://localhost:8080",
       "/api/goal": "http://localhost:8081",
       "/api/progress": "http://localhost:8082",
+      "/api/reports": "http://localhost:8083",
     },
   },
   test: {
