@@ -1,6 +1,7 @@
 import Topbar from "../shared/components/Topbar";
 import { useGoals } from "../features/goals";
 import { useGoalReports } from "../features/report";
+import { lastCheckinLabel } from "../features/report/dates";
 
 export default function InsightPage() {
   const { goals, loading: goalsLoading } = useGoals("ACTIVE");
@@ -23,8 +24,8 @@ export default function InsightPage() {
             const r = reports.find((r) => r.goalId === g.id);
             return (
               <li key={g.id}>
-                {g.title}: {r?.totalSessions ?? 0} ganger totalt, sist{" "}
-                {r?.lastDate ?? "aldri"}
+                {g.title}: {r?.totalSessions ?? 0} ganger totalt, sist sjekket
+                inn {lastCheckinLabel(r?.lastDate ?? null)}
               </li>
             );
           })}
