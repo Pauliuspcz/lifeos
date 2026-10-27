@@ -15,7 +15,7 @@ export function lastCheckinLabel(
   lastDate: string | null,
   now = new Date(),
 ): string {
-  if (lastDate === null) return "aldri";
+  if (lastDate === null) return " aldri";
   const days = daysSince(lastDate, now);
   if (days <= 0) return " i dag";
   if (days === 1) return " i går";

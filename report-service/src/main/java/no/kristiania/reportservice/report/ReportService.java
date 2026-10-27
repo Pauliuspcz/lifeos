@@ -16,6 +16,21 @@ public class ReportService {
         List<ProgressRecord> entries =
                 progressRecordRepo.findByUserIdAndGoalIdOrderByDateAsc(userId,goalId);
         LocalDate lastDate = entries.isEmpty() ? null : entries.getLast().getDate();
-        return new GoalReport(goalId, entries.size(), lastDate);
+        LocalDate today = LocalDate.now();
+        LocalDate last30Start = today.minusDays(29);
+        LocalDate previous30Start = today.minusDays(59);
+
+        int last30Days = 0;
+        int previous30Days = 0;
+        for (ProgressRecord entry : entries) {
+            LocalDate date = entry.getDate();
+            if (!date.isBefore(last30Start)) {
+                last30Days++;
+            } else if (!date.isBefore(previous30Start)) {
+                previous30Days++;
+            }
+        }
+
+        return new GoalReport(goalId, entries.size(), lastDate, last30Days, previous30Days);
     }
 }

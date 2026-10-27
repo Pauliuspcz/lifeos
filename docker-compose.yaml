@@ -129,6 +129,7 @@ services:
       SPRING_RABBITMQ_HOST: rabbitmq
       RABBITMQ_USER: ${RABBITMQ_USER}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      TZ: Europe/Oslo
     ports:
       - "8083:8083"
 
