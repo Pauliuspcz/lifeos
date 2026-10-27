@@ -1,6 +1,6 @@
 import { type Goal, PERIOD_LABEL } from "../../goals";
 import type { CreateProgressRequest, Progress } from "../types";
-import { countInPeriod } from "../period";
+import { countInPeriod } from "../utils/period";
 
 type Props = {
   goals: Goal[];

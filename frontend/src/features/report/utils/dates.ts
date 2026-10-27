@@ -5,7 +5,7 @@ import {
   differenceInCalendarYears,
   parseISO,
 } from "date-fns";
-import { Goal, GoalPeriod } from "../goals";
+import { Goal, GoalPeriod } from "../../goals";
 
 export function daysSince(date: string, now = new Date()): number {
   return differenceInCalendarDays(now, parseISO(date));

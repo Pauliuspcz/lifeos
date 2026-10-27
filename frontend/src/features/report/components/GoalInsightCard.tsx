@@ -1,6 +1,6 @@
 import { Goal, PERIOD_LABEL } from "../../goals";
 import { GoalReport } from "../types";
-import { averagePerPeriod, lastCheckinLabel } from "../dates";
+import { averagePerPeriod, lastCheckinLabel } from "../utils/dates";
 
 type Props = {
   goal: Goal;

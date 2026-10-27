@@ -1,5 +1,5 @@
-import { type Goal, GoalPeriod } from "../goals";
-import { Progress } from "./types";
+import { type Goal, GoalPeriod } from "../../goals";
+import { Progress } from "../types";
 
 export function periodStart(period: GoalPeriod, now = new Date()): string {
   let start: Date;
