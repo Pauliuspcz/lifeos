@@ -4,6 +4,7 @@ import no.kristiania.goalservice.goal.dto.CreateGoalRequest;
 import no.kristiania.goalservice.goal.dto.UpdateGoalRequest;
 import no.kristiania.goalservice.goal.enums.GoalPeriod;
 import no.kristiania.goalservice.goal.enums.GoalStatus;
+import no.kristiania.goalservice.goal.exceptions.GoalNotArchivedException;
 import no.kristiania.goalservice.goal.exceptions.GoalNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -135,8 +137,10 @@ class GoalServiceTest {
     }
 
     @Test
-    void delete_ownedGoal_isDeleted() {
+    void delete_archivedOwnedGoal_isDeleted() {
         Goal goal = existingGoal();
+        goal.setStatus(GoalStatus.ARCHIVED);
+        goal.setArchivedAt(Instant.now().truncatedTo(ChronoUnit.MICROS));
         when(goalRepo.findByIdAndUserId(GOAL_ID, USER_ID)).thenReturn(Optional.of(goal));
 
         goalService.delete(USER_ID, GOAL_ID);
@@ -151,5 +155,16 @@ class GoalServiceTest {
         assertThatThrownBy(() -> goalService.delete(USER_ID, GOAL_ID))
                 .isInstanceOf(GoalNotFoundException.class);
         verify(goalRepo, never()).delete(any(Goal.class));
+    }
+
+    @Test
+    void delete_activeGoal_throwsAndDoesNotDelete() {
+        Goal goal = existingGoal(); // status ACTIVE
+        when(goalRepo.findByIdAndUserId(GOAL_ID, USER_ID)).thenReturn(Optional.of(goal));
+
+        assertThatThrownBy(() -> goalService.delete(USER_ID, GOAL_ID))
+                .isInstanceOf(GoalNotArchivedException.class);
+
+        verify(goalRepo, never()).delete(any());
     }
 }

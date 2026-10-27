@@ -1,4 +1,4 @@
-package no.kristiania.goalservice.testSupport;
+package no.kristiania.goalservice.integration.setup;
 
 import io.jsonwebtoken.Jwts;
 

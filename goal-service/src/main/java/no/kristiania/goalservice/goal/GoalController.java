@@ -55,6 +55,11 @@ public class GoalController {
         return GoalResponse.from(goalService.archive(userId, id));
     }
 
+    @PatchMapping("/{id}/unarchive")
+    public GoalResponse unarchive(@AuthenticationPrincipal Long userId, @PathVariable Long id) {
+        return GoalResponse.from(goalService.unarchive(userId, id));
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@AuthenticationPrincipal Long userId, @PathVariable Long id) {

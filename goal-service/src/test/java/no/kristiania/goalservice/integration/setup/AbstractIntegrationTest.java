@@ -1,7 +1,8 @@
-package no.kristiania.goalservice.integration;
+package no.kristiania.goalservice.integration.setup;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
@@ -12,15 +13,17 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static no.kristiania.goalservice.testSupport.JwtTestSupport.ISSUER;
-import static no.kristiania.goalservice.testSupport.JwtTestSupport.KEYS;
-import static no.kristiania.goalservice.testSupport.JwtTestSupport.toBase64Pem;
+import static no.kristiania.goalservice.integration.setup.JwtTestSupport.ISSUER;
+import static no.kristiania.goalservice.integration.setup.JwtTestSupport.KEYS;
+import static no.kristiania.goalservice.integration.setup.JwtTestSupport.toBase64Pem;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Import(TestcontainersConfiguration.class)
 public abstract class AbstractIntegrationTest {
+
+    @Value("${local.server.port}") protected int port;
 
     @Autowired protected MockMvc mockMvc;
     @Autowired protected JdbcTemplate jdbcTemplate;
@@ -33,7 +36,7 @@ public abstract class AbstractIntegrationTest {
     }
 
     @BeforeEach
-    void cleanDatabase() {
+    protected void cleanDatabase() {
         JdbcTestUtils.deleteFromTables(jdbcTemplate, "goals");
     }
 }
