@@ -1,13 +1,13 @@
 import Topbar from "../shared/components/Topbar";
 import { useGoals } from "../features/goals";
-import { useGoalReports } from "../features/report";
+import { GoalInsightCard, useGoalReports } from "../features/report";
+import { useProgress } from "../features/progress";
 
 export default function InsightPage() {
   const { goals, loading: goalsLoading } = useGoals("ACTIVE");
   const { reports, loading, loadError } = useGoalReports(goals);
-
   const isLoading = goalsLoading || loading;
-
+  const { entries } = useProgress();
   return (
     <>
       <Topbar />
@@ -19,15 +19,14 @@ export default function InsightPage() {
           <p>Ingen mål ennå.</p>
         )}
         <ul>
-          {goals.map((g) => {
-            const r = reports.find((r) => r.goalId === g.id);
-            return (
-              <li key={g.id}>
-                {g.title}: {r?.totalSessions ?? 0} ganger totalt, sist{" "}
-                {r?.lastDate ?? "aldri"}
-              </li>
-            );
-          })}
+          {goals.map((g) => (
+            <GoalInsightCard
+              key={g.id}
+              goal={g}
+              report={reports.find((r) => r.goalId === g.id)}
+              entries={entries}
+            />
+          ))}
         </ul>
       </div>
     </>

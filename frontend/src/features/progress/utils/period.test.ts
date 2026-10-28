@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import type { Goal } from "../goals";
+import type { Goal } from "../../goals";
 import { countInPeriod, periodStart } from "./period";
-import type { Progress } from "./types";
+import type { Progress } from "../types";
 
 const monday = new Date(2026, 9, 26);
 const wednesday = new Date(2026, 9, 28);
