@@ -47,6 +47,15 @@ const goal = (id: number, period: Goal["period"] = "WEEKLY"): Goal => ({
   createdAt: "",
   updatedAt: "",
   archivedAt: null,
+  goalType: "HABIT",
+  trackingType: "COUNT",
+  targetTime: null,
+  startDate: null,
+  targetDate: null,
+  motivation: null,
+  iconKey: null,
+  color: null,
+  categoryId: null,
 });
 
 const entry = (id: number, goalId: number, date: string): Progress => ({

@@ -1,6 +1,9 @@
-import { CreateGoalRequest, PERIOD_LABEL, Goal } from "../types";
+import type { CreateGoalRequest, Goal } from "../types";
 import { useRef } from "react";
 import GoalForm from "./GoalForm";
+import { describeGoal } from "../GoalDisplay";
+import DirectionStep from "../catalog/components/DirectionStep";
+import GoalWizard from "../catalog/components/GoalWizard";
 
 type Props = {
   goals: Goal[];
@@ -51,9 +54,7 @@ export default function GoalsCard({
           <div className="goal-row" key={g.id}>
             <div className="goal-top">
               <span>{g.title}</span>
-              <span className="muted">
-                {g.timesPerPeriod}× per {PERIOD_LABEL[g.period]}
-              </span>
+              <span className="muted">{describeGoal(g)}</span>
               <button
                 type="button"
                 className="goal-archive"
@@ -63,7 +64,7 @@ export default function GoalsCard({
                 ×
               </button>
             </div>
-            {countFor && (
+            {countFor && g.trackingType === "COUNT" && g.timesPerPeriod && (
               <div className="progress">
                 <div
                   className="progress-fill"
@@ -73,10 +74,11 @@ export default function GoalsCard({
                 />
               </div>
             )}
-            {(g.description || g.amountPerSession !== null) && (
+            {(g.description ||
+              (g.trackingType === "COUNT" && g.amountPerSession !== null)) && (
               <div className="goal-foot">
                 <span>{g.description}</span>
-                {g.amountPerSession !== null && (
+                {g.trackingType === "COUNT" && g.amountPerSession !== null && (
                   <span>
                     {g.amountPerSession} {g.unit}
                   </span>
@@ -97,7 +99,7 @@ export default function GoalsCard({
             Lukk
           </button>
         </div>
-        <GoalForm
+        <GoalWizard
           onCreate={onCreate}
           onDone={() => dialogRef.current?.close()}
         />
