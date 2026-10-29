@@ -1,8 +1,6 @@
 import type { CreateGoalRequest, Goal } from "../types";
-import { useRef } from "react";
-import GoalForm from "./GoalForm";
+import { useRef, useState } from "react";
 import { describeGoal } from "../GoalDisplay";
-import DirectionStep from "../catalog/components/DirectionStep";
 import GoalWizard from "../catalog/components/GoalWizard";
 
 type Props = {
@@ -22,6 +20,7 @@ export default function GoalsCard({
   onArchive,
   countFor,
 }: Props) {
+  const [wizardKey, setWizardKey] = useState(0);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   async function handleArchive(goalId: number) {
@@ -88,7 +87,12 @@ export default function GoalsCard({
           </div>
         ))}
       </div>
-      <dialog ref={dialogRef} className="goal-dialog">
+
+      <dialog
+        ref={dialogRef}
+        className="goal-dialog"
+        onClose={() => setWizardKey((k) => k + 1)}
+      >
         <div className="box-header">
           <h2>Nytt mål</h2>
           <button
@@ -100,6 +104,7 @@ export default function GoalsCard({
           </button>
         </div>
         <GoalWizard
+          key={wizardKey}
           onCreate={onCreate}
           onDone={() => dialogRef.current?.close()}
         />
