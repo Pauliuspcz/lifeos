@@ -3,7 +3,7 @@ import DirectionStep from "../../catalog/components/DirectionStep";
 import TemplateStep from "../../catalog/components/TemplateStep";
 import type { Direction, Template } from "../types";
 import { CreateGoalRequest } from "../../types";
-import { GoalForm } from "../../index";
+import CustomizeStep from "./CustomizeStep";
 
 type WizardState =
   | { step: "direction" }
@@ -46,23 +46,17 @@ export default function GoalWizard({ onCreate, onDone }: Props) {
   }
 
   return (
-    <div>
-      <button
-        type="button"
-        className="btn-outline"
-        onClick={() =>
-          setState(
-            state.direction
-              ? { step: "template", direction: state.direction }
-              : { step: "direction" },
-          )
-        }
-      >
-        ← Tilbake
-      </button>
-      {state.template && <p className="muted">Valgt: {state.template.title}</p>}
-      {/* Midlertidig: erstattes av CustomizeStep */}
-      <GoalForm onCreate={onCreate} onDone={onDone} />
-    </div>
+    <CustomizeStep
+      template={state.template}
+      onBack={() =>
+        setState(
+          state.direction
+            ? { step: "template", direction: state.direction }
+            : { step: "direction" },
+        )
+      }
+      onCreate={onCreate}
+      onDone={onDone}
+    />
   );
 }
