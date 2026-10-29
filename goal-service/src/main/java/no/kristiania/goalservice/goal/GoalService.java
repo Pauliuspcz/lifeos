@@ -19,10 +19,10 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class GoalService {
 
-    private final GoalRepo goalRepo;
+    private final GoalRepository goalRepository;
 
-    public GoalService(GoalRepo goalRepo) {
-        this.goalRepo = goalRepo;
+    public GoalService(GoalRepository goalRepository) {
+        this.goalRepository = goalRepository;
     }
 
     @Transactional
@@ -31,17 +31,17 @@ public class GoalService {
         goal.setUserId(userId);
         applyFields(goal, request.title(), request.description(), request.period(),
                 request.timesPerPeriod(), request.amountPerSession(), request.unit());
-        return goalRepo.save(goal);
+        return goalRepository.save(goal);
     }
 
     public List<Goal> findAll(Long userId, GoalStatus status) {
         return status == null
-                ? goalRepo.findAllByUserIdOrderByCreatedAtDesc(userId)
-                : goalRepo.findAllByUserIdAndStatusOrderByCreatedAtDesc(userId, status);
+                ? goalRepository.findAllByUserIdOrderByCreatedAtDesc(userId)
+                : goalRepository.findAllByUserIdAndStatusOrderByCreatedAtDesc(userId, status);
     }
 
     public Goal findById(Long userId, Long id) {
-        return goalRepo.findByIdAndUserId(id, userId)
+        return goalRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new GoalNotFoundException(id));
     }
 
@@ -53,7 +53,7 @@ public class GoalService {
         }
         applyFields(goal, request.title(), request.description(), request.period(),
                 request.timesPerPeriod(), request.amountPerSession(), request.unit());
-        return goalRepo.saveAndFlush(goal);
+        return goalRepository.saveAndFlush(goal);
     }
 
     @Transactional
@@ -63,7 +63,7 @@ public class GoalService {
             goal.setStatus(GoalStatus.ARCHIVED);
             goal.setArchivedAt(Instant.now().truncatedTo(ChronoUnit.MICROS));
         }
-        return goalRepo.saveAndFlush(goal);
+        return goalRepository.saveAndFlush(goal);
     }
 
     @Transactional
@@ -73,7 +73,7 @@ public class GoalService {
             goal.setStatus(GoalStatus.ACTIVE);
             goal.setArchivedAt(null);
         }
-        return goalRepo.saveAndFlush(goal);
+        return goalRepository.saveAndFlush(goal);
     }
 
     @Transactional
@@ -82,7 +82,7 @@ public class GoalService {
         if (goal.getStatus() != GoalStatus.ARCHIVED) {
             throw new GoalNotArchivedException();
         }
-        goalRepo.delete(goal);
+        goalRepository.delete(goal);
     }
 
     private void applyFields(Goal goal, String title, String description, GoalPeriod period,

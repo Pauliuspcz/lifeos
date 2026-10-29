@@ -1,7 +1,7 @@
 package no.kristiania.goalservice.integration.persistence;
 
 import no.kristiania.goalservice.goal.Goal;
-import no.kristiania.goalservice.goal.GoalRepo;
+import no.kristiania.goalservice.goal.GoalRepository;
 import no.kristiania.goalservice.goal.enums.GoalPeriod;
 import no.kristiania.goalservice.goal.enums.GoalStatus;
 import no.kristiania.goalservice.integration.setup.AbstractIntegrationTest;
@@ -32,7 +32,8 @@ class GoalPersistenceTest extends AbstractIntegrationTest {
                                amount_per_session, unit, status, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, now(), now())""";
 
-    @Autowired GoalRepo goalRepo;
+    @Autowired
+    GoalRepository goalRepository;
 
     private Goal newGoal(String title) {
         Goal goal = new Goal();
@@ -48,11 +49,9 @@ class GoalPersistenceTest extends AbstractIntegrationTest {
         jdbcTemplate.update(INSERT_RAW, USER, title, description, period, times, amount, unit, status);
     }
 
-    // ---------- L6.1 ----------
-
     @Test
     void save_setsCreatedAtAndUpdatedAt_toTheSameValue() {
-        Goal saved = goalRepo.saveAndFlush(newGoal("Run"));
+        Goal saved = goalRepository.saveAndFlush(newGoal("Run"));
 
         assertThat(saved.getCreatedAt()).isNotNull();
         assertThat(saved.getUpdatedAt()).isEqualTo(saved.getCreatedAt());
@@ -60,104 +59,96 @@ class GoalPersistenceTest extends AbstractIntegrationTest {
 
     @Test
     void update_changesUpdatedAt_butNotCreatedAt() {
-        Goal saved = goalRepo.saveAndFlush(newGoal("Run"));
+        Goal saved = goalRepository.saveAndFlush(newGoal("Run"));
         Instant createdAt = saved.getCreatedAt();
 
         saved.setTitle("Run more");
-        Goal updated = goalRepo.saveAndFlush(saved);
+        Goal updated = goalRepository.saveAndFlush(saved);
 
         assertThat(updated.getUpdatedAt()).isAfter(createdAt);
         assertThat(updated.getCreatedAt()).isEqualTo(createdAt);
     }
 
-    // ---------- L6.2 ----------
-
     @Test
     void update_ignoresChangesToUserIdAndCreatedAt() {
-        Goal saved = goalRepo.saveAndFlush(newGoal("Run"));
-        Instant originalCreatedAt = goalRepo.findById(saved.getId()).orElseThrow().getCreatedAt();
+        Goal saved = goalRepository.saveAndFlush(newGoal("Run"));
+        Instant originalCreatedAt = goalRepository.findById(saved.getId()).orElseThrow().getCreatedAt();
 
-        Goal detached = goalRepo.findById(saved.getId()).orElseThrow();
+        Goal detached = goalRepository.findById(saved.getId()).orElseThrow();
         detached.setUserId(OTHER_USER);
         detached.setCreatedAt(Instant.parse("2000-01-01T00:00:00Z"));
         detached.setTitle("Run more");
-        goalRepo.saveAndFlush(detached);
+        goalRepository.saveAndFlush(detached);
 
-        Goal reloaded = goalRepo.findById(saved.getId()).orElseThrow();
+        Goal reloaded = goalRepository.findById(saved.getId()).orElseThrow();
         assertThat(reloaded.getTitle()).isEqualTo("Run more");
         assertThat(reloaded.getUserId()).isEqualTo(USER);
         assertThat(reloaded.getCreatedAt()).isEqualTo(originalCreatedAt);
     }
 
-    // ---------- L6.3 ----------
-
     @Test
     void update_withStaleVersion_throwsOptimisticLockingFailure() {
-        Long id = goalRepo.saveAndFlush(newGoal("Run")).getId();
-        Goal first = goalRepo.findById(id).orElseThrow();
-        Goal second = goalRepo.findById(id).orElseThrow();
+        Long id = goalRepository.saveAndFlush(newGoal("Run")).getId();
+        Goal first = goalRepository.findById(id).orElseThrow();
+        Goal second = goalRepository.findById(id).orElseThrow();
 
         first.setTitle("First");
-        goalRepo.saveAndFlush(first);
+        goalRepository.saveAndFlush(first);
         second.setTitle("Second");
 
-        assertThatThrownBy(() -> goalRepo.saveAndFlush(second))
+        assertThatThrownBy(() -> goalRepository.saveAndFlush(second))
                 .isInstanceOf(ObjectOptimisticLockingFailureException.class);
-        assertThat(goalRepo.findById(id).orElseThrow().getTitle()).isEqualTo("First");
+        assertThat(goalRepository.findById(id).orElseThrow().getTitle()).isEqualTo("First");
     }
-
-    // ---------- L6.4 ----------
 
     @Test
     void findByIdAndUserId_ownGoal_returnsIt() {
-        Long id = goalRepo.saveAndFlush(newGoal("Run")).getId();
+        Long id = goalRepository.saveAndFlush(newGoal("Run")).getId();
 
-        assertThat(goalRepo.findByIdAndUserId(id, USER)).isPresent();
+        assertThat(goalRepository.findByIdAndUserId(id, USER)).isPresent();
     }
 
     @Test
     void findByIdAndUserId_otherUser_returnsEmpty() {
-        Long id = goalRepo.saveAndFlush(newGoal("Run")).getId();
+        Long id = goalRepository.saveAndFlush(newGoal("Run")).getId();
 
-        assertThat(goalRepo.findByIdAndUserId(id, OTHER_USER)).isEmpty();
+        assertThat(goalRepository.findByIdAndUserId(id, OTHER_USER)).isEmpty();
     }
 
     @Test
     void findAllByUser_returnsOnlyOwnGoals_newestFirst() {
-        goalRepo.saveAndFlush(newGoal("first"));
-        goalRepo.saveAndFlush(newGoal("second"));
-        goalRepo.saveAndFlush(newGoal("third"));
+        goalRepository.saveAndFlush(newGoal("first"));
+        goalRepository.saveAndFlush(newGoal("second"));
+        goalRepository.saveAndFlush(newGoal("third"));
         Goal foreign = newGoal("foreign");
         foreign.setUserId(OTHER_USER);
-        goalRepo.saveAndFlush(foreign);
+        goalRepository.saveAndFlush(foreign);
 
-        List<Goal> result = goalRepo.findAllByUserIdOrderByCreatedAtDesc(USER);
+        List<Goal> result = goalRepository.findAllByUserIdOrderByCreatedAtDesc(USER);
 
         assertThat(result).extracting(Goal::getTitle).containsExactly("third", "second", "first");
     }
 
     @Test
     void findAllByUserAndStatus_returnsOnlyThatStatus() {
-        goalRepo.saveAndFlush(newGoal("active"));
+        goalRepository.saveAndFlush(newGoal("active"));
         Goal archived = newGoal("archived");
         archived.setStatus(GoalStatus.ARCHIVED);
-        goalRepo.saveAndFlush(archived);
+        goalRepository.saveAndFlush(archived);
 
-        List<Goal> result = goalRepo.findAllByUserIdAndStatusOrderByCreatedAtDesc(USER, GoalStatus.ARCHIVED);
+        List<Goal> result = goalRepository.findAllByUserIdAndStatusOrderByCreatedAtDesc(USER, GoalStatus.ARCHIVED);
 
         assertThat(result).extracting(Goal::getTitle).containsExactly("archived");
     }
-
-    // ---------- L6.5 ----------
 
     @Test
     void timestamps_readBackExactlyAsSaved() {
         Goal goal = newGoal("Run");
         goal.setStatus(GoalStatus.ARCHIVED);
         goal.setArchivedAt(Instant.now().truncatedTo(ChronoUnit.MICROS));
-        Goal saved = goalRepo.saveAndFlush(goal);
+        Goal saved = goalRepository.saveAndFlush(goal);
 
-        Goal reloaded = goalRepo.findById(saved.getId()).orElseThrow();
+        Goal reloaded = goalRepository.findById(saved.getId()).orElseThrow();
 
         assertThat(reloaded.getCreatedAt()).isEqualTo(saved.getCreatedAt());
         assertThat(reloaded.getUpdatedAt()).isEqualTo(saved.getUpdatedAt());
@@ -166,14 +157,12 @@ class GoalPersistenceTest extends AbstractIntegrationTest {
 
     @Test
     void createdAt_isCloseToNow() {
-        Goal saved = goalRepo.saveAndFlush(newGoal("Run"));
+        Goal saved = goalRepository.saveAndFlush(newGoal("Run"));
 
-        Goal reloaded = goalRepo.findById(saved.getId()).orElseThrow();
+        Goal reloaded = goalRepository.findById(saved.getId()).orElseThrow();
 
         assertThat(reloaded.getCreatedAt()).isCloseTo(Instant.now(), within(10, ChronoUnit.SECONDS));
     }
-
-    // ---------- L6.6 CHECK ----------
 
     @ParameterizedTest
     @ValueSource(strings = {"DAILY", "WEEKLY", "MONTHLY", "YEARLY"})
@@ -218,8 +207,6 @@ class GoalPersistenceTest extends AbstractIntegrationTest {
         assertThatCode(() -> insertRaw("Run", null, "DAILY", 1, new BigDecimal("0.01"), null, "ACTIVE"))
                 .doesNotThrowAnyException();
     }
-
-    // ---------- L6.7 kolonnegrenser ----------
 
     @Test
     void insertRaw_titleOf255Chars_isAccepted() {
@@ -269,20 +256,16 @@ class GoalPersistenceTest extends AbstractIntegrationTest {
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
-    // ---------- L6.8 NOT NULL ----------
-
     @ParameterizedTest
     @ValueSource(strings = {"user_id", "title", "period", "times_per_period",
             "status", "version", "created_at", "updated_at"})
     void setRequiredColumnToNull_isRejected(String column) {
-        Long id = goalRepo.saveAndFlush(newGoal("Run")).getId();
+        Long id = goalRepository.saveAndFlush(newGoal("Run")).getId();
 
         assertThatThrownBy(() ->
                 jdbcTemplate.update("UPDATE goals SET " + column + " = NULL WHERE id = ?", id))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
-
-    // ---------- L6.9 standardverdier ----------
 
     @Test
     void insertRaw_withoutStatusAndVersion_getsDatabaseDefaults() {

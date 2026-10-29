@@ -47,7 +47,7 @@ public class SecurityConfig {
                         .authenticationEntryPoint(entryPoint))
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .authenticationEntryPoint(entryPoint)
-                        .jwt(jwt -> jwt.jwtAuthenticationConverter(this::toAuthentication)))
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(SecurityConfig::toAuthentication)))
                 .build();
     }
 
@@ -61,7 +61,7 @@ public class SecurityConfig {
         return decoder;
     }
 
-    private AbstractAuthenticationToken toAuthentication(Jwt jwt) {
+    static AbstractAuthenticationToken toAuthentication(Jwt jwt) {
         try {
             Long userId = Long.valueOf(jwt.getSubject());
             return new UsernamePasswordAuthenticationToken(userId, jwt, List.of());
@@ -70,7 +70,7 @@ public class SecurityConfig {
         }
     }
 
-    private static RSAPublicKey parsePublicKey(String base64Pem) {
+    static RSAPublicKey parsePublicKey(String base64Pem) {
         try {
             String pem = new String(Base64.getDecoder().decode(base64Pem.trim()), StandardCharsets.UTF_8);
             String body = pem
