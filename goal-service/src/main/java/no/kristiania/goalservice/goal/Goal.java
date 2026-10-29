@@ -6,9 +6,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import no.kristiania.goalservice.goal.enums.GoalPeriod;
 import no.kristiania.goalservice.goal.enums.GoalStatus;
+import no.kristiania.goalservice.goal.enums.GoalType;
+import no.kristiania.goalservice.goal.enums.TrackingType;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 
 @Entity
@@ -31,11 +35,10 @@ public class Goal {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private GoalPeriod period;
 
-    @Column(name = "times_per_period", nullable = false)
-    private int timesPerPeriod;
+    @Column(name = "times_per_period")
+    private Integer timesPerPeriod;
 
     @Column(name = "amount_per_session")
     private BigDecimal amountPerSession;
@@ -60,6 +63,31 @@ public class Goal {
 
     @Column(name = "archived_at")
     private Instant archivedAt;
+
+    @Enumerated(EnumType.STRING) @Column(name = "goal_type", nullable = false)
+    private GoalType goalType = GoalType.HABIT;
+
+    @Enumerated(EnumType.STRING) @Column(name = "tracking_type", nullable = false)
+    private TrackingType trackingType = TrackingType.COUNT;
+
+    @Column(name = "category_id")
+    private Long categoryId;
+
+    @Column(name = "target_time")
+    private LocalTime targetTime;
+
+    @Column(name = "start_date")
+    private LocalDate startDate;
+
+    @Column(name = "target_date")
+    private LocalDate targetDate;
+
+    private String motivation;
+
+    @Column(name = "icon_key")
+    private String iconKey;
+
+    private String color;
 
     @PrePersist
     protected void onCreate() {
