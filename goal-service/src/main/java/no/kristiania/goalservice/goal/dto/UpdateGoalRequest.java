@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 public record UpdateGoalRequest(
         @NotBlank @Size(max = 255) String title,
-        @Size(max = 255) String description,
+        @Size(max = 1000) String description,
         @NotNull GoalPeriod period,
         @NotNull @Min(1) Integer timesPerPeriod,
         @Positive @Digits(integer = 8, fraction = 2) BigDecimal amountPerSession,

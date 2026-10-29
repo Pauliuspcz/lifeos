@@ -1,9 +1,14 @@
-package no.kristiania.goalservice.goal;
+package no.kristiania.goalservice.unit.goal;
 
+import no.kristiania.goalservice.goal.Goal;
+import no.kristiania.goalservice.goal.GoalRepository;
+import no.kristiania.goalservice.goal.GoalService;
 import no.kristiania.goalservice.goal.dto.CreateGoalRequest;
 import no.kristiania.goalservice.goal.dto.UpdateGoalRequest;
 import no.kristiania.goalservice.goal.enums.GoalPeriod;
 import no.kristiania.goalservice.goal.enums.GoalStatus;
+import no.kristiania.goalservice.goal.exceptions.GoalArchivedException;
+import no.kristiania.goalservice.goal.exceptions.GoalNotArchivedException;
 import no.kristiania.goalservice.goal.exceptions.GoalNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +19,7 @@ import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,7 +38,7 @@ class GoalServiceTest {
     private static final Long GOAL_ID = 5L;
 
     @Mock
-    private GoalRepo goalRepo;
+    private GoalRepository goalRepo;
 
     @InjectMocks
     private GoalService goalService;
@@ -135,8 +141,10 @@ class GoalServiceTest {
     }
 
     @Test
-    void delete_ownedGoal_isDeleted() {
+    void delete_archivedOwnedGoal_isDeleted() {
         Goal goal = existingGoal();
+        goal.setStatus(GoalStatus.ARCHIVED);
+        goal.setArchivedAt(Instant.now().truncatedTo(ChronoUnit.MICROS));
         when(goalRepo.findByIdAndUserId(GOAL_ID, USER_ID)).thenReturn(Optional.of(goal));
 
         goalService.delete(USER_ID, GOAL_ID);
@@ -151,5 +159,72 @@ class GoalServiceTest {
         assertThatThrownBy(() -> goalService.delete(USER_ID, GOAL_ID))
                 .isInstanceOf(GoalNotFoundException.class);
         verify(goalRepo, never()).delete(any(Goal.class));
+    }
+
+    @Test
+    void delete_activeGoal_throwsAndDoesNotDelete() {
+        Goal goal = existingGoal(); // status ACTIVE
+        when(goalRepo.findByIdAndUserId(GOAL_ID, USER_ID)).thenReturn(Optional.of(goal));
+
+        assertThatThrownBy(() -> goalService.delete(USER_ID, GOAL_ID))
+                .isInstanceOf(GoalNotArchivedException.class);
+
+        verify(goalRepo, never()).delete(any());
+    }
+
+    @Test
+    void update_archivedGoal_throwsAndDoesNotSave() {
+        Goal goal = existingGoal();
+        goal.setStatus(GoalStatus.ARCHIVED);
+        when(goalRepo.findByIdAndUserId(GOAL_ID, USER_ID)).thenReturn(Optional.of(goal));
+        var request = new UpdateGoalRequest("Run more", null, GoalPeriod.DAILY, 1, null, null);
+
+        assertThatThrownBy(() -> goalService.update(USER_ID, GOAL_ID, request))
+                .isInstanceOf(GoalArchivedException.class);
+
+        verify(goalRepo, never()).saveAndFlush(any());
+        assertThat(goal.getTitle()).isEqualTo("Run");
+    }
+
+    @Test
+    void unarchive_archivedGoal_setsActiveAndClearsTimestamp() {
+        Goal goal = existingGoal();
+        goal.setStatus(GoalStatus.ARCHIVED);
+        goal.setArchivedAt(Instant.parse("2026-01-01T00:00:00Z"));
+        when(goalRepo.findByIdAndUserId(GOAL_ID, USER_ID)).thenReturn(Optional.of(goal));
+        when(goalRepo.saveAndFlush(goal)).thenReturn(goal);
+
+        Goal result = goalService.unarchive(USER_ID, GOAL_ID);
+
+        assertThat(result.getStatus()).isEqualTo(GoalStatus.ACTIVE);
+        assertThat(result.getArchivedAt()).isNull();
+    }
+
+    @Test
+    void unarchive_notOwned_throwsNotFound() {
+        when(goalRepo.findByIdAndUserId(GOAL_ID, USER_ID)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> goalService.unarchive(USER_ID, GOAL_ID))
+                .isInstanceOf(GoalNotFoundException.class);
+    }
+
+    @Test
+    void findById_ownGoal_returnsIt() {
+        Goal goal = existingGoal();
+        when(goalRepo.findByIdAndUserId(GOAL_ID, USER_ID)).thenReturn(Optional.of(goal));
+
+        assertThat(goalService.findById(USER_ID, GOAL_ID)).isSameAs(goal);
+    }
+
+    @Test
+    void unarchive_activeGoal_changesNothing() {
+        Goal goal = existingGoal();
+        when(goalRepo.findByIdAndUserId(GOAL_ID, USER_ID)).thenReturn(Optional.of(goal));
+        when(goalRepo.saveAndFlush(goal)).thenReturn(goal);
+
+        Goal result = goalService.unarchive(USER_ID, GOAL_ID);
+
+        assertThat(result.getStatus()).isEqualTo(GoalStatus.ACTIVE);
+        assertThat(result.getArchivedAt()).isNull();
     }
 }
