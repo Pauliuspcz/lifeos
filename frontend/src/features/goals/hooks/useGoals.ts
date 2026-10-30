@@ -3,7 +3,9 @@ import { ApiError } from "../../../shared/api/client";
 import {
   archiveGoal as archiveGoalRequest,
   createGoal,
+  deleteGoal as deleteGoalRequest,
   listGoals,
+  unarchiveGoal as unarchiveGoalRequest,
 } from "../api";
 import type { CreateGoalRequest, Goal, GoalStatus } from "../types";
 
@@ -14,6 +16,8 @@ export function useGoals(status?: GoalStatus) {
 
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
+    setLoadError("");
     listGoals(status)
       .then((list) => {
         if (!cancelled) setGoals(list);
@@ -38,8 +42,7 @@ export function useGoals(status?: GoalStatus) {
     }
   }
 
-  async function archiveGoal(id: number) {
-    const updated = await archiveGoalRequest(id);
+  function applyUpdated(updated: Goal) {
     const stillMatches = !status || updated.status === status;
     setGoals((prev) =>
       stillMatches
@@ -48,5 +51,26 @@ export function useGoals(status?: GoalStatus) {
     );
   }
 
-  return { goals, loading, loadError, addGoal, archiveGoal };
+  async function archiveGoal(id: number) {
+    applyUpdated(await archiveGoalRequest(id));
+  }
+
+  async function unarchiveGoal(id: number) {
+    applyUpdated(await unarchiveGoalRequest(id));
+  }
+
+  async function removeGoal(id: number) {
+    await deleteGoalRequest(id);
+    setGoals((prev) => prev.filter((g) => g.id !== id));
+  }
+
+  return {
+    goals,
+    loading,
+    loadError,
+    addGoal,
+    archiveGoal,
+    unarchiveGoal,
+    removeGoal,
+  };
 }
