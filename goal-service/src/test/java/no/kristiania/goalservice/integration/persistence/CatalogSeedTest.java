@@ -15,9 +15,9 @@ class CatalogSeedTest extends AbstractIntegrationTest {
 
     @Test
     void seed_hasExpectedCounts() {
-        assertThat(categories.count()).isEqualTo(6);
+        assertThat(categories.count()).isEqualTo(7);
         assertThat(directions.count()).isEqualTo(7);
-        assertThat(templates.count()).isEqualTo(17);
+        assertThat(templates.count()).isEqualTo(18);
         Long links = jdbcTemplate.queryForObject("SELECT count(*) FROM direction_templates", Long.class);
         assertThat(links).isEqualTo(28);
     }
