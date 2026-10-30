@@ -47,7 +47,7 @@ export default function GoalsCard({
         {loading && <p className="muted">Laster mål…</p>}
         {loadError && <p className="error">{loadError}</p>}
         {!loading && !loadError && goals.length === 0 && (
-          <p className="muted">Ingen mål ennå.</p>
+          <p className="muted">No goals created yet.</p>
         )}
         {goals.map((g) => (
           <div className="goal-row" key={g.id}>
@@ -87,14 +87,13 @@ export default function GoalsCard({
           </div>
         ))}
       </div>
-
       <dialog
         ref={dialogRef}
         className="goal-dialog"
         onClose={() => setWizardKey((k) => k + 1)}
       >
         <div className="box-header">
-          <h2>Nytt mål</h2>
+          <h2></h2>
           <button
             type="button"
             className="btn-outline"

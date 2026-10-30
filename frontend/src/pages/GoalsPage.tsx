@@ -6,7 +6,6 @@ import Topbar from "../shared/components/Topbar";
 
 export default function GoalsPage() {
   const navigate = useNavigate();
-  // const { goals, loading, loadError, addGoal } = useGoals(); TODO: her er eventuelt alle mål hvis vi vil ha det
   const { goals, loading, loadError, addGoal } = useGoals("ACTIVE");
 
   function handleBack() {

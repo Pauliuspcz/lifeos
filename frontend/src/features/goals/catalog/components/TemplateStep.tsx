@@ -16,10 +16,10 @@ export default function TemplateStep({ direction, onBack, onPick }: Props) {
   return (
     <div>
       <button type="button" className="btn-outline" onClick={onBack}>
-        ← Tilbake
+        ← Go back
       </button>
       <h3>{direction.name}</h3>
-      {loading && <p className="muted">Laster…</p>}
+      {loading && <p className="muted">Loading…</p>}
       {loadError && <p className="error">{loadError}</p>}
 
       {categories.map((c) => {
@@ -43,7 +43,7 @@ export default function TemplateStep({ direction, onBack, onPick }: Props) {
                   <span className="muted">{describeTemplate(t)}</span>
                   {t.difficulty && (
                     <span className="muted">
-                      {DIFFICULTY_LABEL[t.difficulty]}
+                      {" - " + DIFFICULTY_LABEL[t.difficulty]}
                     </span>
                   )}
                 </button>

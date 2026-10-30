@@ -37,7 +37,6 @@ export default function GoalForm({ onCreate, onDone }: Props) {
     if (!form.title.trim()) local.title = "Tittel må fylles ut";
     if (form.timesPerPeriod < 1)
       local.timesPerPeriod = "Antall ganger må være minst 1";
-    //TODO: litt usikker på hva vi gjør med unit og mengde.. tanken er 10(mengde)km(unit)
     if (form.amountPerSession != null && form.amountPerSession <= 0)
       local.amountPerSession = "Mengde må være større enn 0";
     if (Object.keys(local).length > 0) {

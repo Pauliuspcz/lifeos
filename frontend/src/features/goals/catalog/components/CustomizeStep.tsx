@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { useState, type ReactNode, type SubmitEvent } from "react";
 import { ApiError, FieldErrors } from "../../../../shared/api/client";
 import { FIELDS_BY_TRACKING } from "../../GoalDisplay";
 import {
@@ -61,11 +61,7 @@ function initialState(t: Template | null): FormState {
   };
 }
 
-function Field(props: {
-  label: string;
-  error?: string;
-  children: React.ReactNode;
-}) {
+function Field(props: { label: string; error?: string; children: ReactNode }) {
   return (
     <div>
       <label>
@@ -109,7 +105,7 @@ export default function CustomizeStep({
     return e;
   }
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
     const local = validate();

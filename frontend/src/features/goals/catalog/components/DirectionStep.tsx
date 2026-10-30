@@ -11,8 +11,8 @@ export default function DirectionStep({ onPick, onCustom }: Props) {
 
   return (
     <div>
-      <h3>Hva vil du oppnå?</h3>
-      {loading && <p className="muted">Laster…</p>}
+      <h3>What is the end goal?</h3>
+      {loading && <p className="muted">Loading your next BIG step…</p>}
       {loadError && <p className="error">{loadError}</p>}
       <div className="direction-grid">
         {directions.map((d) => (
@@ -24,12 +24,14 @@ export default function DirectionStep({ onPick, onCustom }: Props) {
             onClick={() => onPick(d)}
           >
             <strong>{d.name}</strong>
-            {d.description && <span className="muted">{d.description}</span>}
+            {d.description && (
+              <span className="muted">{" - " + d.description}</span>
+            )}
           </button>
         ))}
       </div>
       <button type="button" className="btn-outline" onClick={onCustom}>
-        Lag mitt eget mål
+        I'll create my own
       </button>
     </div>
   );
