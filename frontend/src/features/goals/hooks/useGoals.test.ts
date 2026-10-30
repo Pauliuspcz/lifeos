@@ -29,6 +29,15 @@ const goal = (id: number, status: Goal["status"] = "ACTIVE"): Goal => ({
   createdAt: "",
   updatedAt: "",
   archivedAt: null,
+  goalType: "HABIT",
+  trackingType: "COUNT",
+  targetTime: null,
+  startDate: null,
+  targetDate: null,
+  motivation: null,
+  iconKey: null,
+  color: null,
+  categoryId: null,
 });
 
 const newGoal = {

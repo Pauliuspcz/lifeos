@@ -1,5 +1,5 @@
 import { parseISO, subDays } from "date-fns";
-import type { Goal } from "../../goals";
+import { Goal, periodOf, timesOf } from "../../goals";
 import { periodStart, type Progress } from "../../progress";
 
 function reachedTarget(
@@ -19,17 +19,19 @@ export function currentStreak(
   goal: Goal,
   now = new Date(),
 ): number {
+  const period = periodOf(goal);
+  const target = timesOf(goal);
   const dates = entries.filter((e) => e.goalId === goal.id).map((e) => e.date);
-  let start = periodStart(goal.period, now);
+  let start = periodStart(period, now);
   let end: string | null = null;
   let streak = 0;
 
-  if (reachedTarget(dates, start, end, goal.timesPerPeriod)) streak++;
+  if (reachedTarget(dates, start, end, target)) streak++;
 
   while (true) {
     end = start;
-    start = periodStart(goal.period, subDays(parseISO(end), 1));
-    if (!reachedTarget(dates, start, end, goal.timesPerPeriod)) break;
+    start = periodStart(period, subDays(parseISO(end), 1));
+    if (!reachedTarget(dates, start, end, target)) break;
     streak++;
   }
   return streak;

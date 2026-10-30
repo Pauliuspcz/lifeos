@@ -1,4 +1,4 @@
-import { type Goal, GoalPeriod } from "../../goals";
+import { type Goal, GoalPeriod, periodOf } from "../../goals";
 import { Progress } from "../types";
 
 export function periodStart(period: GoalPeriod, now = new Date()): string {
@@ -28,6 +28,6 @@ export function countInPeriod(
   goal: Goal,
   now = new Date(),
 ): number {
-  const start = periodStart(goal.period, now);
+  const start = periodStart(periodOf(goal), now);
   return entries.filter((e) => e.goalId === goal.id && e.date >= start).length;
 }

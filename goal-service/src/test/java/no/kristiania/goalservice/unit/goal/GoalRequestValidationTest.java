@@ -27,16 +27,33 @@ class GoalRequestValidationTest {
     private static final BigDecimal AMOUNT = new BigDecimal("5.0");
     private static final String UNIT = "km";
 
-    private static CreateGoalRequest valid() {
-        return new CreateGoalRequest(TITLE, DESCRIPTION, PERIOD, TIMES, AMOUNT, UNIT);
+    private static CreateGoalRequest create(String title, String description, GoalPeriod period,
+                                            Integer times, BigDecimal amount, String unit,
+                                            String motivation, String iconKey, String color) {
+        return new CreateGoalRequest(title, description, null, null, period, times, amount, unit,
+                null, null, null, null, null, motivation, iconKey, color);
     }
 
-    private static CreateGoalRequest withTitle(String v) { return new CreateGoalRequest(v, DESCRIPTION, PERIOD, TIMES, AMOUNT, UNIT); }
-    private static CreateGoalRequest withDescription(String v) { return new CreateGoalRequest(TITLE, v, PERIOD, TIMES, AMOUNT, UNIT); }
-    private static CreateGoalRequest withPeriod(GoalPeriod v) { return new CreateGoalRequest(TITLE, DESCRIPTION, v, TIMES, AMOUNT, UNIT); }
-    private static CreateGoalRequest withTimes(Integer v) { return new CreateGoalRequest(TITLE, DESCRIPTION, PERIOD, v, AMOUNT, UNIT); }
-    private static CreateGoalRequest withAmount(BigDecimal v) { return new CreateGoalRequest(TITLE, DESCRIPTION, PERIOD, TIMES, v, UNIT); }
-    private static CreateGoalRequest withUnit(String v) { return new CreateGoalRequest(TITLE, DESCRIPTION, PERIOD, TIMES, AMOUNT, v); }
+    private static UpdateGoalRequest update(String title, String description, GoalPeriod period,
+                                            Integer times, BigDecimal amount, String unit,
+                                            String motivation, String iconKey, String color) {
+        return new UpdateGoalRequest(title, description, period, times, amount, unit,
+                null, null, null, motivation, iconKey, color, null);
+    }
+
+    private static CreateGoalRequest valid() {
+        return create(TITLE, DESCRIPTION, PERIOD, TIMES, AMOUNT, UNIT, null, null, null);
+    }
+
+    private static CreateGoalRequest withTitle(String v) { return create(v, DESCRIPTION, PERIOD, TIMES, AMOUNT, UNIT, null, null, null); }
+    private static CreateGoalRequest withDescription(String v) { return create(TITLE, v, PERIOD, TIMES, AMOUNT, UNIT, null, null, null); }
+    private static CreateGoalRequest withPeriod(GoalPeriod v) { return create(TITLE, DESCRIPTION, v, TIMES, AMOUNT, UNIT, null, null, null); }
+    private static CreateGoalRequest withTimes(Integer v) { return create(TITLE, DESCRIPTION, PERIOD, v, AMOUNT, UNIT, null, null, null); }
+    private static CreateGoalRequest withAmount(BigDecimal v) { return create(TITLE, DESCRIPTION, PERIOD, TIMES, v, UNIT, null, null, null); }
+    private static CreateGoalRequest withUnit(String v) { return create(TITLE, DESCRIPTION, PERIOD, TIMES, AMOUNT, v, null, null, null); }
+    private static CreateGoalRequest withMotivation(String v) { return create(TITLE, DESCRIPTION, PERIOD, TIMES, AMOUNT, UNIT, v, null, null); }
+    private static CreateGoalRequest withIconKey(String v) { return create(TITLE, DESCRIPTION, PERIOD, TIMES, AMOUNT, UNIT, null, v, null); }
+    private static CreateGoalRequest withColor(String v) { return create(TITLE, DESCRIPTION, PERIOD, TIMES, AMOUNT, UNIT, null, null, v); }
 
     private static Set<String> violatedFields(Object request) {
         return VALIDATOR.validate(request).stream()
@@ -47,6 +64,13 @@ class GoalRequestValidationTest {
     @Test
     void validRequest_hasNoViolations() {
         assertThat(violatedFields(valid())).isEmpty();
+    }
+
+    @Test
+    void minimalRequest_onlyTitle_hasNoViolations() {
+        var request = create(TITLE, null, null, null, null, null, null, null, null);
+
+        assertThat(violatedFields(request)).isEmpty();
     }
 
     @ParameterizedTest
@@ -82,8 +106,9 @@ class GoalRequestValidationTest {
     }
 
     @Test
-    void period_null_isRejected() {
-        assertThat(violatedFields(withPeriod(null))).containsExactly("period");
+    void period_null_isAccepted() {
+        // Requirement per trackingType is enforced in GoalService, not by bean validation
+        assertThat(violatedFields(withPeriod(null))).isEmpty();
     }
 
     @ParameterizedTest
@@ -99,8 +124,8 @@ class GoalRequestValidationTest {
     }
 
     @Test
-    void timesPerPeriod_null_isRejected() {
-        assertThat(violatedFields(withTimes(null))).containsExactly("timesPerPeriod");
+    void timesPerPeriod_null_isAccepted() {
+        assertThat(violatedFields(withTimes(null))).isEmpty();
     }
 
     @Test
@@ -136,14 +161,52 @@ class GoalRequestValidationTest {
     }
 
     @Test
+    void motivation_of500Chars_isAccepted() {
+        assertThat(violatedFields(withMotivation("x".repeat(500)))).isEmpty();
+    }
+
+    @Test
+    void motivation_of501Chars_isRejected() {
+        assertThat(violatedFields(withMotivation("x".repeat(501)))).containsExactly("motivation");
+    }
+
+    @Test
+    void iconKey_of50Chars_isAccepted() {
+        assertThat(violatedFields(withIconKey("x".repeat(50)))).isEmpty();
+    }
+
+    @Test
+    void iconKey_of51Chars_isRejected() {
+        assertThat(violatedFields(withIconKey("x".repeat(51)))).containsExactly("iconKey");
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"#FF5722", "#aabbcc", "#000000"})
+    void color_nullOrHex_isAccepted(String color) {
+        assertThat(violatedFields(withColor(color))).isEmpty();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", "FF5722", "#FFF", "#GGGGGG", "red", "#FF57222"})
+    void color_notSixDigitHex_isRejected(String color) {
+        assertThat(violatedFields(withColor(color))).containsExactly("color");
+    }
+
+    @Test
     void update_reportsSameViolationsAsCreate_forInvalidInput() {
         String longDescription = "x".repeat(1001);
         String longUnit = "x".repeat(51);
-        var create = new CreateGoalRequest("", longDescription, null, 0, new BigDecimal("-1"), longUnit);
-        var update = new UpdateGoalRequest("", longDescription, null, 0, new BigDecimal("-1"), longUnit);
+        String longMotivation = "x".repeat(501);
+        String longIcon = "x".repeat(51);
+        var create = create("", longDescription, null, 0, new BigDecimal("-1"), longUnit,
+                longMotivation, longIcon, "red");
+        var update = update("", longDescription, null, 0, new BigDecimal("-1"), longUnit,
+                longMotivation, longIcon, "red");
 
         assertThat(violatedFields(update)).containsExactlyInAnyOrder(
-                "title", "description", "period", "timesPerPeriod", "amountPerSession", "unit");
+                "title", "description", "timesPerPeriod", "amountPerSession", "unit",
+                "motivation", "iconKey", "color");
         assertThat(violatedFields(update)).isEqualTo(violatedFields(create));
     }
 }

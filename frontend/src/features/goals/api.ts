@@ -10,3 +10,9 @@ export const createGoal = (data: CreateGoalRequest) =>
 
 export const archiveGoal = (id: number) =>
   request<Goal>("PATCH", goalEndpoints.archive(id), undefined, true);
+
+export const unarchiveGoal = (id: number) =>
+  request<Goal>("PATCH", goalEndpoints.unarchive(id), undefined, true);
+
+export const deleteGoal = (id: number) =>
+  request<void>("DELETE", goalEndpoints.item(id), undefined, true);

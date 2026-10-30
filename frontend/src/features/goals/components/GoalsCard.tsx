@@ -1,6 +1,7 @@
-import { CreateGoalRequest, PERIOD_LABEL, Goal } from "../types";
-import { useRef } from "react";
-import GoalForm from "./GoalForm";
+import type { CreateGoalRequest, Goal } from "../types";
+import { useRef, useState } from "react";
+import { describeGoal } from "../GoalDisplay";
+import GoalWizard from "../catalog/components/GoalWizard";
 
 type Props = {
   goals: Goal[];
@@ -19,6 +20,7 @@ export default function GoalsCard({
   onArchive,
   countFor,
 }: Props) {
+  const [wizardKey, setWizardKey] = useState(0);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   async function handleArchive(goalId: number) {
@@ -45,15 +47,13 @@ export default function GoalsCard({
         {loading && <p className="muted">Laster mål…</p>}
         {loadError && <p className="error">{loadError}</p>}
         {!loading && !loadError && goals.length === 0 && (
-          <p className="muted">Ingen mål ennå.</p>
+          <p className="muted">No goals created yet.</p>
         )}
         {goals.map((g) => (
           <div className="goal-row" key={g.id}>
             <div className="goal-top">
               <span>{g.title}</span>
-              <span className="muted">
-                {g.timesPerPeriod}× per {PERIOD_LABEL[g.period]}
-              </span>
+              <span className="muted">{describeGoal(g)}</span>
               <button
                 type="button"
                 className="goal-archive"
@@ -63,7 +63,7 @@ export default function GoalsCard({
                 ×
               </button>
             </div>
-            {countFor && (
+            {countFor && g.trackingType === "COUNT" && g.timesPerPeriod && (
               <div className="progress">
                 <div
                   className="progress-fill"
@@ -73,10 +73,11 @@ export default function GoalsCard({
                 />
               </div>
             )}
-            {(g.description || g.amountPerSession !== null) && (
+            {(g.description ||
+              (g.trackingType === "COUNT" && g.amountPerSession !== null)) && (
               <div className="goal-foot">
                 <span>{g.description}</span>
-                {g.amountPerSession !== null && (
+                {g.trackingType === "COUNT" && g.amountPerSession !== null && (
                   <span>
                     {g.amountPerSession} {g.unit}
                   </span>
@@ -86,9 +87,13 @@ export default function GoalsCard({
           </div>
         ))}
       </div>
-      <dialog ref={dialogRef} className="goal-dialog">
+      <dialog
+        ref={dialogRef}
+        className="goal-dialog"
+        onClose={() => setWizardKey((k) => k + 1)}
+      >
         <div className="box-header">
-          <h2>Nytt mål</h2>
+          <h2></h2>
           <button
             type="button"
             className="btn-outline"
@@ -97,7 +102,8 @@ export default function GoalsCard({
             Lukk
           </button>
         </div>
-        <GoalForm
+        <GoalWizard
+          key={wizardKey}
           onCreate={onCreate}
           onDone={() => dialogRef.current?.close()}
         />
