@@ -2,7 +2,15 @@ server:
   port: 8082
 spring:
   config:
-    import: optional:file:.env[.properties]
+    import:
+      - "optional:file:.env[.properties]"
+      - "optional:consul:"
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        prefer-ip-address: true
   application:
     name: progress-service
   datasource:
@@ -30,3 +38,9 @@ app:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
   goal-service:
     url: ${GOAL_SERVICE_URL:http://localhost:8081}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info"
