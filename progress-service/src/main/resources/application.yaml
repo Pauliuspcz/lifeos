@@ -9,15 +9,17 @@ spring:
     consul:
       host: localhost
       port: 8500
+      config:
+        format: YAML
       discovery:
         prefer-ip-address: true
   application:
     name: progress-service
   datasource:
     driver-class-name: org.postgresql.Driver
-    username: postgres
-    password: password
-    url: jdbc:postgresql://localhost:5434/progress_db
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://localhost:${PROGRESS_DB_PORT:5434}/${PROGRESS_DB_NAME:progress_db}
   jpa:
     generate-ddl: false
     show-sql: true

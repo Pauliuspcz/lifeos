@@ -9,15 +9,17 @@ spring:
     consul:
       host: localhost
       port: 8500
+      config:
+        format: YAML
       discovery:
         prefer-ip-address: true
   application:
     name: report-service
   datasource:
     driver-class-name: org.postgresql.Driver
-    username: postgres
-    password: password
-    url: jdbc:postgresql://localhost:5435/report_db
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://localhost:${REPORT_DB_PORT:5435}/${REPORT_DB_NAME:report_db}
   jpa:
     generate-ddl: false
     show-sql: true

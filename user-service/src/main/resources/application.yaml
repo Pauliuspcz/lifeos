@@ -11,6 +11,8 @@ spring:
     consul:
       host: localhost
       port: 8500
+      config:
+        format: YAML
       discovery:
         prefer-ip-address: true
   datasource:

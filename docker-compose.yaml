@@ -18,8 +18,8 @@ services:
   user-service:
     build: ./user-service
     depends_on:
-      consul:
-        condition: service_started
+      consul-importer:
+        condition: service_completed_successfully
       user-db:
         condition: service_healthy
     environment:
@@ -32,8 +32,6 @@ services:
       JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
       SPRING_CLOUD_CONSUL_HOST: "consul"
       TZ: Europe/Oslo
-    ports:
-      - "8080:8080"
 
   goal-db:
     image: postgres:15-alpine
@@ -54,8 +52,8 @@ services:
   goal-service:
     build: ./goal-service
     depends_on:
-      consul:
-        condition: service_started
+      consul-importer:
+        condition: service_completed_successfully
       goal-db:
         condition: service_healthy
     environment:
@@ -66,8 +64,6 @@ services:
       JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
       SPRING_CLOUD_CONSUL_HOST: "consul"
       TZ: Europe/Oslo
-    ports:
-      - "8081:8081"
 
   progress-db:
     image: postgres:15-alpine
@@ -89,8 +85,8 @@ services:
   progress-service:
     build: ./progress-service
     depends_on:
-      consul:
-        condition: service_started
+      consul-importer:
+        condition: service_completed_successfully
       progress-db:
         condition: service_healthy
       rabbitmq:
@@ -107,8 +103,6 @@ services:
       GOAL_SERVICE_URL: http://goal-service:8081
       SPRING_CLOUD_CONSUL_HOST: "consul"
       TZ: Europe/Oslo
-    ports:
-      - "8082:8082"
 
   report-db:
     image: postgres:15-alpine
@@ -129,8 +123,8 @@ services:
   report-service:
     build: ./report-service
     depends_on:
-      consul:
-        condition: service_started
+      consul-importer:
+        condition: service_completed_successfully
       report-db:
         condition: service_healthy
       rabbitmq:
@@ -146,8 +140,6 @@ services:
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       SPRING_CLOUD_CONSUL_HOST: "consul"
       TZ: Europe/Oslo
-    ports:
-      - "8083:8083"
 
   rabbitmq:
     image: rabbitmq:4.1-management
@@ -171,6 +163,12 @@ services:
       - "8600:8600/udp"
     command:
       agent -dev -node=lifeos -client=0.0.0.0
+
+  consul-importer:
+    build: ./consul
+    depends_on:
+      - consul
+
 
   gateway:
     container_name: gateway
