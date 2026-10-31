@@ -3,6 +3,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import no.kristiania.progressservice.client.TrackingModel;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -35,6 +36,10 @@ public class Progress {
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, updatable = false)
+    private TrackingModel trackingModel;
 
     @PrePersist
     void onCreate() {
