@@ -95,6 +95,7 @@ services:
       RABBITMQ_USER: ${RABBITMQ_USER}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       GOAL_SERVICE_URL: http://goal-service:8081
+      TZ: Europe/Oslo
     ports:
       - "8082:8082"
 
