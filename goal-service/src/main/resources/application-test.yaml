@@ -3,6 +3,9 @@ spring:
     password: test
   jpa:
     show-sql: false
-  app:
-    cors:
-      allowed-origins: http://localhost:5173
+  cloud:
+    consul:
+      enabled: false
+app:
+  cors:
+    allowed-origins: http://localhost:5173
