@@ -4,7 +4,15 @@ spring:
   application:
     name: user-service
   config:
-    import: optional:file:.env[.properties]
+    import:
+      - "optional:file:.env[.properties]"
+      - "optional:consul:"
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        prefer-ip-address: true
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:${USER_DB_PORT:5432}/${USER_DB_NAME:user_db}
@@ -26,3 +34,9 @@ app:
     client-id: ${GOOGLE_CLIENT_ID}
   cors:
     allowed-origins: http://localhost:5173
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info"

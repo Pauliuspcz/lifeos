@@ -40,7 +40,7 @@ public class SecurityConfig {
     @Order(1)
     SecurityFilterChain publicChain(HttpSecurity http) throws Exception {
         return http
-                .securityMatcher("/auth/**", "/error")
+                .securityMatcher("/auth/**", "/error", "/actuator/health/**")
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

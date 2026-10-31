@@ -3,6 +3,9 @@ spring:
     password: test
   jpa:
     show-sql: false
+  cloud:
+    consul:
+      enabled: false
 app:
   google:
     client-id: test-client-id

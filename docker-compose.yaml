@@ -18,6 +18,8 @@ services:
   user-service:
     build: ./user-service
     depends_on:
+      consul:
+        condition: service_started
       user-db:
         condition: service_healthy
     environment:
@@ -28,6 +30,8 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
       JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+      SPRING_CLOUD_CONSUL_HOST: "consul"
+      TZ: Europe/Oslo
     ports:
       - "8080:8080"
 
@@ -50,6 +54,8 @@ services:
   goal-service:
     build: ./goal-service
     depends_on:
+      consul:
+        condition: service_started
       goal-db:
         condition: service_healthy
     environment:
@@ -58,6 +64,8 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+      SPRING_CLOUD_CONSUL_HOST: "consul"
+      TZ: Europe/Oslo
     ports:
       - "8081:8081"
 
@@ -81,6 +89,8 @@ services:
   progress-service:
     build: ./progress-service
     depends_on:
+      consul:
+        condition: service_started
       progress-db:
         condition: service_healthy
       rabbitmq:
@@ -95,6 +105,8 @@ services:
       RABBITMQ_USER: ${RABBITMQ_USER}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       GOAL_SERVICE_URL: http://goal-service:8081
+      SPRING_CLOUD_CONSUL_HOST: "consul"
+      TZ: Europe/Oslo
     ports:
       - "8082:8082"
 
@@ -117,6 +129,8 @@ services:
   report-service:
     build: ./report-service
     depends_on:
+      consul:
+        condition: service_started
       report-db:
         condition: service_healthy
       rabbitmq:
@@ -130,6 +144,7 @@ services:
       SPRING_RABBITMQ_HOST: rabbitmq
       RABBITMQ_USER: ${RABBITMQ_USER}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      SPRING_CLOUD_CONSUL_HOST: "consul"
       TZ: Europe/Oslo
     ports:
       - "8083:8083"
@@ -147,6 +162,26 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
+  consul:
+    image: hashicorp/consul:2.0.0
+    container_name: consul
+    ports:
+      - "8500:8500"
+      - "8600:8600/udp"
+    command:
+      agent -dev -node=lifeos -client=0.0.0.0
+
+  gateway:
+    container_name: gateway
+    build:
+      context: ./gateway
+    environment:
+      SPRING_CLOUD_CONSUL_HOST: "consul"
+    ports:
+      - "8100:8100"
+    depends_on:
+      - consul
 
 volumes:
   user-db-data:
