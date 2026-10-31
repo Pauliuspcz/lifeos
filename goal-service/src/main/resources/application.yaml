@@ -5,7 +5,15 @@ spring:
   application:
     name: goal-service
   config:
-    import: optional:file:.env[.properties]
+    import:
+      - "optional:file:.env[.properties]"
+      - "optional:consul:"
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        prefer-ip-address: true
   datasource:
     url: jdbc:postgresql://localhost:${GOAL_DB_PORT:5433}/${GOAL_DB_NAME:goal_db}
     username: ${POSTGRES_USER:postgres}
@@ -22,3 +30,9 @@ app:
     public-key: ${JWT_PUBLIC_KEY}
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info"
