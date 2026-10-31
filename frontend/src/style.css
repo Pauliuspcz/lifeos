@@ -416,6 +416,52 @@ body {
   border-color: #c62828;
 }
 
+.log-card {
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #333;
+  border-radius: 12px;
+}
+.day-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 8px 0;
+}
+.day-chip {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid #555;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.day-chip.today {
+  border-color: #4fc3f7;
+}
+.day-chip.done {
+  background: #66bb6a;
+  border-color: #66bb6a;
+  color: #0b1220;
+}
+.day-chip:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.dots {
+  display: flex;
+  gap: 6px;
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #333;
+}
+.dot.done {
+  background: #66bb6a;
+}
+
 @media (max-width: 800px) {
   .dashboard {
     grid-template-columns: 1fr;

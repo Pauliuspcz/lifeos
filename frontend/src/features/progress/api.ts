@@ -1,5 +1,5 @@
 import { request } from "../../shared/api/client";
-import type { CreateProgressRequest, Progress } from "./types";
+import type { CreateProgressRequest, Progress, ProgressWindow } from "./types";
 import { progressEndpoints } from "./endpoints";
 
 export const listProgress = () =>
@@ -10,3 +10,6 @@ export const createProgress = (data: CreateProgressRequest) =>
 
 export const deleteProgress = (id: number) =>
   request<void>("DELETE", progressEndpoints.byId(id), undefined, true);
+
+export const fetchProgressWindow = () =>
+  request<ProgressWindow>("GET", progressEndpoints.window, undefined, true);

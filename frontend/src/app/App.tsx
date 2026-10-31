@@ -10,10 +10,12 @@ import {
   GOAL_PATH,
   HOME_PATH,
   INSIGHT_PATH,
+  LOG_PATH,
   LOGIN_PATH,
   PROFILE_PATH,
 } from "../shared/config/routes";
 import InsightPage from "../pages/InsightPage";
+import LogPage from "../pages/LogPage";
 
 export default function App() {
   return (
@@ -26,6 +28,7 @@ export default function App() {
             <Route path={PROFILE_PATH} element={<ProfilePage />} />
             <Route path={GOAL_PATH} element={<GoalsPage />} />
             <Route path={INSIGHT_PATH} element={<InsightPage />} />
+            <Route path={LOG_PATH} element={<LogPage />} />
           </Route>
           <Route path={"*"} element={<ErrorPage />} />
         </Routes>
