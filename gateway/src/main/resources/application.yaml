@@ -18,7 +18,7 @@ spring:
             - id: goal-service
               uri: lb://goal-service
               predicates:
-                - Path=/api/goal, /api/goal/**
+                - Path=/api/goal, /api/goal/**, /api/catalog/**
             - id: progress-service
               uri: lb://progress-service
               predicates:
