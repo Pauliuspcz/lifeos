@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: gateway
+  config:
+    import: "optional:consul:"
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/auth/**, /profile/**
+            - id: goal-service
+              uri: lb://goal-service
+              predicates:
+                - Path=/api/goal, /api/goal/**
+            - id: progress-service
+              uri: lb://progress-service
+              predicates:
+                - Path=/api/progress, /api/progress/**
+            - id: report-service
+              uri: lb://report-service
+              predicates:
+                - Path=/api/reports/**
+
+server.port: 8100
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info"
