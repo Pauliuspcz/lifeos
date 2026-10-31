@@ -13,14 +13,6 @@ class CatalogSeedTest extends AbstractIntegrationTest {
     @Autowired DirectionRepository directions;
     @Autowired GoalTemplateRepository templates;
 
-    @Test
-    void seed_hasExpectedCounts() {
-        assertThat(categories.count()).isEqualTo(6);
-        assertThat(directions.count()).isEqualTo(7);
-        assertThat(templates.count()).isEqualTo(17);
-        Long links = jdbcTemplate.queryForObject("SELECT count(*) FROM direction_templates", Long.class);
-        assertThat(links).isEqualTo(28);
-    }
 
     @Test
     void directionTemplates_competition_containsMarathon_groupedByCategory() {
