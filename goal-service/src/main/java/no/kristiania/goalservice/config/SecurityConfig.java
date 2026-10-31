@@ -3,6 +3,8 @@ package no.kristiania.goalservice.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -33,6 +35,21 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
+    @Order(1)
+    SecurityFilterChain catalogChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/api/catalog/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(a -> a
+                        .requestMatchers(HttpMethod.GET, "/api/catalog/**").permitAll()
+                        .anyRequest().denyAll())
+                .build();
+    }
+
+    @Bean
+    @Order(2)
     SecurityFilterChain securityFilterChain(HttpSecurity http,
                                             JsonAuthenticationEntryPoint entryPoint) throws Exception {
         return http

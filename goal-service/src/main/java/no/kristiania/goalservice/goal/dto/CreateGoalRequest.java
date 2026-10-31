@@ -2,14 +2,28 @@ package no.kristiania.goalservice.goal.dto;
 
 import jakarta.validation.constraints.*;
 import no.kristiania.goalservice.goal.enums.GoalPeriod;
+import no.kristiania.goalservice.goal.enums.GoalType;
+import no.kristiania.goalservice.goal.enums.TrackingType;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
-public record CreateGoalRequest(
+public record CreateGoalRequest (
         @NotBlank @Size(max = 255) String title,
         @Size(max = 1000) String description,
-        @NotNull GoalPeriod period,
-        @NotNull @Min(1) Integer timesPerPeriod,
+        GoalType goalType,
+        TrackingType trackingType,
+        GoalPeriod period,
+        @Min(1) Integer timesPerPeriod,
         @Positive @Digits(integer = 8, fraction = 2) BigDecimal amountPerSession,
-        @Size(max = 50) String unit
+        @Size(max = 50) String unit,
+        LocalTime targetTime,
+        LocalDate startDate,
+        LocalDate targetDate,
+        Long categoryId,
+        Long templateId,
+        @Size(max = 500) String motivation,
+        @Size(max = 50) String iconKey,
+        @Pattern(regexp = "^#[0-9A-Fa-f]{6}$") String color
 ) {}

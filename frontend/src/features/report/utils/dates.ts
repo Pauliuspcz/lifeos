@@ -5,7 +5,7 @@ import {
   differenceInCalendarYears,
   parseISO,
 } from "date-fns";
-import { Goal, GoalPeriod } from "../../goals";
+import { Goal, GoalPeriod, periodOf } from "../../goals";
 
 export function daysSince(date: string, now = new Date()): number {
   return differenceInCalendarDays(now, parseISO(date));
@@ -45,5 +45,5 @@ export function averagePerPeriod(
   goal: Goal,
   now = new Date(),
 ): number {
-  return totalSessions / periodsSince(goal.period, goal.createdAt, now);
+  return totalSessions / periodsSince(periodOf(goal), goal.createdAt, now);
 }

@@ -8,6 +8,7 @@ export default defineConfig({
       "/api/goal": "http://localhost:8081",
       "/api/progress": "http://localhost:8082",
       "/api/reports": "http://localhost:8083",
+      "/api/catalog": "http://localhost:8081",
     },
   },
   test: {

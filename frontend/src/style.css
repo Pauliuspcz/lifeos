@@ -396,6 +396,25 @@ body {
 .stats strong {
   font-size: 20px;
 }
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+.tab {
+  background: none;
+  border: 0;
+  padding: 0.25rem 0.75rem;
+  cursor: pointer;
+  opacity: 0.6;
+}
+.tab.active {
+  opacity: 1;
+  border-bottom: 2px solid currentColor;
+}
+.btn-danger {
+  color: #c62828;
+  border-color: #c62828;
+}
 
 @media (max-width: 800px) {
   .dashboard {

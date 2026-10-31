@@ -1,4 +1,4 @@
-import { type Goal, PERIOD_LABEL } from "../../goals";
+import { type Goal, PERIOD_LABEL, periodOf, timesOf } from "../../goals";
 import type { CreateProgressRequest, Progress } from "../types";
 import { countInPeriod } from "../utils/period";
 
@@ -65,7 +65,7 @@ export default function CheckinCard({
               )}
             </span>
             <span className="muted">
-              {count}/{g.timesPerPeriod} per {PERIOD_LABEL[g.period]}
+              {count}/{timesOf(g)} per {PERIOD_LABEL[periodOf(g)]}
             </span>
           </button>
         );

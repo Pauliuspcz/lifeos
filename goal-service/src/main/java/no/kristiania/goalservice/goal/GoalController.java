@@ -60,6 +60,7 @@ public class GoalController {
         return GoalResponse.from(goalService.unarchive(userId, id));
     }
 
+    //TODO fjerne?
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@AuthenticationPrincipal Long userId, @PathVariable Long id) {
