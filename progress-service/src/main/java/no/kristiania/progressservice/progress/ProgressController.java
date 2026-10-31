@@ -2,6 +2,7 @@ package no.kristiania.progressservice.progress;
 import jakarta.validation.Valid;
 import no.kristiania.progressservice.progress.dto.CreateProgressRequest;
 import no.kristiania.progressservice.progress.dto.ProgressResponse;
+import no.kristiania.progressservice.progress.dto.ProgressWindowResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,5 +34,11 @@ public class ProgressController {
     public ResponseEntity<Void> delete(@AuthenticationPrincipal Long userId, @PathVariable Long id) {
         progressService.delete(userId, id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/window")
+    public ProgressWindowResponse window(@AuthenticationPrincipal Long userId,
+                                         @RequestParam(required = false) Long goalId) {
+        return progressService.window(userId, goalId);
     }
 }
