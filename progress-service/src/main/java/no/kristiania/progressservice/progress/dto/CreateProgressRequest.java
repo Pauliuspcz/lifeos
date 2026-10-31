@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 public record CreateProgressRequest(
         @NotNull Long goalId,
-        @NotNull @PastOrPresent LocalDate date,
+        @NotNull LocalDate date,
         @Positive @Digits(integer = 8, fraction = 2) BigDecimal amount
 ) {
 }
