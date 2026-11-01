@@ -7,6 +7,7 @@ public record GoalReport(
         LocalDate lastDate,
         int last30Days,
         int previous30Days,
-        int currentStreak
+        int currentStreak,
+        int successRate
 ) {
 }

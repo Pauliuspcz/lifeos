@@ -31,7 +31,8 @@ public class ReportService {
                 previous30Days++;
             }
         }
-        int currentStreak = StreakCalculator.currentStreak(entries, today);
-        return new GoalReport(goalId, entries.size(), lastDate, last30Days, previous30Days, currentStreak);
+        int currentStreak = PeriodStats.currentStreak(entries, today);
+        int successRate = PeriodStats.successRate(entries, today);
+        return new GoalReport(goalId, entries.size(), lastDate, last30Days, previous30Days, currentStreak, successRate);
     }
 }

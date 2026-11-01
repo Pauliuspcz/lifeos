@@ -6,13 +6,12 @@ import java.time.Period;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
-public final class StreakCalculator {
-    private StreakCalculator() {}
+public final class PeriodStats {
+    private PeriodStats() {}
 
     public static int currentStreak(List<ProgressRecord> entries, LocalDate today) {
-        ProgressRecord latest = entries.isEmpty() ? null : entries.getLast();
-        String period = (latest == null || latest.getPeriod() == null) ? "DAILY" : latest.getPeriod();
-        int target = (latest == null || latest.getTargetCount() == null) ? 1 : latest.getTargetCount();
+        String period = periodOf(entries);
+        int target = targetOf(entries);
         Period unit = unitOf(period);
         LocalDate start = periodStart(period, today);
 
@@ -23,6 +22,16 @@ public final class StreakCalculator {
             start = start.minus(unit);
         }
         return streak;
+    }
+
+    static String periodOf(List<ProgressRecord> entries) {
+        ProgressRecord latest = entries.isEmpty() ? null : entries.getLast();
+        return (latest == null || latest.getPeriod() == null) ? "DAILY" : latest.getPeriod();
+    }
+
+    static int targetOf(List<ProgressRecord> entries) {
+        ProgressRecord latest = entries.isEmpty() ? null : entries.getLast();
+        return (latest == null || latest.getTargetCount() == null) ? 1 : latest.getTargetCount();
     }
 
     static Period unitOf(String period) {
@@ -50,5 +59,25 @@ public final class StreakCalculator {
             if (!entry.getDate().isBefore(start) && entry.getDate().isBefore(end)) count++;
         }
         return count;
+    }
+
+    public static int successRate(List<ProgressRecord> entries, LocalDate today) {
+        if (entries.isEmpty()) return 0;
+        String period = periodOf(entries);
+        int target = targetOf(entries);
+        Period unit = unitOf(period);
+        LocalDate current = periodStart(period, today);
+
+        int reached = 0;
+        int total = 0;
+        for (LocalDate p = periodStart(period, entries.getFirst().getDate()); p.isBefore(current); p = p.plus(unit)) {
+            total++;
+            if (countIn(entries, p, unit) >= target) reached++;
+        }
+        if (countIn(entries, current, unit) >= target) {
+            reached++;
+            total++;
+        }
+        return total == 0 ? 0 : reached * 100 / total;
     }
 }
