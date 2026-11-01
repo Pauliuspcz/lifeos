@@ -1,9 +1,11 @@
 package no.kristiania.reportservice.report;
 
+import no.kristiania.reportservice.report.dto.PeriodCount;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.List;
 
 public final class PeriodStats {
@@ -79,5 +81,20 @@ public final class PeriodStats {
             total++;
         }
         return total == 0 ? 0 : reached * 100 / total;
+    }
+
+    public static List<PeriodCount> history(List<ProgressRecord> entries, LocalDate today, int size) {
+        String period = periodOf(entries);
+        int target = targetOf(entries);
+        Period unit = unitOf(period);
+        LocalDate start = periodStart(period, today).minus(unit.multipliedBy(size - 1));
+
+        List<PeriodCount> history = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            int count = countIn(entries, start, unit);
+            history.add(new PeriodCount(start, count, count >= target));
+            start = start.plus(unit);
+        }
+        return history;
     }
 }
