@@ -29,6 +29,7 @@ public class ProgressEventListener {
         entry.setAmount(event.amount());
         entry.setTrackingModel(event.trackingModel());
         entry.setTargetCount(event.targetCount());
+        entry.setPeriod(event.period());
         progressRecordRepo.save(entry);
         log.info("Saved progress {} for goal {}", event.progressId(), event.goalId());
     }

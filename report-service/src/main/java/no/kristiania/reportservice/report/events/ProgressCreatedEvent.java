@@ -16,6 +16,7 @@ public record ProgressCreatedEvent(
         BigDecimal amount,
         TrackingModel trackingModel,
         Integer targetCount,
+        String period,
         Instant occurredAt
 ) {
 }

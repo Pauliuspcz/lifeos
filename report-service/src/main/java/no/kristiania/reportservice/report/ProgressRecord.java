@@ -40,6 +40,8 @@ public class ProgressRecord {
 
     private Integer targetCount;
 
+    private String period;
+
     @Column(nullable = false)
     private LocalDate date;
 
