@@ -4,4 +4,5 @@ export type GoalReport = {
   lastDate: string | null;
   last30Days: number;
   previous30Days: number;
+  currentStreak: number;
 };

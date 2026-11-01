@@ -1,13 +1,11 @@
 import Topbar from "../shared/components/Topbar";
 import { useGoals } from "../features/goals";
 import { GoalInsightCard, useGoalReports } from "../features/report";
-import { useProgress } from "../features/progress";
 
 export default function InsightPage() {
   const { goals, loading: goalsLoading } = useGoals("ACTIVE");
   const { reports, loading, loadError } = useGoalReports(goals);
   const isLoading = goalsLoading || loading;
-  const { entries } = useProgress();
   return (
     <>
       <Topbar />
@@ -24,7 +22,6 @@ export default function InsightPage() {
               key={g.id}
               goal={g}
               report={reports.find((r) => r.goalId === g.id)}
-              entries={entries}
             />
           ))}
         </ul>

@@ -1,13 +1,10 @@
 import { Goal, GoalPeriod, PERIOD_LABEL, periodOf } from "../../goals";
 import { GoalReport } from "../types";
 import { averagePerPeriod, lastCheckinLabel } from "../utils/dates";
-import { Progress } from "../../progress";
-import { currentStreak } from "../utils/streak";
 
 type Props = {
   goal: Goal;
   report?: GoalReport;
-  entries: Progress[];
 };
 
 const PERIOD_PLURAL: Record<GoalPeriod, string> = {
@@ -30,15 +27,14 @@ function trendLabel(diff: number): string {
   return "likt som forrige 30";
 }
 
-// ...
-export default function GoalInsightCard({ goal, report, entries }: Props) {
+export default function GoalInsightCard({ goal, report }: Props) {
   const period = periodOf(goal);
   const unit = PERIOD_LABEL[period];
   const last30 = report?.last30Days ?? 0;
   const diff = last30 - (report?.previous30Days ?? 0);
   const total = report?.totalSessions ?? 0;
   const average = formatAverage(averagePerPeriod(total, goal));
-  const streak = currentStreak(entries, goal);
+  const streak = report?.currentStreak ?? 0;
   const streakUnit =
     streak === 1 ? PERIOD_LABEL[period] : PERIOD_PLURAL[period];
 
