@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import no.kristiania.reportservice.report.enums.TrackingModel;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -33,6 +34,11 @@ public class ProgressRecord {
     private Long goalId;
 
     private BigDecimal amount;
+
+    @Enumerated(EnumType.STRING)
+    private TrackingModel trackingModel;
+
+    private Integer targetCount;
 
     @Column(nullable = false)
     private LocalDate date;
