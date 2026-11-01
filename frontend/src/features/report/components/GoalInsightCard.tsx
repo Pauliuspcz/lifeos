@@ -1,4 +1,4 @@
-import { Goal, PERIOD_LABEL, periodOf } from "../../goals";
+import { Goal, PERIOD_LABEL, periodOf, timesOf } from "../../goals";
 import { GoalReport } from "../types";
 import { averagePerPeriod, lastCheckinLabel } from "../utils/dates";
 
@@ -28,6 +28,9 @@ export default function GoalInsightCard({ goal, report }: Props) {
   const average = formatAverage(averagePerPeriod(total, goal));
   const streak = report?.currentStreak ?? 0;
   const streakUnit = streak === 1 ? unit : `${unit}s`;
+  const successRate = report?.successRate ?? 0;
+  const history = report?.history ?? [];
+  const maxCount = Math.max(timesOf(goal), ...history.map((h) => h.count));
 
   return (
     <li>
@@ -37,6 +40,22 @@ export default function GoalInsightCard({ goal, report }: Props) {
         Last 30 days: {last30} ({trendLabel(diff)})
       </p>
       <p>{streak > 0 ? `${streak} ${streakUnit} in a row` : "No streak yet"}</p>
+      <p>Completion rate: {successRate}%</p>
+      <p className="muted">Last 12 {unit}s:</p>
+      <div className="history">
+        {history.map((h) => (
+          <div
+            className="week-bar"
+            key={h.periodStart}
+            title={`${h.periodStart}: ${h.count}`}
+          >
+            <div
+              className={"week-fill" + (h.reached ? "" : " missed")}
+              style={{ height: `${(h.count / maxCount) * 100}%` }}
+            />
+          </div>
+        ))}
+      </div>
       <p>
         Last check-in:
         {lastCheckinLabel(report?.lastDate ?? null)}

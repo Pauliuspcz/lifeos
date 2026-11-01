@@ -382,6 +382,18 @@ body {
   width: 100%;
   background: #2563eb;
 }
+.history {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 4px;
+  margin: 8px 0;
+}
+.history .week-bar {
+  height: 40px;
+}
+.week-fill.missed {
+  background: #93c5fd;
+}
 .stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
