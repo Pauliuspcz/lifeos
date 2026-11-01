@@ -3,7 +3,9 @@ package no.kristiania.reportservice.report;
 import no.kristiania.reportservice.report.dto.GoalReport;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ReportService {
@@ -30,7 +32,18 @@ public class ReportService {
                 previous30Days++;
             }
         }
+        Set<LocalDate> dates = new HashSet<>();
+        for (ProgressRecord entry : entries) {
+            dates.add(entry.getDate());
+        }
 
-        return new GoalReport(goalId, entries.size(), lastDate, last30Days, previous30Days);
+        LocalDate day = dates.contains(today) ? today : today.minusDays(1);
+        int currentStreak = 0;
+        while (dates.contains(day)) {
+            currentStreak++;
+            day = day.minusDays(1);
+        }
+
+        return new GoalReport(goalId, entries.size(), lastDate, last30Days, previous30Days, currentStreak);
     }
 }

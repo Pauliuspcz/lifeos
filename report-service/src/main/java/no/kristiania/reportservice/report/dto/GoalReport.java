@@ -6,6 +6,7 @@ public record GoalReport(
         int totalSessions,
         LocalDate lastDate,
         int last30Days,
-        int previous30Days
+        int previous30Days,
+        int currentStreak
 ) {
 }
