@@ -40,10 +40,10 @@ export default function CheckinCard({
   return (
     <div className="checkin-box">
       <div className="box-header">
-        <h2>Vaner i dag</h2>
-        <span className="muted">Trykk for å hake av</span>
+        <h2>Today's habits</h2>
+        <span className="muted">Click to check off</span>
       </div>
-      {goals.length === 0 && <p className="muted">Ingen vaner i dag.</p>}
+      {goals.length === 0 && <p className="muted">No habits today.</p>}
       {goals.map((g) => {
         const done = entryToday(g.id) !== undefined;
         const count = countInPeriod(entries, g);

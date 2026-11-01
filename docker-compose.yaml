@@ -84,6 +84,8 @@ services:
 
   progress-service:
     build: ./progress-service
+    deploy:
+      replicas: 2
     depends_on:
       consul-importer:
         condition: service_completed_successfully
@@ -122,6 +124,8 @@ services:
 
   report-service:
     build: ./report-service
+    deploy:
+      replicas: 2
     depends_on:
       consul-importer:
         condition: service_completed_successfully

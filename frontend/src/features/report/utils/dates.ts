@@ -15,11 +15,11 @@ export function lastCheckinLabel(
   lastDate: string | null,
   now = new Date(),
 ): string {
-  if (lastDate === null) return " aldri";
+  if (lastDate === null) return " never";
   const days = daysSince(lastDate, now);
-  if (days <= 0) return " i dag";
-  if (days === 1) return " i går";
-  return `${days} dager siden`;
+  if (days <= 0) return " Today";
+  if (days === 1) return " yesterday";
+  return `${days} days ago`;
 }
 
 export function periodsSince(

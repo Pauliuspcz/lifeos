@@ -10,14 +10,14 @@ export function daysBetween(from: string, to: string): string[] {
   return out;
 }
 
-const WEEKDAYS = ["Sø", "Ma", "Ti", "On", "To", "Fr", "Lø"];
+const WEEKDAYS = ["Su", "Mo", "Tu", "we", "Th", "Fr", "Sa"];
 
 export function dayLabel(
   date: string,
   today: string,
   relative: boolean,
 ): string {
-  if (relative && date === today) return "I dag";
-  if (relative && date === shiftDate(today, -1)) return "I går";
+  if (relative && date === today) return "Today";
+  if (relative && date === shiftDate(today, -1)) return "Yesterday";
   return WEEKDAYS[new Date(date + "T00:00:00").getDay()];
 }

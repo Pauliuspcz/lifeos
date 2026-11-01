@@ -27,7 +27,7 @@ export default function LogPage() {
       if (entry) await unlogDay(entry.id);
       else await logDay(goalId, date);
     } catch (err) {
-      setActionError((err as Error).message || "Noe gikk galt");
+      setActionError((err as Error).message || "Something went wrong");
     } finally {
       setBusy(false);
     }
@@ -37,14 +37,14 @@ export default function LogPage() {
     <>
       <Topbar />
       <div className="page">
-        <h1>Logg</h1>
-        {(goalsLoading || loading) && <p>Laster…</p>}
+        <h1>Log</h1>
+        {(goalsLoading || loading) && <p>Loading...</p>}
         {goalsError && <p className="error">{goalsError}</p>}
         {loadError && <p className="error">{loadError}</p>}
         {actionError && <p className="error">{actionError}</p>}
         {!goalsLoading && !goalsError && goals.length === 0 && (
           <p>
-            Ingen aktive mål ennå. <Link to={GOAL_PATH}>Lag ditt første</Link>.
+            No active goals yet. <Link to={GOAL_PATH}>Create your first</Link>.
           </p>
         )}
         {goals.map((g) => {
@@ -53,7 +53,7 @@ export default function LogPage() {
             return (
               <div className="log-card" key={g.id}>
                 <h2>{g.title}</h2>
-                <p className="muted">Støttes ikke ennå.</p>
+                <p className="muted">Not supported yet.</p>
               </div>
             );
           }

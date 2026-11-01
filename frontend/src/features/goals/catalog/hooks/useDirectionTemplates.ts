@@ -23,7 +23,7 @@ export function useDirectionTemplates(directionId: number) {
       .catch((err) => {
         if (cancelled) return;
         const code = err instanceof ApiError ? ` (${err.status})` : "";
-        setLoadError("Kunne ikke laste forslag" + code);
+        setLoadError("Could not load suggestions" + code);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);

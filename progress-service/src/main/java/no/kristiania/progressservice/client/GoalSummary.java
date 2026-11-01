@@ -3,4 +3,4 @@ package no.kristiania.progressservice.client;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record GoalSummary(Long id, String status, String trackingType, Integer timesPerPeriod) {}
+public record GoalSummary(Long id, String status, String trackingType, Integer timesPerPeriod, String period) {}

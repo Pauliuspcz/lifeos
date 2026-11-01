@@ -1,25 +1,24 @@
 import Topbar from "../shared/components/Topbar";
 import { GoalsCard, useGoals } from "../features/goals";
+import { StreaksCard, useGoalReports } from "../features/report";
 import { CheckinCard, useProgress } from "../features/progress";
 import { countInPeriod } from "../features/progress";
 
 const MOODS = [
-  { n: 1, word: "Tung" },
-  { n: 2, word: "Lav" },
+  { n: 1, word: "Awful" },
+  { n: 2, word: "Low" },
   { n: 3, word: "Ok" },
-  { n: 4, word: "Bra" },
-  { n: 5, word: "Topp" },
+  { n: 4, word: "Good" },
+  { n: 5, word: "Great" },
 ];
 
 const SLEEP = ["≤5", "6", "7", "8", "9+"];
 
-const DAYS = ["Ma", "Ti", "On", "To", "Fr", "Lø", "Sø"];
-
 export default function DashboardPage() {
-  const todayIndex = (new Date().getDay() + 6) % 7;
   const { goals, loading, loadError, addGoal, archiveGoal } =
     useGoals("ACTIVE");
   const { entries, addProgress, removeProgress } = useProgress();
+  const { reports } = useGoalReports(goals, entries);
 
   return (
     <>
@@ -33,40 +32,16 @@ export default function DashboardPage() {
           onArchive={archiveGoal}
           countFor={(g) => countInPeriod(entries, g)}
         />
-        <div className="streak-box">
-          <div className="box-header">
-            <h2>Denne uka</h2>
-          </div>
-          <div className="week">
-            {DAYS.map((day, i) => (
-              <div className="week-day" key={day}>
-                <div
-                  className={"week-bar" + (i === todayIndex ? " today" : "")}
-                />
-                <span className="muted">{day}</span>
-              </div>
-            ))}
-          </div>
-          <div className="stats">
-            <div>
-              <span className="muted">Fullført</span>
-              <strong>–</strong>
-            </div>
-            <div>
-              <span className="muted">Lengste streak</span>
-              <strong>–</strong>
-            </div>
-          </div>
-        </div>
         <CheckinCard
           goals={goals}
           entries={entries}
           onCheck={addProgress}
           onUncheck={removeProgress}
         />
+        <StreaksCard goals={goals} reports={reports} />
         <div className="scale-box">
-          <h2>Logg kjapt</h2>
-          <p className="label">Humør i dag</p>
+          <h2>Quick log</h2>
+          <p className="label">Mood today</p>
           <div className="scale">
             {MOODS.map((m) => (
               <button type="button" className="scale-btn" key={m.n}>
@@ -75,7 +50,7 @@ export default function DashboardPage() {
               </button>
             ))}
           </div>
-          <p className="label">Søvn i natt (timer)</p>
+          <p className="label">Sleep last night (hours)</p>
           <div className="scale">
             {SLEEP.map((s) => (
               <button type="button" className="scale-btn" key={s}>
@@ -83,11 +58,11 @@ export default function DashboardPage() {
               </button>
             ))}
           </div>
-          <p className="label">En linje om dagen</p>
+          <p className="label">One line a day</p>
           <div className="journal">
-            <input type="text" placeholder="Hva gikk bra i dag?" />
+            <input type="text" placeholder="What went well today?" />
             <button type="button" className="btn-dark">
-              Lagre
+              Save
             </button>
           </div>
         </div>

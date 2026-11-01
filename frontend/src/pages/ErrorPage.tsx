@@ -10,8 +10,8 @@ export default function ErrorPage() {
 
   return (
     <div className="page">
-      <h1>Fant ikke siden</h1>
-      <p>Vi fant ikke siden du lette etter</p>
+      <h1>Page not found</h1>
+      <p>We couldn't find the page you were looking for</p>
       <BackButton onBack={handleBack} />
     </div>
   );
