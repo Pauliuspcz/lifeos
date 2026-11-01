@@ -1,5 +1,6 @@
 import Topbar from "../shared/components/Topbar";
 import { GoalsCard, useGoals } from "../features/goals";
+import { StreaksCard, useGoalReports } from "../features/report";
 import { CheckinCard, useProgress } from "../features/progress";
 import { countInPeriod } from "../features/progress";
 
@@ -13,13 +14,11 @@ const MOODS = [
 
 const SLEEP = ["≤5", "6", "7", "8", "9+"];
 
-const DAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
-
 export default function DashboardPage() {
-  const todayIndex = (new Date().getDay() + 6) % 7;
   const { goals, loading, loadError, addGoal, archiveGoal } =
     useGoals("ACTIVE");
   const { entries, addProgress, removeProgress } = useProgress();
+  const { reports } = useGoalReports(goals, entries);
 
   return (
     <>
@@ -33,37 +32,13 @@ export default function DashboardPage() {
           onArchive={archiveGoal}
           countFor={(g) => countInPeriod(entries, g)}
         />
-        <div className="streak-box">
-          <div className="box-header">
-            <h2>This week</h2>
-          </div>
-          <div className="week">
-            {DAYS.map((day, i) => (
-              <div className="week-day" key={day}>
-                <div
-                  className={"week-bar" + (i === todayIndex ? " today" : "")}
-                />
-                <span className="muted">{day}</span>
-              </div>
-            ))}
-          </div>
-          <div className="stats">
-            <div>
-              <span className="muted">Completed</span>
-              <strong>–</strong>
-            </div>
-            <div>
-              <span className="muted">Longest streak</span>
-              <strong>–</strong>
-            </div>
-          </div>
-        </div>
         <CheckinCard
           goals={goals}
           entries={entries}
           onCheck={addProgress}
           onUncheck={removeProgress}
         />
+        <StreaksCard goals={goals} reports={reports} />
         <div className="scale-box">
           <h2>Quick log</h2>
           <p className="label">Mood today</p>

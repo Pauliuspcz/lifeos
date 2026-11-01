@@ -15,8 +15,8 @@ export default function Topbar() {
       </Link>
       <nav className="topbar-nav">
         <NavLink to={HOME_PATH}>Today</NavLink>
-        <NavLink to={GOAL_PATH}>Goals</NavLink>
         <NavLink to={INSIGHT_PATH}>Insights</NavLink>
+        <NavLink to={GOAL_PATH}>Goals</NavLink>
         <NavLink to={LOG_PATH}>Log</NavLink>
         <span>Journal</span>
       </nav>

@@ -4,7 +4,7 @@ import type { Goal } from "../../goals";
 import { getGoalReport } from "../api";
 import type { GoalReport } from "../types";
 
-export function useGoalReports(goals: Goal[]) {
+export function useGoalReports(goals: Goal[], refreshKey?: unknown) {
   const [reports, setReports] = useState<GoalReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -27,7 +27,7 @@ export function useGoalReports(goals: Goal[]) {
     return () => {
       cancelled = true;
     };
-  }, [goals]);
+  }, [goals, refreshKey]);
 
   return { reports, loading, loadError };
 }
