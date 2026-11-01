@@ -2,11 +2,7 @@ package no.kristiania.reportservice.report;
 
 import no.kristiania.reportservice.report.dto.GoalReport;
 import org.springframework.stereotype.Service;
-
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.Period;
-import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
 
@@ -35,40 +31,7 @@ public class ReportService {
                 previous30Days++;
             }
         }
-
-        ProgressRecord latest = entries.isEmpty() ? null : entries.getLast();
-        String period = (latest == null || latest.getPeriod() == null) ? "DAILY" : latest.getPeriod();
-        int target = (latest == null || latest.getTargetCount() == null) ? 1 : latest.getTargetCount();
-
-        Period unit = switch (period) {
-            case "WEEKLY" -> Period.ofWeeks(1);
-            case "MONTHLY" -> Period.ofMonths(1);
-            case "YEARLY" -> Period.ofYears(1);
-            default -> Period.ofDays(1);
-        };
-        LocalDate start = switch (period) {
-            case "WEEKLY" -> today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-            case "MONTHLY" -> today.withDayOfMonth(1);
-            case "YEARLY" -> today.withDayOfYear(1);
-            default -> today;
-        };
-
-        if (countIn(entries, start, unit) < target) start = start.minus(unit);
-        int currentStreak = 0;
-        while (countIn(entries, start, unit) >= target) {
-            currentStreak++;
-            start = start.minus(unit);
-        }
+        int currentStreak = StreakCalculator.currentStreak(entries, today);
         return new GoalReport(goalId, entries.size(), lastDate, last30Days, previous30Days, currentStreak);
     }
-
-    private int countIn(List<ProgressRecord> entries, LocalDate start, Period unit) {
-        LocalDate end = start.plus(unit);
-        int count = 0;
-        for (ProgressRecord entry : entries) {
-            if (!entry.getDate().isBefore(start) && entry.getDate().isBefore(end)) count++;
-        }
-        return count;
-    }
-
 }
