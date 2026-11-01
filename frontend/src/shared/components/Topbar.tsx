@@ -14,14 +14,14 @@ export default function Topbar() {
         LifeOS
       </Link>
       <nav className="topbar-nav">
-        <NavLink to={HOME_PATH}>I dag</NavLink>
-        <NavLink to={GOAL_PATH}>Mål</NavLink>
-        <NavLink to={INSIGHT_PATH}>Innsikt</NavLink>
-        <NavLink to={LOG_PATH}>Logg</NavLink>
+        <NavLink to={HOME_PATH}>Today</NavLink>
+        <NavLink to={GOAL_PATH}>Goals</NavLink>
+        <NavLink to={INSIGHT_PATH}>Insights</NavLink>
+        <NavLink to={LOG_PATH}>Log</NavLink>
         <span>Journal</span>
       </nav>
       <Link to={PROFILE_PATH} className="topbar-profile">
-        Profil
+        Profile
       </Link>
     </header>
   );

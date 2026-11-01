@@ -14,10 +14,10 @@ afterEach(() => {
 });
 
 function submitWithTitle(title: string) {
-  fireEvent.change(screen.getByPlaceholderText("Tittel"), {
+  fireEvent.change(screen.getByPlaceholderText("Title"), {
     target: { value: title },
   });
-  fireEvent.click(screen.getByText("Opprett"));
+  fireEvent.click(screen.getByText("Create"));
 }
 
 describe("GoalForm", () => {
@@ -25,9 +25,9 @@ describe("GoalForm", () => {
     const onCreate = vi.fn();
     render(<GoalForm onCreate={onCreate} />);
 
-    fireEvent.click(screen.getByText("Opprett"));
+    fireEvent.click(screen.getByText("Create"));
 
-    expect(screen.getByText("Tittel må fylles ut")).toBeTruthy();
+    expect(screen.getByText("Title is required")).toBeTruthy();
     expect(onCreate).not.toHaveBeenCalled();
   });
 
@@ -50,33 +50,31 @@ describe("GoalForm", () => {
 
     submitWithTitle("x");
 
-    expect(
-      await screen.findByText("Kunne ikke opprette mål (500)"),
-    ).toBeTruthy();
+    expect(await screen.findByText("Could not create goal (500)")).toBeTruthy();
   });
 
   it("sends description, amount and unit", async () => {
     const onCreate = vi.fn().mockResolvedValue(undefined);
     render(<GoalForm onCreate={onCreate} />);
 
-    fireEvent.change(screen.getByPlaceholderText("Tittel"), {
-      target: { value: "Løp" },
+    fireEvent.change(screen.getByPlaceholderText("Title"), {
+      target: { value: "Run" },
     });
-    fireEvent.change(screen.getByPlaceholderText("Beskrivelse (valgfritt)"), {
-      target: { value: "Rolig tur" },
+    fireEvent.change(screen.getByPlaceholderText("Description (optional)"), {
+      target: { value: "Easy run" },
     });
-    fireEvent.change(screen.getByPlaceholderText("Mengde per økt"), {
+    fireEvent.change(screen.getByPlaceholderText("Amount per session"), {
       target: { value: "5" },
     });
-    fireEvent.change(screen.getByPlaceholderText("Enhet (f.eks. km)"), {
+    fireEvent.change(screen.getByPlaceholderText("Unit (e.g. km)"), {
       target: { value: "km" },
     });
-    fireEvent.click(screen.getByText("Opprett"));
+    fireEvent.click(screen.getByText("Create"));
 
     await waitFor(() =>
       expect(onCreate).toHaveBeenCalledWith({
-        title: "Løp",
-        description: "Rolig tur",
+        title: "Run",
+        description: "Easy run",
         period: "WEEKLY",
         timesPerPeriod: 1,
         amountPerSession: 5,
@@ -89,11 +87,11 @@ describe("GoalForm", () => {
     const onCreate = vi.fn().mockResolvedValue(undefined);
     render(<GoalForm onCreate={onCreate} />);
 
-    submitWithTitle("Løp");
+    submitWithTitle("Run");
 
     await waitFor(() =>
       expect(onCreate).toHaveBeenCalledWith({
-        title: "Løp",
+        title: "Run",
         description: null,
         period: "WEEKLY",
         timesPerPeriod: 1,
@@ -107,15 +105,15 @@ describe("GoalForm", () => {
     const onCreate = vi.fn();
     render(<GoalForm onCreate={onCreate} />);
 
-    fireEvent.change(screen.getByPlaceholderText("Tittel"), {
-      target: { value: "Løp" },
+    fireEvent.change(screen.getByPlaceholderText("Title"), {
+      target: { value: "Run" },
     });
-    fireEvent.change(screen.getByPlaceholderText("Mengde per økt"), {
+    fireEvent.change(screen.getByPlaceholderText("Amount per session"), {
       target: { value: "0" },
     });
-    fireEvent.click(screen.getByText("Opprett"));
+    fireEvent.click(screen.getByText("Create"));
 
-    expect(screen.getByText("Mengde må være større enn 0")).toBeTruthy();
+    expect(screen.getByText("Amount must be greater than 0")).toBeTruthy();
     expect(onCreate).not.toHaveBeenCalled();
   });
 });

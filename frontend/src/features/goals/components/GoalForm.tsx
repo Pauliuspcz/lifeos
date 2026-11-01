@@ -8,8 +8,8 @@ type Props = {
 };
 
 function errorText(err: unknown): string {
-  if (err instanceof ApiError) return `Kunne ikke opprette mål (${err.status})`;
-  return "Kunne ikke opprette mål";
+  if (err instanceof ApiError) return `Could not create goal (${err.status})`;
+  return "Could not create goal";
 }
 
 type FormState = CreateGoalRequest & {
@@ -34,11 +34,11 @@ export default function GoalForm({ onCreate, onDone }: Props) {
     setError("");
 
     const local: FieldErrors = {};
-    if (!form.title.trim()) local.title = "Tittel må fylles ut";
+    if (!form.title.trim()) local.title = "Title is required";
     if (form.timesPerPeriod < 1)
-      local.timesPerPeriod = "Antall ganger må være minst 1";
+      local.timesPerPeriod = "Times must be at least 1";
     if (form.amountPerSession != null && form.amountPerSession <= 0)
-      local.amountPerSession = "Mengde må være større enn 0";
+      local.amountPerSession = "Amount must be greater than 0";
     if (Object.keys(local).length > 0) {
       setFieldErrors(local);
       return;
@@ -63,7 +63,7 @@ export default function GoalForm({ onCreate, onDone }: Props) {
       <form onSubmit={handleSubmit}>
         <div>
           <input
-            placeholder="Tittel"
+            placeholder="Title"
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
           />
@@ -87,7 +87,7 @@ export default function GoalForm({ onCreate, onDone }: Props) {
         <div>
           <input
             type="number"
-            placeholder="Ganger per periode"
+            placeholder="Times per period"
             min={1}
             value={form.timesPerPeriod}
             onChange={(e) =>
@@ -100,7 +100,7 @@ export default function GoalForm({ onCreate, onDone }: Props) {
         </div>
         <div>
           <input
-            placeholder="Beskrivelse (valgfritt)"
+            placeholder="Description (optional)"
             maxLength={1000}
             value={form.description ?? ""}
             onChange={(e) =>
@@ -114,7 +114,7 @@ export default function GoalForm({ onCreate, onDone }: Props) {
         <div>
           <input
             type="number"
-            placeholder="Mengde per økt"
+            placeholder="Amount per session"
             min={0}
             step="0.01"
             value={form.amountPerSession ?? ""}
@@ -132,14 +132,14 @@ export default function GoalForm({ onCreate, onDone }: Props) {
         </div>
         <div>
           <input
-            placeholder="Enhet (f.eks. km)"
+            placeholder="Unit (e.g. km)"
             maxLength={50}
             value={form.unit ?? ""}
             onChange={(e) => setForm({ ...form, unit: e.target.value || null })}
           />
           {fieldErrors.unit && <p className="error">{fieldErrors.unit}</p>}
         </div>
-        <button type="submit">Opprett</button>
+        <button type="submit">Create</button>
       </form>
       {error && <p className="error">{error}</p>}
     </>

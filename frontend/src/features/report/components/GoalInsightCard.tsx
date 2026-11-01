@@ -1,4 +1,4 @@
-import { Goal, GoalPeriod, PERIOD_LABEL, periodOf } from "../../goals";
+import { Goal, PERIOD_LABEL, periodOf } from "../../goals";
 import { GoalReport } from "../types";
 import { averagePerPeriod, lastCheckinLabel } from "../utils/dates";
 
@@ -7,24 +7,16 @@ type Props = {
   report?: GoalReport;
 };
 
-const PERIOD_PLURAL: Record<GoalPeriod, string> = {
-  //TODO: move to goals/types.ts, unsure of changes by kriss917.
-  DAILY: "dager",
-  WEEKLY: "uker",
-  MONTHLY: "måneder",
-  YEARLY: "år",
-};
-
 function formatAverage(value: number): string {
-  return value.toLocaleString("nb-NO", {
+  return value.toLocaleString("en-GB", {
     maximumFractionDigits: 1,
   });
 }
 
 function trendLabel(diff: number): string {
-  if (diff > 0) return `Opp ${diff} fra forrige 30`;
-  if (diff < 0) return `Ned ${Math.abs(diff)} fra forrige 30`;
-  return "likt som forrige 30";
+  if (diff > 0) return `Up ${diff} from previous 30`;
+  if (diff < 0) return `Down ${Math.abs(diff)} from previous 30`;
+  return "same as previous 30";
 }
 
 export default function GoalInsightCard({ goal, report }: Props) {
@@ -35,25 +27,22 @@ export default function GoalInsightCard({ goal, report }: Props) {
   const total = report?.totalSessions ?? 0;
   const average = formatAverage(averagePerPeriod(total, goal));
   const streak = report?.currentStreak ?? 0;
-  const streakUnit =
-    streak === 1 ? PERIOD_LABEL[period] : PERIOD_PLURAL[period];
+  const streakUnit = streak === 1 ? unit : `${unit}s`;
 
   return (
     <li>
       <h3>{goal.title}</h3>
-      <p>Innsjekker: {total}</p>
+      <p>Check-ins: {total}</p>
       <p>
-        Siste 30 dager: {last30} ({trendLabel(diff)})
+        Last 30 days: {last30} ({trendLabel(diff)})
       </p>
+      <p>{streak > 0 ? `${streak} ${streakUnit} in a row` : "No streak yet"}</p>
       <p>
-        {streak > 0 ? `${streak} ${streakUnit} på rad` : "Ingen streak ennå"}
-      </p>
-      <p>
-        Sist sjekket inn:
+        Last check-in:
         {lastCheckinLabel(report?.lastDate ?? null)}
       </p>
       <p>
-        Snitt: {average} per {unit} (mål {goal.timesPerPeriod})
+        Average: {average} per {unit} (goal {goal.timesPerPeriod})
       </p>
     </li>
   );

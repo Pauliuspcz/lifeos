@@ -22,7 +22,7 @@ export default function GoalList({
 }: Props) {
   return (
     <div>
-      {loading && <p className="muted">Laster mål…</p>}
+      {loading && <p className="muted">Loading goals…</p>}
       {loadError && <p className="error">{loadError}</p>}
       {!loading && !loadError && goals.length === 0 && (
         <p className="muted">{emptyText}</p>
@@ -41,10 +41,10 @@ export default function GoalList({
             <span className="muted">{describeGoal(g)}</span>
           </div>
           {g.description && <p className="muted">{g.description}</p>}
-          {g.motivation && <p className="muted">«{g.motivation}»</p>}
+          {g.motivation && <p className="muted">"{g.motivation}"</p>}
           {g.archivedAt && (
             <p className="muted">
-              Arkivert {new Date(g.archivedAt).toLocaleDateString("nb-NO")}
+              Archived {new Date(g.archivedAt).toLocaleDateString("en-GB")}
             </p>
           )}
           <div>
@@ -54,7 +54,7 @@ export default function GoalList({
                 className="btn-outline"
                 onClick={() => onArchive(g.id)}
               >
-                Arkiver
+                Archive
               </button>
             )}
             {onUnarchive && (
@@ -63,7 +63,7 @@ export default function GoalList({
                 className="btn-outline"
                 onClick={() => onUnarchive(g.id)}
               >
-                Gjenopprett
+                Restore
               </button>
             )}
             {onDelete && (
@@ -72,7 +72,7 @@ export default function GoalList({
                 className="btn-outline btn-danger"
                 onClick={() => onDelete(g)}
               >
-                Slett for godt
+                Delete permanently
               </button>
             )}
           </div>

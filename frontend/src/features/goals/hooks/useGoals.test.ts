@@ -104,6 +104,6 @@ describe("useGoals", () => {
 
     const { result } = await loaded("ACTIVE");
 
-    expect(result.current.loadError).toBe("Kunne ikke laste mål (500)");
+    expect(result.current.loadError).toBe("Could not load goals (500)");
   });
 });

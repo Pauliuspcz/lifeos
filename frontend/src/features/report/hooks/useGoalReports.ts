@@ -19,7 +19,7 @@ export function useGoalReports(goals: Goal[]) {
       .catch((err) => {
         if (cancelled) return;
         const code = err instanceof ApiError ? ` (${err.status})` : "";
-        setLoadError("Kunne ikke laste innsikt" + code);
+        setLoadError("Could not load insights" + code);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);

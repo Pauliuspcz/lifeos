@@ -27,7 +27,7 @@ export default function GoalsPage() {
     try {
       await action();
     } catch (err) {
-      setActionError((err as Error).message || "Noe gikk galt");
+      setActionError((err as Error).message || "Something went wrong");
     }
   }
 
@@ -40,11 +40,11 @@ export default function GoalsPage() {
     <>
       <Topbar />
       <div className="page">
-        <h1>Mål</h1>
+        <h1>Goals</h1>
 
         <section className="goals-box">
           <div className="box-header">
-            <h2>Lag et nytt mål</h2>
+            <h2>Create a new goal</h2>
           </div>
           <GoalWizard
             key={wizardKey}
@@ -55,21 +55,21 @@ export default function GoalsPage() {
 
         <section className="goals-box">
           <div className="box-header">
-            <h2>Mine mål</h2>
+            <h2>My goals</h2>
             <div className="tabs">
               <button
                 type="button"
                 className={"tab" + (tab === "ACTIVE" ? " active" : "")}
                 onClick={() => setTab("ACTIVE")}
               >
-                Aktive
+                Active
               </button>
               <button
                 type="button"
                 className={"tab" + (tab === "ARCHIVED" ? " active" : "")}
                 onClick={() => setTab("ARCHIVED")}
               >
-                Arkiverte
+                Archived
               </button>
             </div>
           </div>
@@ -79,7 +79,7 @@ export default function GoalsPage() {
               goals={goals}
               loading={loading}
               loadError={loadError}
-              emptyText="Ingen aktive mål ennå. Lag ditt første over."
+              emptyText="No goals yet. Create your first one above."
               onArchive={(id) => run(() => archiveGoal(id))}
             />
           ) : (
@@ -87,12 +87,12 @@ export default function GoalsPage() {
               goals={goals}
               loading={loading}
               loadError={loadError}
-              emptyText="Ingen arkiverte mål."
+              emptyText="No archived goals."
               onUnarchive={(id) => run(() => unarchiveGoal(id))}
               onDelete={(g) => {
                 if (
                   window.confirm(
-                    `Slette «${g.title}» for godt? Dette kan ikke angres.`,
+                    `Delete "${g.title}" permanently? This can't be undone.`,
                   )
                 ) {
                   void run(() => removeGoal(g.id));

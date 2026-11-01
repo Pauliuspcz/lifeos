@@ -10,12 +10,10 @@ export default function InsightPage() {
     <>
       <Topbar />
       <div className="page">
-        <h1>Innsikt</h1>
-        {isLoading && <p>Laster…</p>}
+        <h1>Insights</h1>
+        {isLoading && <p>Loading…</p>}
         {loadError && <p className="error">{loadError}</p>}
-        {!isLoading && !loadError && goals.length === 0 && (
-          <p>Ingen mål ennå.</p>
-        )}
+        {!isLoading && !loadError && goals.length === 0 && <p>No goals yet.</p>}
         <ul>
           {goals.map((g) => (
             <GoalInsightCard
