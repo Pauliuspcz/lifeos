@@ -25,7 +25,7 @@ export function useGoals(status?: GoalStatus) {
       .catch((err) => {
         if (cancelled) return;
         const code = err instanceof ApiError ? ` (${err.status})` : "";
-        setLoadError("Kunne ikke laste mål" + code);
+        setLoadError("Could not load goals" + code);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);

@@ -17,7 +17,7 @@ export function useProgress() {
       .catch((err) => {
         if (cancelled) return;
         const code = err instanceof ApiError ? ` (${err.status})` : "";
-        setLoadError("Kunne ikke laste fremgang" + code);
+        setLoadError("Could not load progress" + code);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);

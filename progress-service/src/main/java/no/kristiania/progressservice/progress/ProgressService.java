@@ -86,7 +86,7 @@ public class ProgressService {
         }
         try{
             rabbitTemplate.convertAndSend(RabbitConfig.EXCHANGE,
-                    RabbitConfig.ROUTING_KEY_CREATED, ProgressCreatedEvent.from(saved, targetCount));
+                    RabbitConfig.ROUTING_KEY_CREATED, ProgressCreatedEvent.from(saved, targetCount, goal.period()));
         } catch(AmqpException e) {
             log.error("Could not publish ProgressCreatedEvent {}", saved.getEventId(), e);
         }

@@ -1,0 +1,1 @@
+ALTER TABLE progress_record ADD COLUMN period VARCHAR(10);

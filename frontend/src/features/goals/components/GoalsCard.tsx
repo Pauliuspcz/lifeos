@@ -35,16 +35,16 @@ export default function GoalsCard({
     <>
       <div className="goals-box">
         <div className="box-header">
-          <h2>Mål</h2>
+          <h2>Goals</h2>
           <button
             type="button"
             className="btn-outline"
             onClick={() => dialogRef.current?.showModal()}
           >
-            + Nytt mål
+            + New goal
           </button>
         </div>
-        {loading && <p className="muted">Laster mål…</p>}
+        {loading && <p className="muted">Loading goals…</p>}
         {loadError && <p className="error">{loadError}</p>}
         {!loading && !loadError && goals.length === 0 && (
           <p className="muted">No goals created yet.</p>
@@ -57,7 +57,7 @@ export default function GoalsCard({
               <button
                 type="button"
                 className="goal-archive"
-                aria-label={"Arkiver " + g.title}
+                aria-label={"Archive " + g.title}
                 onClick={() => handleArchive(g.id)}
               >
                 ×
@@ -99,7 +99,7 @@ export default function GoalsCard({
             className="btn-outline"
             onClick={() => dialogRef.current?.close()}
           >
-            Lukk
+            Close
           </button>
         </div>
         <GoalWizard

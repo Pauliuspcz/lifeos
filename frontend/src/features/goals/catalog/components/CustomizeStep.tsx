@@ -13,13 +13,13 @@ import {
 import { Template } from "../types";
 
 const TRACKING_LABEL: Record<TrackingType, string> = {
-  CHECK: "Gjort / ikke gjort",
-  COUNT: "Antall ganger",
-  AMOUNT: "Mengde",
-  DURATION: "Tid",
-  LIMIT: "Maksgrense",
-  TIME_TARGET: "Klokkeslett",
-  EVENT: "Mål med dato",
+  CHECK: "Done / not done",
+  COUNT: "Number of times",
+  AMOUNT: "Amount",
+  DURATION: "Duration",
+  LIMIT: "Max limit",
+  TIME_TARGET: "Time of day",
+  EVENT: "Goal with a date",
 };
 
 type Props = {
@@ -92,16 +92,16 @@ export default function CustomizeStep({
   function validate(): FieldErrors {
     const e: FieldErrors = {};
     const today = new Date().toISOString().slice(0, 10);
-    if (!form.title.trim()) e.title = "Tittel må fylles ut";
+    if (!form.title.trim()) e.title = "Title is required";
     if (fields.includes("timesPerPeriod") && form.timesPerPeriod < 1)
-      e.timesPerPeriod = "Minst 1";
+      e.timesPerPeriod = "At least 1";
     if (amountRequired && (form.amount === null || form.amount <= 0))
-      e.amountPerSession = "Mengde må være større enn 0";
-    if (amountRequired && !form.unit.trim()) e.unit = "Enhet må fylles ut";
+      e.amountPerSession = "Amount must be greater than 0";
+    if (amountRequired && !form.unit.trim()) e.unit = "Unit is required";
     if (fields.includes("targetTime") && !form.targetTime)
-      e.targetTime = "Velg et klokkeslett";
+      e.targetTime = "Pick a time";
     if (fields.includes("targetDate") && form.targetDate <= today)
-      e.targetDate = "Velg en dato frem i tid";
+      e.targetDate = "Pick a future date";
     return e;
   }
 
@@ -141,7 +141,7 @@ export default function CustomizeStep({
       } else if (err instanceof ApiError) {
         setError(err.message);
       } else {
-        setError("Kunne ikke opprette mål");
+        setError("Could not create goal");
       }
     }
   }
@@ -149,12 +149,12 @@ export default function CustomizeStep({
   return (
     <form onSubmit={handleSubmit}>
       <button type="button" className="btn-outline" onClick={onBack}>
-        ← Tilbake
+        ← Back
       </button>
-      <h3>{template ? template.title : "Lag ditt eget mål"}</h3>
+      <h3>{template ? template.title : "Create your own goal"}</h3>
 
       {!template && (
-        <Field label="Hvordan vil du måle det?">
+        <Field label="How do you want to track it?">
           <select
             value={form.trackingType}
             onChange={(e) =>
@@ -170,7 +170,7 @@ export default function CustomizeStep({
         </Field>
       )}
 
-      <Field label="Tittel" error={fieldErrors.title}>
+      <Field label="Title" error={fieldErrors.title}>
         <input
           value={form.title}
           maxLength={255}
@@ -179,7 +179,7 @@ export default function CustomizeStep({
       </Field>
 
       {fields.includes("period") && (
-        <Field label="Periode" error={fieldErrors.period}>
+        <Field label="Period" error={fieldErrors.period}>
           <select
             value={form.period}
             onChange={(e) => set({ period: e.target.value as GoalPeriod })}
@@ -194,7 +194,7 @@ export default function CustomizeStep({
       )}
 
       {fields.includes("timesPerPeriod") && (
-        <Field label="Ganger per periode" error={fieldErrors.timesPerPeriod}>
+        <Field label="Times per period" error={fieldErrors.timesPerPeriod}>
           <input
             type="number"
             min={1}
@@ -207,7 +207,7 @@ export default function CustomizeStep({
       {showAmount && (
         <>
           <Field
-            label={amountRequired ? "Mengde" : "Mengde per økt (valgfritt)"}
+            label={amountRequired ? "Amount" : "Amount per session (optional)"}
             error={fieldErrors.amountPerSession}
           >
             <input
@@ -222,7 +222,7 @@ export default function CustomizeStep({
               }
             />
           </Field>
-          <Field label="Enhet (f.eks. km, L, min)" error={fieldErrors.unit}>
+          <Field label="Unit (e.g. km, L, min)" error={fieldErrors.unit}>
             <input
               value={form.unit}
               maxLength={50}
@@ -233,7 +233,7 @@ export default function CustomizeStep({
       )}
 
       {fields.includes("targetTime") && (
-        <Field label="Klokkeslett" error={fieldErrors.targetTime}>
+        <Field label="Time of day" error={fieldErrors.targetTime}>
           <input
             type="time"
             value={form.targetTime}
@@ -243,7 +243,7 @@ export default function CustomizeStep({
       )}
 
       {fields.includes("targetDate") && (
-        <Field label="Dato" error={fieldErrors.targetDate}>
+        <Field label="Date" error={fieldErrors.targetDate}>
           <input
             type="date"
             value={form.targetDate}
@@ -253,7 +253,7 @@ export default function CustomizeStep({
       )}
 
       <Field
-        label="Hvorfor vil du dette? (valgfritt)"
+        label="Why do you want this? (optional)"
         error={fieldErrors.motivation}
       >
         <input
@@ -263,7 +263,7 @@ export default function CustomizeStep({
         />
       </Field>
 
-      <Field label="Beskrivelse (valgfritt)" error={fieldErrors.description}>
+      <Field label="Description (optional)" error={fieldErrors.description}>
         <input
           value={form.description}
           maxLength={1000}
@@ -271,7 +271,7 @@ export default function CustomizeStep({
         />
       </Field>
 
-      <Field label="Farge" error={fieldErrors.color}>
+      <Field label="Color" error={fieldErrors.color}>
         <input
           type="color"
           value={form.color}
@@ -279,7 +279,7 @@ export default function CustomizeStep({
         />
       </Field>
 
-      <button type="submit">Opprett</button>
+      <button type="submit">Create</button>
       {error && <p className="error">{error}</p>}
     </form>
   );

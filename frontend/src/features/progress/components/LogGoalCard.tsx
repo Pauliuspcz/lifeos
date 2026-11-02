@@ -28,11 +28,11 @@ export default function LogGoalCard({
   const weekCount = entries.filter((e) => e.date >= win.weekStart).length;
 
   const status = weekly
-    ? `${weekCount}/${target} denne uka` +
-      (weekCount >= target ? " · ferdig" : "")
+    ? `${weekCount}/${target} this week` +
+      (weekCount >= target ? " · done" : "")
     : byDate.has(win.today)
-      ? "Gjort i dag"
-      : "Ikke gjort i dag";
+      ? "Done today"
+      : "Not done today";
 
   return (
     <div className="log-card">
@@ -66,7 +66,7 @@ export default function LogGoalCard({
           );
         })}
       </div>
-      <div className="dots" aria-label="Siste 7 dager">
+      <div className="dots" aria-label="Last 7 days">
         {historyDays.map((d) => (
           <span
             key={d}

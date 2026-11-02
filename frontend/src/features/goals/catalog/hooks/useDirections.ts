@@ -17,7 +17,7 @@ export function useDirections() {
       .catch((err) => {
         if (cancelled) return;
         const code = err instanceof ApiError ? ` (${err.status})` : "";
-        setLoadError("Kunne ikke laste retninger" + code);
+        setLoadError("Could not load directions" + code);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);

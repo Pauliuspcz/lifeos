@@ -22,12 +22,12 @@ export function describeGoal(g: Goal): string {
     case "DURATION":
       return `${g.amountPerSession ?? ""} ${g.unit ?? ""}${per}`.trim();
     case "LIMIT":
-      return `maks ${g.amountPerSession ?? ""} ${g.unit ?? ""}${per}`.trim();
+      return `max ${g.amountPerSession ?? ""} ${g.unit ?? ""}${per}`.trim();
     case "TIME_TARGET":
-      return `kl. ${g.targetTime?.slice(0, 5) ?? ""}`;
+      return `at ${g.targetTime?.slice(0, 5) ?? ""}`;
     case "EVENT":
-      return g.targetDate ? `innen ${g.targetDate}` : "";
+      return g.targetDate ? `by ${g.targetDate}` : "";
     default:
-      return per ? `Daglig` : "";
+      return per ? `Daily` : "";
   }
 }

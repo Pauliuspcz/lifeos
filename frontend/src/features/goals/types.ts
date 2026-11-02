@@ -63,10 +63,10 @@ export type CreateGoalRequest = {
 };
 
 export const PERIOD_LABEL: Record<GoalPeriod, string> = {
-  DAILY: "dag",
-  WEEKLY: "uke",
-  MONTHLY: "måned",
-  YEARLY: "år",
+  DAILY: "day",
+  WEEKLY: "week",
+  MONTHLY: "month",
+  YEARLY: "year",
 };
 
 // Midlertidig: progress/report forstår bare periodebaserte mål (COUNT) foreløpig

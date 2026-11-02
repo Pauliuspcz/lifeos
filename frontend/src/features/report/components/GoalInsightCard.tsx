@@ -1,64 +1,62 @@
-import { Goal, GoalPeriod, PERIOD_LABEL, periodOf } from "../../goals";
+import { Goal, PERIOD_LABEL, periodOf, timesOf } from "../../goals";
 import { GoalReport } from "../types";
-import { averagePerPeriod, lastCheckinLabel } from "../utils/dates";
-import { Progress } from "../../progress";
-import { currentStreak } from "../utils/streak";
+import { lastCheckinLabel } from "../utils/dates";
 
 type Props = {
   goal: Goal;
   report?: GoalReport;
-  entries: Progress[];
 };
-
-const PERIOD_PLURAL: Record<GoalPeriod, string> = {
-  //TODO: move to goals/types.ts, unsure of changes by kriss917.
-  DAILY: "dager",
-  WEEKLY: "uker",
-  MONTHLY: "måneder",
-  YEARLY: "år",
-};
-
-function formatAverage(value: number): string {
-  return value.toLocaleString("nb-NO", {
-    maximumFractionDigits: 1,
-  });
-}
 
 function trendLabel(diff: number): string {
-  if (diff > 0) return `Opp ${diff} fra forrige 30`;
-  if (diff < 0) return `Ned ${Math.abs(diff)} fra forrige 30`;
-  return "likt som forrige 30";
+  if (diff > 0) return `+${diff}`;
+  if (diff < 0) return `-${Math.abs(diff)}`;
+  return "±0";
 }
 
-// ...
-export default function GoalInsightCard({ goal, report, entries }: Props) {
+export default function GoalInsightCard({ goal, report }: Props) {
   const period = periodOf(goal);
   const unit = PERIOD_LABEL[period];
   const last30 = report?.last30Days ?? 0;
   const diff = last30 - (report?.previous30Days ?? 0);
   const total = report?.totalSessions ?? 0;
-  const average = formatAverage(averagePerPeriod(total, goal));
-  const streak = currentStreak(entries, goal);
-  const streakUnit =
-    streak === 1 ? PERIOD_LABEL[period] : PERIOD_PLURAL[period];
+  const streak = report?.currentStreak ?? 0;
+  const streakUnit = streak === 1 ? unit : `${unit}s`;
+  const successRate = report?.successRate ?? 0;
+  const history = report?.history ?? [];
+  const maxCount = Math.max(timesOf(goal), ...history.map((h) => h.count));
 
   return (
-    <li>
-      <h3>{goal.title}</h3>
-      <p>Innsjekker: {total}</p>
+    <div className="insight-goal">
+      <div className="box-header">
+        <h2>{goal.title}</h2>
+        <span className="muted">
+          {streak > 0 ? `${streak} ${streakUnit} in a row` : "No streak yet"}
+        </span>
+      </div>
+      <p>Check-ins: {total}</p>
       <p>
-        Siste 30 dager: {last30} ({trendLabel(diff)})
+        Last 30 days: {last30} ({trendLabel(diff)})
       </p>
+      <p>Completion rate: {successRate}%</p>
+      <p className="muted">Last 12 {unit}s:</p>
+      <div className="history">
+        {history.map((h) => (
+          <div
+            className="week-bar"
+            key={h.periodStart}
+            title={`${h.periodStart}: ${h.count}`}
+          >
+            <div
+              className={"week-fill" + (h.reached ? "" : " missed")}
+              style={{ height: `${(h.count / maxCount) * 100}%` }}
+            />
+          </div>
+        ))}
+      </div>
       <p>
-        {streak > 0 ? `${streak} ${streakUnit} på rad` : "Ingen streak ennå"}
-      </p>
-      <p>
-        Sist sjekket inn:
+        Last check-in:
         {lastCheckinLabel(report?.lastDate ?? null)}
       </p>
-      <p>
-        Snitt: {average} per {unit} (mål {goal.timesPerPeriod})
-      </p>
-    </li>
+    </div>
   );
 }

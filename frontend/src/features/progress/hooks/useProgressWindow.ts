@@ -14,7 +14,7 @@ export function useProgressWindow() {
       setLoadError("");
     } catch (err) {
       const code = err instanceof ApiError ? ` (${err.status})` : "";
-      setLoadError("Kunne ikke laste logger" + code);
+      setLoadError("Could not load logs" + code);
     } finally {
       setLoading(false);
     }

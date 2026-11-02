@@ -2,9 +2,9 @@ import type { Template } from "./types";
 import { PERIOD_LABEL } from "../types";
 
 export const DIFFICULTY_LABEL = {
-  EASY: "Lett",
-  MEDIUM: "Middels",
-  HARD: "Vanskelig",
+  EASY: "Easy",
+  MEDIUM: "Medium",
+  HARD: "Hard",
 } as const;
 
 export function describeTemplate(t: Template): string {
@@ -16,12 +16,12 @@ export function describeTemplate(t: Template): string {
     case "DURATION":
       return `${t.defaultTargetAmount ?? ""} ${t.defaultUnit ?? ""}${per}`.trim();
     case "LIMIT":
-      return `maks ${t.defaultTargetAmount ?? ""} ${t.defaultUnit ?? ""}${per}`.trim();
+      return `max ${t.defaultTargetAmount ?? ""} ${t.defaultUnit ?? ""}${per}`.trim();
     case "TIME_TARGET":
-      return `kl. ${t.defaultTargetTime?.slice(0, 5) ?? ""}`;
+      return `at ${t.defaultTargetTime?.slice(0, 5) ?? ""}`;
     case "EVENT":
-      return "Velg dato";
+      return "Pick a date";
     default:
-      return "Daglig";
+      return "Daily";
   }
 }
