@@ -28,7 +28,6 @@ synchronously over REST and asynchronously through RabbitMQ.
 - [User stories (how to test them)](#user-stories-how-to-test-them)
 - [API (Postman)](#api-postman)
 - [Decisions, assumptions and simplifications](#decisions-assumptions-and-simplifications)
-- [Scope changes](#scope-changes)
 - [Team contributions](#team-contributions)
 
 ## Quick start
@@ -175,7 +174,7 @@ Every service validates the JWT itself with the public key, so user-service is o
 
 **Expected changes:** add later
 
-## Decisions, assumptions and simplifications 
+## Decisions, assumptions and simplifications
 
 Missing
 
