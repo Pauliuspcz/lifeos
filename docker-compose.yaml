@@ -185,6 +185,15 @@ services:
     depends_on:
       - consul
 
+  frontend:
+    build: ./frontend
+    environment:
+      GATEWAY_URL: http://gateway:8100
+    ports:
+      - "5173:5173"
+    depends_on:
+      - gateway
+
 volumes:
   user-db-data:
   goal-db-data:
