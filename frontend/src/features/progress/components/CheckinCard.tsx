@@ -40,7 +40,7 @@ export default function CheckinCard({
   return (
     <div className="checkin-box">
       <div className="box-header">
-        <h2>Today's habits</h2>
+        <h2>Today's checkins</h2>
         <span className="muted">Click to check off</span>
       </div>
       {goals.length === 0 && <p className="muted">No habits today.</p>}
