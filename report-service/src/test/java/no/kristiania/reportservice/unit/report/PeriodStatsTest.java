@@ -1,8 +1,11 @@
-package no.kristiania.reportservice.report;
+package no.kristiania.reportservice.unit.report;
 
+import no.kristiania.reportservice.report.PeriodStats;
+import no.kristiania.reportservice.report.ProgressRecord;
 import no.kristiania.reportservice.report.dto.PeriodCount;
 import no.kristiania.reportservice.report.dto.Suggestion;
 import no.kristiania.reportservice.report.enums.Recommendation;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -35,7 +38,7 @@ class PeriodStatsTest {
 
     @Test
     void noEntriesGivesZero() {
-        assertThat(PeriodStats.currentStreak(List.of(), WEDNESDAY)).isZero();
+        Assertions.assertThat(PeriodStats.currentStreak(List.of(), WEDNESDAY)).isZero();
     }
 
     @Test
