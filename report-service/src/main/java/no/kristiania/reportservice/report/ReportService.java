@@ -2,6 +2,7 @@ package no.kristiania.reportservice.report;
 
 import no.kristiania.reportservice.report.dto.GoalReport;
 import no.kristiania.reportservice.report.dto.PeriodCount;
+import no.kristiania.reportservice.report.dto.Suggestion;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
@@ -37,6 +38,7 @@ public class ReportService {
         int currentStreak = PeriodStats.currentStreak(entries, today);
         int successRate = PeriodStats.successRate(entries, today);
         List<PeriodCount> history = PeriodStats.history(entries, today, HISTORY_SIZE);
-        return new GoalReport(goalId, entries.size(), lastDate, last30Days, previous30Days, currentStreak, successRate, history);
+        Suggestion suggestion = PeriodStats.suggestion(entries, today);
+        return new GoalReport(goalId, entries.size(), lastDate, last30Days, previous30Days, currentStreak, successRate, history, suggestion);
     }
 }
