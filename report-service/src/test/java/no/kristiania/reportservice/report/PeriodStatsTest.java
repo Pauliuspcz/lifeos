@@ -26,7 +26,7 @@ class PeriodStatsTest {
         LocalDate monday = LocalDate.of(2026, 9, 28);
         for (int count : perWeek) {
             for (int day = 0; day < count; day++) {
-                entries.add(entry(monday.plusDays(day).toString(), "WEEKLY", target));
+                entries.add(entry(monday.plusDays(7 - count + day).toString(), "WEEKLY", target));
             }
             monday = monday.plusWeeks(1);
         }
@@ -173,10 +173,16 @@ class PeriodStatsTest {
     @Test
     void monthlyRaisesAfterThreeReachedMonths() {
         List<ProgressRecord> entries = List.of(
-                entry("2026-07-01", "MONTHLY", 2), entry("2026-07-02", "MONTHLY", 2),
-                entry("2026-08-01", "MONTHLY", 2), entry("2026-08-02", "MONTHLY", 2),
-                entry("2026-09-01", "MONTHLY", 2), entry("2026-09-02", "MONTHLY", 2));
+                entry("2026-07-30", "MONTHLY", 2), entry("2026-07-31", "MONTHLY", 2),
+                entry("2026-08-30", "MONTHLY", 2), entry("2026-08-31", "MONTHLY", 2),
+                entry("2026-09-29", "MONTHLY", 2), entry("2026-09-30", "MONTHLY", 2));
         assertThat(PeriodStats.suggestion(entries, WEDNESDAY))
                 .isEqualTo(new Suggestion(Recommendation.RAISE, 3));
+    }
+
+    @Test
+    void inactiveWhenNoCheckinForMoreThanAPeriod() {
+        assertThat(PeriodStats.suggestion(weeks(2, 2, 2, 2, 0), WEDNESDAY))
+                .isEqualTo(new Suggestion(Recommendation.INACTIVE, null));
     }
 }

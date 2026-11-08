@@ -133,6 +133,10 @@ public final class PeriodStats {
             return new Suggestion(Recommendation.NONE, null);
         }
 
+        if (latest.getDate().plus(unitOf(period)).isBefore(today)) {
+            return new Suggestion(Recommendation.INACTIVE, null);
+        }
+
         boolean allReached = true;
         int sum = 0;
         for (PeriodCount p : finished) {

@@ -4,5 +4,6 @@ public enum Recommendation {
     RAISE,
     KEEP,
     LOWER,
-    NONE
+    NONE,
+    INACTIVE
 }
