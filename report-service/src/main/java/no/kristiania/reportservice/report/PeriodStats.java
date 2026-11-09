@@ -1,14 +1,22 @@
 package no.kristiania.reportservice.report;
 
 import no.kristiania.reportservice.report.dto.PeriodCount;
+import no.kristiania.reportservice.report.dto.Suggestion;
+import no.kristiania.reportservice.report.enums.Recommendation;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public final class PeriodStats {
+    private static final int WEEKLY_WINDOW = 4;
+    private static final int MONTHLY_WINDOW = 3;
+    private static final int WEEKLY_MAX = 7;
+    private static final int MONTHLY_MAX = 28;
     private PeriodStats() {}
 
     public static int currentStreak(List<ProgressRecord> entries, LocalDate today) {
@@ -96,5 +104,56 @@ public final class PeriodStats {
             start = start.plus(unit);
         }
         return history;
+    }
+
+    public static Suggestion suggestion(List<ProgressRecord> entries, LocalDate today) {
+        String period = periodOf(entries);
+        if (!period.equals("WEEKLY") && !period.equals("MONTHLY")) {
+            return new Suggestion(Recommendation.NONE, null);
+        }
+
+        ProgressRecord latest = entries.getLast();
+        List<ProgressRecord> current = new ArrayList<>();
+        for (ProgressRecord entry : entries) {
+            if (Objects.equals(entry.getTargetCount(), latest.getTargetCount())
+                    && Objects.equals(entry.getPeriod(), latest.getPeriod())) {
+                current.add(entry);
+            }
+        }
+
+        boolean weekly = period.equals("WEEKLY");
+        int window = weekly ? WEEKLY_WINDOW : MONTHLY_WINDOW;
+        int max = weekly ? WEEKLY_MAX : MONTHLY_MAX;
+        int target = targetOf(current);
+
+        List<PeriodCount> finished = history(current, today, window + 1).subList(0, window);
+
+        LocalDate firstPeriod = periodStart(period, current.getFirst().getDate());
+        if (firstPeriod.isAfter(finished.getFirst().periodStart())) {
+            return new Suggestion(Recommendation.NONE, null);
+        }
+
+        if (latest.getDate().plus(unitOf(period)).isBefore(today)) {
+            return new Suggestion(Recommendation.INACTIVE, null);
+        }
+
+        boolean allReached = true;
+        int sum = 0;
+        for (PeriodCount p : finished) {
+            if (!p.reached()) allReached = false;
+            sum += p.count();
+        }
+
+        if (allReached) {
+            return target < max
+                    ? new Suggestion(Recommendation.RAISE, target + 1)
+                    : new Suggestion(Recommendation.KEEP, null);
+        }
+
+        int typical = sum / window;
+        if (target - typical >= 2) {
+            return new Suggestion(Recommendation.LOWER, typical + 1);
+        }
+        return new Suggestion(Recommendation.KEEP, null);
     }
 }
