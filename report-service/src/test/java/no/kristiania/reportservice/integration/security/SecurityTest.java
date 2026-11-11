@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -22,10 +23,8 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(controllers = ReportController.class, properties = {
-        "spring.cloud.consul.enabled=false",
-        "spring.cloud.consul.config.enabled=false"
-})
+@WebMvcTest(ReportController.class)
+@ActiveProfiles("test")
 @Import({SecurityConfig.class, JsonAuthenticationEntryPoint.class})
 class SecurityTest {
     @Autowired MockMvc mockMvc;

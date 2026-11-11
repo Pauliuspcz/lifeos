@@ -34,6 +34,17 @@ class ProgressEventMessagingTest extends AbstractIntegrationTest {
         await().atMost(Duration.ofSeconds(10)).until(() -> countFor(6L) == 0);
     }
 
+    @Test
+    void duplicateEvent_isStoredOnce() {
+        ProgressCreatedEvent event = created(8L);
+
+        rabbitTemplate.convertAndSend(EXCHANGE, ROUTING_KEY_CREATED, event);
+        rabbitTemplate.convertAndSend(EXCHANGE, ROUTING_KEY_CREATED, event);
+
+        await().atMost(Duration.ofSeconds(10)).until(() -> countFor(8L) == 1);
+        await().during(Duration.ofSeconds(2)).atMost(Duration.ofSeconds(5)).until(() -> countFor(8L) == 1);
+    }
+
     private static ProgressCreatedEvent created(long progressId) {
         return new ProgressCreatedEvent(UUID.randomUUID(), progressId, 7L, 33L, LocalDate.of(2026, 11, 8),
                 null, TrackingModel.WEEKLY_COUNT, 2, "WEEKLY", Instant.now());
