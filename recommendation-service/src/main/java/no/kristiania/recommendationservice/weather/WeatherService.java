@@ -5,12 +5,10 @@ import no.kristiania.recommendationservice.weather.dto.OpenMeteoResponse;
 import no.kristiania.recommendationservice.weather.dto.WeatherResponse;
 import no.kristiania.recommendationservice.weather.enums.WeatherCondition;
 import no.kristiania.recommendationservice.weather.exceptions.WeatherUnavailableException;
-import org.springframework.beans.factory.annotation.Value;
+import no.kristiania.recommendationservice.weather.props.WeatherCacheProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import com.github.benmanes.caffeine.cache.Cache;
-
-import java.time.Duration;
 import java.time.Instant;
 
 @Slf4j
@@ -19,19 +17,20 @@ public class WeatherService {
     private final OpenMeteoClient openMeteoClient;
 
     private final Cache<Location, CachedWeather> weatherCache;
-    private final Duration freshTtl;
+    private final WeatherCacheProperties weatherCacheProperties;
 
-    public WeatherService(OpenMeteoClient openMeteoClient, Cache<Location, CachedWeather> weatherCache, @Value("${app.weather.cache.fresh-ttl}") Duration freshTtl) {
+    public WeatherService(OpenMeteoClient openMeteoClient, Cache<Location, CachedWeather> weatherCache, WeatherCacheProperties weatherCacheProperties) {
         this.openMeteoClient = openMeteoClient;
         this.weatherCache = weatherCache;
-        this.freshTtl = freshTtl;
+        this.weatherCacheProperties = weatherCacheProperties;
     }
 
     public WeatherResponse getWeather(double lat, double lon) {
         Location location = Location.rounded(lat, lon);
         CachedWeather cached = weatherCache.getIfPresent(location);
 
-        if (cached != null && cached.fetchedAt().isAfter(Instant.now().minus(freshTtl))) {
+        if (cached != null && cached.fetchedAt().isAfter(Instant.now().minus(weatherCacheProperties.freshTtl())
+        )) {
             return cached.weather();
         }
         try {
