@@ -2,7 +2,9 @@ server:
   port: 8084
 spring:
   config:
-    import: "optional:consul:"
+    import:
+      - "optional:file:.env[.properties]"
+      - "optional:consul:"
   cloud:
     consul:
       host: localhost
@@ -21,6 +23,11 @@ management:
         include: "health, info"
 
 app:
+  jwt:
+    issuer: ${JWT_ISSUER:lifeos-auth}
+    public-key: ${JWT_PUBLIC_KEY}
+  cors:
+      allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
   open-meteo:
     url: ${OPEN_METEO_URL:https://api.open-meteo.com}
     connect-timeout: 2s

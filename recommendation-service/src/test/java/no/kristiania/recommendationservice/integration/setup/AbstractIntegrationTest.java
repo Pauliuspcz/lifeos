@@ -1,12 +1,11 @@
 package no.kristiania.recommendationservice.integration.setup;
 
 import com.github.benmanes.caffeine.cache.Cache;
+import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import no.kristiania.recommendationservice.weather.CachedWeather;
 import no.kristiania.recommendationservice.weather.Location;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -19,6 +18,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.time.Duration;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static no.kristiania.recommendationservice.integration.setup.JwtTestSupport.*;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @SpringBootTest
@@ -26,14 +27,22 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @ActiveProfiles("test")
 public abstract class AbstractIntegrationTest {
 
-    @RegisterExtension
-    static WireMockExtension openMeteo = WireMockExtension.newInstance()
-            .options(wireMockConfig().dynamicPort())
-            .build();
+    static WireMockServer openMeteo = new WireMockServer(wireMockConfig().dynamicPort());
+
+    static {
+        openMeteo.start();
+    }
 
     @DynamicPropertySource
     static void openMeteoProperties(DynamicPropertyRegistry registry) {
         registry.add("app.open-meteo.url", openMeteo::baseUrl);
+    }
+
+    @DynamicPropertySource
+    static void jwtProperties(DynamicPropertyRegistry registry) {
+        registry.add("app.jwt.public-key",
+                () -> toBase64Pem("PUBLIC KEY", KEYS.getPublic().getEncoded()));
+        registry.add("app.jwt.issuer", () -> ISSUER);
     }
 
     @Autowired protected MockMvc mockMvc;
@@ -41,14 +50,16 @@ public abstract class AbstractIntegrationTest {
     @Autowired protected Cache<Location, CachedWeather> weatherCache;
 
     @BeforeEach
-    protected void clearCache() {
+    protected void reset() {
+        openMeteo.resetAll();
         weatherCache.invalidateAll();
     }
 
     protected ResultActions getWeather(double lat, double lon) throws Exception {
         return mockMvc.perform(get("/api/recommendations/weather")
                 .param("lat", String.valueOf(lat))
-                .param("lon", String.valueOf(lon)));
+                .param("lon", String.valueOf(lon))
+                .header(AUTHORIZATION, bearer(tokenFor(1L))));
     }
 
     protected void openMeteoReturns(String json) {
