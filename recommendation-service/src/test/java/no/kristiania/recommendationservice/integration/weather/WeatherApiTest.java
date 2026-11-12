@@ -89,4 +89,12 @@ class WeatherApiTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.weather.stale").value(true))
                 .andExpect(jsonPath("$.weather.temperature").value(2.8));
     }
+
+    @Test
+    void get_openMeteoReturnsNoCurrent_returns503() throws Exception {
+        openMeteoReturns("{}");
+
+        getWeather(LAT, LON)
+                .andExpect(status().isServiceUnavailable());
+    }
 }

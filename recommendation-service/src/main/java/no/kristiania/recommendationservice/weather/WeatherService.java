@@ -57,13 +57,18 @@ public class WeatherService {
 
     private WeatherResponse fetch(Location location) {
         log.info("Fetching weather from Open-Meteo for {}", location);
-        OpenMeteoResponse.Current current;
+        OpenMeteoResponse response;
         try {
-            current = openMeteoClient.getCurrent(location.lat(), location.lon()).current();
+            response = openMeteoClient.getCurrent(location.lat(), location.lon());
         } catch (RestClientException e) {
             log.warn("Open-Meteo call failed for {}: {}", location, e.getMessage());
             throw new WeatherUnavailableException();
         }
+        if (response == null || response.current() == null) {
+            log.warn("Open-Meteo returned no current weather for {}", location);
+            throw new WeatherUnavailableException();
+        }
+        OpenMeteoResponse.Current current = response.current();
         return new WeatherResponse(
                 location.lat(), location.lon(),
                 current.time(),
