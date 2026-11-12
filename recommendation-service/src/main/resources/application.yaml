@@ -30,3 +30,13 @@ app:
       fresh-ttl: 10m
       stale-max: 3h
       max-entries: 1000
+    rating:
+      heavy-precipitation-mm: 1.0
+      poor-wind-kmh: 40
+      ok-wind-kmh: 25
+      poor-cold-feels-like: -10
+      poor-hot-feels-like: 32
+      ok-cold-feels-like: 0
+      ok-hot-feels-like: 27
+      ice-risk-min-temp: -2
+      ice-risk-max-temp: 2

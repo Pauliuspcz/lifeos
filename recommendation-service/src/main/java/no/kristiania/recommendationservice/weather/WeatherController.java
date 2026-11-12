@@ -1,6 +1,6 @@
 package no.kristiania.recommendationservice.weather;
 
-import no.kristiania.recommendationservice.weather.dto.WeatherResponse;
+import no.kristiania.recommendationservice.weather.dto.WeatherRecommendation;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,7 +13,7 @@ public class WeatherController {
     }
 
     @GetMapping("/weather")
-    public WeatherResponse getWeather(@RequestParam double lat, @RequestParam double lon) {
-        return weatherService.getWeather(lat, lon);
+    public WeatherRecommendation getWeather(@RequestParam double lat, @RequestParam double lon) {
+        return weatherService.getRecommendation(lat, lon);
     }
 }

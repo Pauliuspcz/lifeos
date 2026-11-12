@@ -2,10 +2,12 @@ package no.kristiania.recommendationservice.weather;
 
 import lombok.extern.slf4j.Slf4j;
 import no.kristiania.recommendationservice.weather.dto.OpenMeteoResponse;
+import no.kristiania.recommendationservice.weather.dto.WeatherRecommendation;
 import no.kristiania.recommendationservice.weather.dto.WeatherResponse;
 import no.kristiania.recommendationservice.weather.enums.WeatherCondition;
 import no.kristiania.recommendationservice.weather.exceptions.WeatherUnavailableException;
 import no.kristiania.recommendationservice.weather.props.WeatherCacheProperties;
+import no.kristiania.recommendationservice.weather.props.WeatherRatingProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import com.github.benmanes.caffeine.cache.Cache;
@@ -18,11 +20,18 @@ public class WeatherService {
 
     private final Cache<Location, CachedWeather> weatherCache;
     private final WeatherCacheProperties weatherCacheProperties;
+    private final WeatherRatingProperties weatherRatingProperties;
 
-    public WeatherService(OpenMeteoClient openMeteoClient, Cache<Location, CachedWeather> weatherCache, WeatherCacheProperties weatherCacheProperties) {
+    public WeatherService(OpenMeteoClient openMeteoClient, Cache<Location, CachedWeather> weatherCache,
+                          WeatherCacheProperties weatherCacheProperties, WeatherRatingProperties weatherRatingProperties) {
         this.openMeteoClient = openMeteoClient;
         this.weatherCache = weatherCache;
         this.weatherCacheProperties = weatherCacheProperties;
+        this.weatherRatingProperties = weatherRatingProperties;
+    }
+
+    public WeatherRecommendation getRecommendation(double lat, double lon) {
+        return WeatherRating.rate(getWeather(lat, lon), weatherRatingProperties);
     }
 
     public WeatherResponse getWeather(double lat, double lon) {

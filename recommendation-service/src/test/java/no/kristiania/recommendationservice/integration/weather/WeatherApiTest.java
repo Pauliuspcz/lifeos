@@ -23,9 +23,10 @@ class WeatherApiTest extends AbstractIntegrationTest {
 
         getWeather(LAT, LON)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.temperature").value(2.8))
-                .andExpect(jsonPath("$.condition").value("CLOUDY"))
-                .andExpect(jsonPath("$.day").value(false));
+                .andExpect(jsonPath("$.weather.temperature").value(2.8))
+                .andExpect(jsonPath("$.weather.condition").value("CLOUDY"))
+                .andExpect(jsonPath("$.weather.day").value(false))
+                .andExpect(jsonPath("$.rating").value("OK"));
     }
 
     @Test
@@ -59,8 +60,8 @@ class WeatherApiTest extends AbstractIntegrationTest {
 
         getWeather(59.91, 10.75).andExpect(status().isOk());
         getWeather(59.88, 10.78)
-                .andExpect(jsonPath("$.latitude").value(59.9))
-                .andExpect(jsonPath("$.longitude").value(10.8));
+                .andExpect(jsonPath("$.weather.latitude").value(59.9))
+                .andExpect(jsonPath("$.weather.longitude").value(10.8));
 
         verifyOpenMeteoCalled(1);
     }
@@ -70,7 +71,7 @@ class WeatherApiTest extends AbstractIntegrationTest {
         getWeather(LAT, LON).andExpect(status().isOk());
 
         makeCachedWeatherOlder(LAT, LON, Duration.ofMinutes(30));
-        getWeather(LAT, LON).andExpect(jsonPath("$.stale").value(false));
+        getWeather(LAT, LON).andExpect(jsonPath("$.weather.stale").value(false));
 
         verifyOpenMeteoCalled(2);
     }
@@ -85,7 +86,7 @@ class WeatherApiTest extends AbstractIntegrationTest {
 
         getWeather(LAT, LON)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.stale").value(true))
-                .andExpect(jsonPath("$.temperature").value(2.8));
+                .andExpect(jsonPath("$.weather.stale").value(true))
+                .andExpect(jsonPath("$.weather.temperature").value(2.8));
     }
 }
