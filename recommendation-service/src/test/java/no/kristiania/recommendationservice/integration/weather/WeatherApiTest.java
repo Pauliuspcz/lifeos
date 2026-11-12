@@ -97,4 +97,12 @@ class WeatherApiTest extends AbstractIntegrationTest {
         getWeather(LAT, LON)
                 .andExpect(status().isServiceUnavailable());
     }
+
+    @Test
+    void get_latitudeOutOfRange_returns400() throws Exception {
+        getWeather(200, LON)
+                .andExpect(status().isBadRequest());
+
+        verifyOpenMeteoCalled(0);
+    }
 }
