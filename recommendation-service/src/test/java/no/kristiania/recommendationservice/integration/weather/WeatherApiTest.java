@@ -3,6 +3,8 @@ package no.kristiania.recommendationservice.integration.weather;
 import no.kristiania.recommendationservice.integration.setup.AbstractIntegrationTest;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -61,5 +63,29 @@ class WeatherApiTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.longitude").value(10.8));
 
         verifyOpenMeteoCalled(1);
+    }
+    @Test
+    void get_afterTtl_fetchesAgain() throws Exception {
+        openMeteoReturns(CLOUDY_NIGHT);
+        getWeather(LAT, LON).andExpect(status().isOk());
+
+        makeCachedWeatherOlder(LAT, LON, Duration.ofMinutes(30));
+        getWeather(LAT, LON).andExpect(jsonPath("$.stale").value(false));
+
+        verifyOpenMeteoCalled(2);
+    }
+
+    @Test
+    void get_openMeteoDownAfterTtl_returnsStaleWeather() throws Exception {
+        openMeteoReturns(CLOUDY_NIGHT);
+        getWeather(LAT, LON).andExpect(status().isOk());
+
+        makeCachedWeatherOlder(LAT, LON, Duration.ofMinutes(30));
+        openMeteoFails();
+
+        getWeather(LAT, LON)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.stale").value(true))
+                .andExpect(jsonPath("$.temperature").value(2.8));
     }
 }

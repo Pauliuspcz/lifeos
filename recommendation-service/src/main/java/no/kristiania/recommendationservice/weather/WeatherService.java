@@ -5,24 +5,46 @@ import no.kristiania.recommendationservice.weather.dto.OpenMeteoResponse;
 import no.kristiania.recommendationservice.weather.dto.WeatherResponse;
 import no.kristiania.recommendationservice.weather.enums.WeatherCondition;
 import no.kristiania.recommendationservice.weather.exceptions.WeatherUnavailableException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import com.github.benmanes.caffeine.cache.Cache;
+
+import java.time.Duration;
+import java.time.Instant;
 
 @Slf4j
 @Service
 public class WeatherService {
     private final OpenMeteoClient openMeteoClient;
 
-    private final Cache<Location, WeatherResponse> weatherCache;
+    private final Cache<Location, CachedWeather> weatherCache;
+    private final Duration freshTtl;
 
-    public WeatherService(OpenMeteoClient openMeteoClient, Cache<Location, WeatherResponse> weatherCache) {
+    public WeatherService(OpenMeteoClient openMeteoClient, Cache<Location, CachedWeather> weatherCache, @Value("${app.weather.cache.fresh-ttl}") Duration freshTtl) {
         this.openMeteoClient = openMeteoClient;
         this.weatherCache = weatherCache;
+        this.freshTtl = freshTtl;
     }
 
     public WeatherResponse getWeather(double lat, double lon) {
-        return weatherCache.get(Location.rounded(lat, lon), this::fetch);
+        Location location = Location.rounded(lat, lon);
+        CachedWeather cached = weatherCache.getIfPresent(location);
+
+        if (cached != null && cached.fetchedAt().isAfter(Instant.now().minus(freshTtl))) {
+            return cached.weather();
+        }
+        try {
+            WeatherResponse fresh = fetch(location);
+            weatherCache.put(location, new CachedWeather(fresh, Instant.now()));
+            return fresh;
+        } catch (WeatherUnavailableException e) {
+            if (cached == null) {
+                throw e;
+            }
+            log.warn("Serving stale weather for {} fetched at {}", location, cached.fetchedAt());
+            return cached.weather().asStale();
+        }
     }
 
     private WeatherResponse fetch(Location location) {
@@ -42,7 +64,8 @@ public class WeatherService {
                 current.precipitation(),
                 current.windSpeed(),
                 WeatherCondition.fromWmoCode(current.weatherCode()),
-                current.isDay() == 1
+                current.isDay() == 1,
+                false
         );
     }
 }

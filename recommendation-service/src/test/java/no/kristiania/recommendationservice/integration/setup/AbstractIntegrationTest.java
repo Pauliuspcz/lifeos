@@ -3,8 +3,8 @@ package no.kristiania.recommendationservice.integration.setup;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import no.kristiania.recommendationservice.weather.CachedWeather;
 import no.kristiania.recommendationservice.weather.Location;
-import no.kristiania.recommendationservice.weather.dto.WeatherResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +15,8 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+
+import java.time.Duration;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -36,7 +38,7 @@ public abstract class AbstractIntegrationTest {
 
     @Autowired protected MockMvc mockMvc;
 
-    @Autowired protected Cache<Location, WeatherResponse> weatherCache;
+    @Autowired protected Cache<Location, CachedWeather> weatherCache;
 
     @BeforeEach
     protected void clearCache() {
@@ -65,5 +67,10 @@ public abstract class AbstractIntegrationTest {
     }
     protected void verifyOpenMeteoCalled(int times) {
         openMeteo.verify(times, WireMock.getRequestedFor(WireMock.urlPathEqualTo("/v1/forecast")));
+    }
+    protected void makeCachedWeatherOlder(double lat, double lon, Duration age) {
+        Location location = Location.rounded(lat, lon);
+        CachedWeather cached = weatherCache.getIfPresent(location);
+        weatherCache.put(location, new CachedWeather(cached.weather(), cached.fetchedAt().minus(age)));
     }
 }

@@ -28,4 +28,5 @@ app:
   weather:
     cache:
       fresh-ttl: 10m
+      stale-max: 3h
       max-entries: 1000

@@ -12,5 +12,11 @@ public record WeatherResponse(
         double precipitationMm,
         double windSpeedKmh,
         WeatherCondition condition,
-        boolean day
-) {}
+        boolean day,
+        boolean stale
+) {
+    public WeatherResponse asStale() {
+    return new WeatherResponse(latitude, longitude, observedAt, temperature, feelsLike,
+            precipitationMm, windSpeedKmh, condition, day, true);
+    }
+}
