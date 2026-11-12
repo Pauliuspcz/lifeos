@@ -1,0 +1,25 @@
+server:
+  port: 8084
+spring:
+  config:
+    import: "optional:consul:"
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      config:
+        format: YAML
+      discovery:
+        prefer-ip-address: true
+  application:
+    name: recommendation-service
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health, info"
+
+app:
+  open-meteo:
+    url: ${OPEN_METEO_URL:https://api.open-meteo.com}
