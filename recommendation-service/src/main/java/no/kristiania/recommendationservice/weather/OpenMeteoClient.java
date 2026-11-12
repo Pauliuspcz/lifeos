@@ -1,5 +1,6 @@
 package no.kristiania.recommendationservice.weather;
 
+import no.kristiania.recommendationservice.weather.dto.OpenMeteoResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -11,7 +12,7 @@ public class OpenMeteoClient {
         this.openMeteoRestClient = openMeteoRestClient;
     }
 
-    public String getCurrent(double lat, double lon) {
+    public OpenMeteoResponse getCurrent(double lat, double lon) {
         return openMeteoRestClient.get()
                 .uri(uri -> uri.path("/v1/forecast")
                         .queryParam("latitude", lat)
@@ -20,6 +21,6 @@ public class OpenMeteoClient {
                         .queryParam("timezone", "auto")
                         .build())
                 .retrieve()
-                .body(String.class);
+                .body(OpenMeteoResponse.class);
     }
 }

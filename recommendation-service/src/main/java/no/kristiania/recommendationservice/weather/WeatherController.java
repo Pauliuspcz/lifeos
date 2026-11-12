@@ -1,18 +1,19 @@
 package no.kristiania.recommendationservice.weather;
 
+import no.kristiania.recommendationservice.weather.dto.WeatherResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/recommendations")
 public class WeatherController {
-    private final OpenMeteoClient openMeteoClient;
+    private final WeatherService weatherService;
 
-    public WeatherController(OpenMeteoClient openMeteoClient) {
-        this.openMeteoClient = openMeteoClient;
+    public WeatherController(WeatherService weatherService) {
+        this.weatherService = weatherService;
     }
 
     @GetMapping("/weather")
-    public String getWeather(@RequestParam double lat, @RequestParam double lon) {
-        return openMeteoClient.getCurrent(lat, lon);
+    public WeatherResponse getWeather(@RequestParam double lat, @RequestParam double lon) {
+        return weatherService.getWeather(lat, lon);
     }
 }
