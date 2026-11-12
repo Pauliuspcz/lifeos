@@ -25,3 +25,7 @@ app:
     url: ${OPEN_METEO_URL:https://api.open-meteo.com}
     connect-timeout: 2s
     read-timeout: 3s
+  weather:
+    cache:
+      fresh-ttl: 10m
+      max-entries: 1000

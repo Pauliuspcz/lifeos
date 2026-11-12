@@ -1,7 +1,11 @@
 package no.kristiania.recommendationservice.integration.setup;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import no.kristiania.recommendationservice.weather.Location;
+import no.kristiania.recommendationservice.weather.dto.WeatherResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,6 +36,13 @@ public abstract class AbstractIntegrationTest {
 
     @Autowired protected MockMvc mockMvc;
 
+    @Autowired protected Cache<Location, WeatherResponse> weatherCache;
+
+    @BeforeEach
+    protected void clearCache() {
+        weatherCache.invalidateAll();
+    }
+
     protected ResultActions getWeather(double lat, double lon) throws Exception {
         return mockMvc.perform(get("/api/recommendations/weather")
                 .param("lat", String.valueOf(lat))
@@ -51,5 +62,8 @@ public abstract class AbstractIntegrationTest {
     protected void openMeteoRespondsAfter(int millis, String json) {
         openMeteo.stubFor(WireMock.get(WireMock.urlPathEqualTo("/v1/forecast"))
                 .willReturn(WireMock.okJson(json).withFixedDelay(millis)));
+    }
+    protected void verifyOpenMeteoCalled(int times) {
+        openMeteo.verify(times, WireMock.getRequestedFor(WireMock.urlPathEqualTo("/v1/forecast")));
     }
 }

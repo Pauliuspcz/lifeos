@@ -41,4 +41,25 @@ class WeatherApiTest extends AbstractIntegrationTest {
         getWeather(LAT, LON)
                 .andExpect(status().isServiceUnavailable());
     }
+    @Test
+    void get_twiceWithinTtl_callsOpenMeteoOnce() throws Exception {
+        openMeteoReturns(CLOUDY_NIGHT);
+
+        getWeather(LAT, LON).andExpect(status().isOk());
+        getWeather(LAT, LON).andExpect(status().isOk());
+
+        verifyOpenMeteoCalled(1);
+    }
+
+    @Test
+    void get_nearbyCoordinates_shareRoundedCacheEntry() throws Exception {
+        openMeteoReturns(CLOUDY_NIGHT);
+
+        getWeather(59.91, 10.75).andExpect(status().isOk());
+        getWeather(59.88, 10.78)
+                .andExpect(jsonPath("$.latitude").value(59.9))
+                .andExpect(jsonPath("$.longitude").value(10.8));
+
+        verifyOpenMeteoCalled(1);
+    }
 }
