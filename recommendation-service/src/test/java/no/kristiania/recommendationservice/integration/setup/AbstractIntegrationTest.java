@@ -1,0 +1,87 @@
+package no.kristiania.recommendationservice.integration.setup;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import no.kristiania.recommendationservice.weather.CachedWeather;
+import no.kristiania.recommendationservice.weather.Location;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+
+import java.time.Duration;
+
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static no.kristiania.recommendationservice.integration.setup.JwtTestSupport.*;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
+public abstract class AbstractIntegrationTest {
+
+    static WireMockServer openMeteo = new WireMockServer(wireMockConfig().dynamicPort());
+
+    static {
+        openMeteo.start();
+    }
+
+    @DynamicPropertySource
+    static void openMeteoProperties(DynamicPropertyRegistry registry) {
+        registry.add("app.open-meteo.url", openMeteo::baseUrl);
+    }
+
+    @DynamicPropertySource
+    static void jwtProperties(DynamicPropertyRegistry registry) {
+        registry.add("app.jwt.public-key",
+                () -> toBase64Pem("PUBLIC KEY", KEYS.getPublic().getEncoded()));
+        registry.add("app.jwt.issuer", () -> ISSUER);
+    }
+
+    @Autowired protected MockMvc mockMvc;
+
+    @Autowired protected Cache<Location, CachedWeather> weatherCache;
+
+    @BeforeEach
+    protected void reset() {
+        openMeteo.resetAll();
+        weatherCache.invalidateAll();
+    }
+
+    protected ResultActions getWeather(double lat, double lon) throws Exception {
+        return mockMvc.perform(get("/api/recommendations/weather")
+                .param("lat", String.valueOf(lat))
+                .param("lon", String.valueOf(lon))
+                .header(AUTHORIZATION, bearer(tokenFor(1L))));
+    }
+
+    protected void openMeteoReturns(String json) {
+        openMeteo.stubFor(WireMock.get(WireMock.urlPathEqualTo("/v1/forecast"))
+                .willReturn(WireMock.okJson(json)));
+    }
+
+    protected void openMeteoFails() {
+        openMeteo.stubFor(WireMock.get(WireMock.urlPathEqualTo("/v1/forecast"))
+                .willReturn(WireMock.serverError()));
+    }
+
+    protected void openMeteoRespondsAfter(int millis, String json) {
+        openMeteo.stubFor(WireMock.get(WireMock.urlPathEqualTo("/v1/forecast"))
+                .willReturn(WireMock.okJson(json).withFixedDelay(millis)));
+    }
+    protected void verifyOpenMeteoCalled(int times) {
+        openMeteo.verify(times, WireMock.getRequestedFor(WireMock.urlPathEqualTo("/v1/forecast")));
+    }
+    protected void makeCachedWeatherOlder(double lat, double lon, Duration age) {
+        Location location = Location.rounded(lat, lon);
+        CachedWeather cached = weatherCache.getIfPresent(location);
+        weatherCache.put(location, new CachedWeather(cached.weather(), cached.fetchedAt().minus(age)));
+    }
+}

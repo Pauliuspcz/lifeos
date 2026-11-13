@@ -145,6 +145,17 @@ services:
       SPRING_CLOUD_CONSUL_HOST: "consul"
       TZ: Europe/Oslo
 
+  recommendation-service:
+    build: ./recommendation-service
+    depends_on:
+      consul-importer:
+        condition: service_completed_successfully
+    environment:
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+      SPRING_CLOUD_CONSUL_HOST: "consul"
+      TZ: Europe/Oslo
+
   rabbitmq:
     image: rabbitmq:4.1-management
     environment:

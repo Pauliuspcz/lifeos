@@ -1,0 +1,7 @@
+spring:
+  cloud:
+    consul:
+      enabled: false
+app:
+  open-meteo:
+    read-timeout: 500ms
