@@ -25,6 +25,11 @@ spring:
     show-sql: false
     hibernate:
       ddl-auto: validate
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: ${RABBITMQ_USER:lifeos}
+    password: ${RABBITMQ_PASSWORD:lifeos_dev}
 
 app:
   jwt:
