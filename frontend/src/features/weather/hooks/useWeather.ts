@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
-import { getWeather } from "../api";
 import type { WeatherRecommendation } from "../types";
 
-export function useWeather() {
+type FetchWeather = (
+  lat: number,
+  lon: number,
+) => Promise<WeatherRecommendation | undefined>;
+
+export function useWeather(fetchWeather: FetchWeather) {
   const [recommendation, setRecommendation] =
     useState<WeatherRecommendation | null>(null);
 
@@ -11,9 +15,9 @@ export function useWeather() {
     let cancelled = false;
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        getWeather(pos.coords.latitude, pos.coords.longitude)
+        fetchWeather(pos.coords.latitude, pos.coords.longitude)
           .then((r) => {
-            if (!cancelled) setRecommendation(r);
+            if (!cancelled) setRecommendation(r ?? null);
           })
           .catch(() => {});
       },
@@ -23,7 +27,7 @@ export function useWeather() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [fetchWeather]);
 
   return { recommendation };
 }

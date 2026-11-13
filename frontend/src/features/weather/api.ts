@@ -9,3 +9,11 @@ export const getWeather = (lat: number, lon: number) =>
     undefined,
     true,
   );
+
+export const getMyWeather = (lat: number, lon: number) =>
+  request<WeatherRecommendation | undefined>(
+    "GET",
+    weatherEndpoints.mine(lat, lon),
+    undefined,
+    true,
+  );

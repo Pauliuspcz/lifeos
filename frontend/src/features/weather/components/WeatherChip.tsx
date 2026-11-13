@@ -1,8 +1,9 @@
-import { useWeather } from "../hooks/useWeather";
+import { getWeather } from "../api";
 import { CONDITION_LABEL } from "../types";
+import { useWeather } from "../hooks/useWeather";
 
 export default function WeatherChip() {
-  const { recommendation } = useWeather();
+  const { recommendation } = useWeather(getWeather);
   if (!recommendation) return null;
   const { temperature, condition } = recommendation.weather;
 

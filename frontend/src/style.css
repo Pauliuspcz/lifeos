@@ -126,6 +126,7 @@ body {
   grid-template-columns: 2fr 1fr;
   grid-template-areas:
     "checkin goals"
+    "scale   outdoor"
     "scale   streaks"
     "scale   streak";
   gap: 24px;
@@ -155,12 +156,16 @@ body {
 .streaks-box {
   grid-area: streaks;
 }
+.outdoor-box {
+  grid-area: outdoor;
+}
 
 .goals-box,
 .streak-box,
 .checkin-box,
 .scale-box,
-.streaks-box {
+.streaks-box,
+.outdoor-box {
   background: #fff;
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -563,6 +568,6 @@ body {
 @media (max-width: 800px) {
   .dashboard {
     grid-template-columns: 1fr;
-    grid-template-areas: "checkin" "goals" "streaks" "scale" "streak";
+    grid-template-areas: "checkin" "outdoor" "goals" "streaks" "scale" "streak";
   }
 }
