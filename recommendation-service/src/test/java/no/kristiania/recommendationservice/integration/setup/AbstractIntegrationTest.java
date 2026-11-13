@@ -75,6 +75,17 @@ public abstract class AbstractIntegrationTest {
                 .header(AUTHORIZATION, bearer(tokenFor(1L))));
     }
 
+    protected ResultActions getMyWeather(double lat, double lon) throws Exception {
+        return mockMvc.perform(get("/api/recommendations/weather/me")
+                .param("lat", String.valueOf(lat))
+                .param("lon", String.valueOf(lon))
+                .header(AUTHORIZATION, bearer(tokenFor(1L))));
+    }
+
+    protected void insertOutdoorGoal(long goalId, long userId) {
+        jdbcTemplate.update("insert into outdoor_goal (goal_id, user_id) values (?, ?)", goalId, userId);
+    }
+
     protected ResultActions postComplements(String json) throws Exception {
         return mockMvc.perform(post("/api/recommendations/goals")
                 .contentType(MediaType.APPLICATION_JSON)

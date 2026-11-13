@@ -5,4 +5,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface OutdoorGoalRepo extends JpaRepository<OutdoorGoal, Long> {
+    boolean existsByUserId(Long userId);
 }
