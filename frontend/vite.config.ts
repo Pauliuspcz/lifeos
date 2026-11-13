@@ -9,6 +9,7 @@ export default defineConfig({
       "/api/progress": "http://localhost:8100",
       "/api/reports": "http://localhost:8100",
       "/api/catalog": "http://localhost:8100",
+      "/api/recommendations": "http://localhost:8100",
     },
   },
   test: {
