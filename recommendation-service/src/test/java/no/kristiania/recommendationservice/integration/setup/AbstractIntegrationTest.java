@@ -14,6 +14,9 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.http.MediaType;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import java.time.Duration;
 
@@ -60,6 +63,19 @@ public abstract class AbstractIntegrationTest {
                 .param("lat", String.valueOf(lat))
                 .param("lon", String.valueOf(lon))
                 .header(AUTHORIZATION, bearer(tokenFor(1L))));
+    }
+
+    protected ResultActions postComplements(String json) throws Exception {
+        return mockMvc.perform(post("/api/recommendations/goals")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
+                .header(AUTHORIZATION, bearer(tokenFor(1L))));
+    }
+
+    protected ResultActions postComplementsWithoutToken(String json) throws Exception {
+        return mockMvc.perform(post("/api/recommendations/goals")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
     }
 
     protected void openMeteoReturns(String json) {
