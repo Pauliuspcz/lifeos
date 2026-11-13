@@ -41,9 +41,3 @@ export const CONDITION_LABEL: Record<WeatherCondition, string> = {
   THUNDERSTORM: "Thunderstorm",
   UNKNOWN: "Unknown",
 };
-
-export const RATING_TITLE: Record<Rating, string> = {
-  GOOD: "Good weather today for:",
-  OK: "Okay weather today for:",
-  POOR: "Bad weather today for:",
-};

@@ -1,7 +1,7 @@
 import type { Goal } from "../../goals";
 import { getMyWeather } from "../api";
 import { useWeather } from "../hooks/useWeather";
-import { RATING_TITLE } from "../types";
+import { CONDITION_LABEL } from "../types";
 
 type Props = {
   goals: Goal[];
@@ -9,22 +9,25 @@ type Props = {
 
 export default function OutdoorWeatherCard({ goals }: Props) {
   const { recommendation } = useWeather(getMyWeather);
-  const outdoor = goals.filter((g) => g.outdoor);
-  if (!recommendation || outdoor.length === 0) return null;
+  const names = [
+    ...new Set(goals.filter((g) => g.outdoor).map((g) => g.title)),
+  ];
+  if (!recommendation || names.length === 0) return null;
+  const { rating, reason, weather } = recommendation;
+  const temp = Math.round(weather.temperature).toString().replace("-", "−");
 
   return (
     <div className="outdoor-box">
-      <div className="box-header">
-        <h2>{RATING_TITLE[recommendation.rating]}</h2>
-      </div>
-      <p className="muted">{recommendation.reason}</p>
-      {outdoor.map((g) => (
-        <div className="goal-row" key={g.id}>
-          <div className="goal-top">
-            <span>{g.title}</span>
-          </div>
-        </div>
-      ))}
+      <p className="outdoor-label">Outdoor</p>
+      <p className="outdoor-temp">
+        {temp}°<span>{CONDITION_LABEL[weather.condition]}</span>
+      </p>
+      <p
+        className={rating === "POOR" ? "outdoor-reason poor" : "outdoor-reason"}
+      >
+        {reason}
+      </p>
+      <p className="outdoor-goals">{names.join(" · ")}</p>
     </div>
   );
 }
