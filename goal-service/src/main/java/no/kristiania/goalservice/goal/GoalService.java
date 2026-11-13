@@ -40,6 +40,7 @@ public class GoalService {
         goal.setTrackingType(r.trackingType() != null ? r.trackingType() : TrackingType.COUNT);
         goal.setCategoryId(r.categoryId());
         goal.setTemplateId(r.templateId());
+        goal.setOutdoor(Boolean.TRUE.equals(r.outdoor()));
         applyEditable(goal, new Editable(r.title(), r.description(), r.period(), r.timesPerPeriod(),
                 r.amountPerSession(), r.unit(), r.targetTime(), r.startDate(), r.targetDate(),
                 r.motivation(), r.iconKey(), r.color()));
@@ -71,6 +72,9 @@ public class GoalService {
         applyEditable(goal, new Editable(r.title(), r.description(), r.period(), r.timesPerPeriod(),
                 r.amountPerSession(), r.unit(), r.targetTime(), r.startDate(), r.targetDate(),
                 r.motivation(), r.iconKey(), r.color()));
+        if (r.outdoor() != null) {
+            goal.setOutdoor(r.outdoor());
+        }
         boolean targetDateChanged = !Objects.equals(previousTargetDate, goal.getTargetDate());
         validateAndNormalize(goal, targetDateChanged);
         return goalRepository.saveAndFlush(goal);

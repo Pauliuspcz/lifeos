@@ -20,5 +20,6 @@ public record UpdateGoalRequest(
         @Size(max = 500) String motivation,
         @Size(max = 50) String iconKey,
         @Pattern(regexp = "^#[0-9A-Fa-f]{6}$") String color,
-        Long version
+        Long version,
+        Boolean outdoor
 ) {}

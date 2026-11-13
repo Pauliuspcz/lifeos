@@ -65,18 +65,18 @@ class GoalServiceTest {
                                             BigDecimal amount, String unit, LocalTime targetTime,
                                             LocalDate startDate, LocalDate targetDate) {
         return new CreateGoalRequest("Goal", null, null, tracking, period, times, amount, unit,
-                targetTime, startDate, targetDate, null, null, null, null, null);
+                targetTime, startDate, targetDate, null, null, null, null, null, null);
     }
 
     private UpdateGoalRequest updateRequest(String title, String description, GoalPeriod period,
                                             Integer times, BigDecimal amount, String unit) {
         return new UpdateGoalRequest(title, description, period, times, amount, unit,
-                null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null);
     }
 
     private UpdateGoalRequest updateRequestWithTargetDate(LocalDate targetDate, Long version) {
         return new UpdateGoalRequest("Race", null, null, null, null, null,
-                null, null, targetDate, null, null, null, version);
+                null, null, targetDate, null, null, null, version, null);
     }
 
     // ---------- create ----------
@@ -87,7 +87,7 @@ class GoalServiceTest {
         var request = new CreateGoalRequest("Run", "Morning", GoalType.TARGET, TrackingType.COUNT,
                 GoalPeriod.WEEKLY, 3, new BigDecimal("5.0"), "km",
                 LocalTime.of(7, 0), LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31),
-                7L, 8L, "Feel stronger", "run", "#FF5722");
+                7L, 8L, "Feel stronger", "run", "#FF5722", null);
 
         Goal result = goalService.create(USER_ID, request);
 
@@ -342,7 +342,7 @@ class GoalServiceTest {
         when(goalRepo.findByIdAndUserId(GOAL_ID, USER_ID)).thenReturn(Optional.of(goal));
         when(goalRepo.saveAndFlush(goal)).thenReturn(goal);
         var request = new UpdateGoalRequest("Run", null, GoalPeriod.WEEKLY, 3, null, null,
-                null, null, null, null, null, null, 2L);
+                null, null, null, null, null, null, 2L, null);
 
         assertThat(goalService.update(USER_ID, GOAL_ID, request)).isSameAs(goal);
     }
@@ -353,7 +353,7 @@ class GoalServiceTest {
         goal.setVersion(2L);
         when(goalRepo.findByIdAndUserId(GOAL_ID, USER_ID)).thenReturn(Optional.of(goal));
         var request = new UpdateGoalRequest("Run", null, GoalPeriod.WEEKLY, 3, null, null,
-                null, null, null, null, null, null, 1L);
+                null, null, null, null, null, null, 1L, null);
 
         assertThatThrownBy(() -> goalService.update(USER_ID, GOAL_ID, request))
                 .isInstanceOf(ObjectOptimisticLockingFailureException.class);

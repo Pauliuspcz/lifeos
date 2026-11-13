@@ -62,7 +62,7 @@ class GoalResponseTest {
                 5L, "Run", "Morning", GoalType.EVENT, TrackingType.AMOUNT,
                 GoalPeriod.MONTHLY, 3, new BigDecimal("5.50"), "km",
                 TARGET_TIME, START, TARGET, "Feel stronger", "run", "#FF5722",
-                7L, 8L, GoalStatus.ARCHIVED, 4L, CREATED, UPDATED, ARCHIVED));
+                7L, 8L, GoalStatus.ARCHIVED, 4L, CREATED, UPDATED, ARCHIVED, false));
     }
 
     @Test
