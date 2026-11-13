@@ -9,6 +9,7 @@ import no.kristiania.goalservice.goal.enums.GoalPeriod;
 import no.kristiania.goalservice.goal.enums.GoalStatus;
 import no.kristiania.goalservice.goal.enums.GoalType;
 import no.kristiania.goalservice.goal.enums.TrackingType;
+import no.kristiania.goalservice.goal.events.GoalOutdoorChangedEvent;
 import no.kristiania.goalservice.goal.exceptions.GoalArchivedException;
 import no.kristiania.goalservice.goal.exceptions.GoalNotArchivedException;
 import no.kristiania.goalservice.goal.exceptions.GoalNotFoundException;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -81,6 +83,17 @@ class GoalServiceTest {
     private UpdateGoalRequest updateRequestWithTargetDate(LocalDate targetDate, Long version) {
         return new UpdateGoalRequest("Race", null, null, null, null, null,
                 null, null, targetDate, null, null, null, version, null);
+    }
+
+    private UpdateGoalRequest updateOutdoor(Boolean outdoor) {
+        return new UpdateGoalRequest("Run", null, GoalPeriod.WEEKLY, 3, null, null,
+                null, null, null, null, null, null, null, outdoor);
+    }
+
+    private GoalOutdoorChangedEvent publishedEvent() {
+        ArgumentCaptor<GoalOutdoorChangedEvent> captor = ArgumentCaptor.forClass(GoalOutdoorChangedEvent.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+        return captor.getValue();
     }
 
     // ---------- create ----------
@@ -495,5 +508,103 @@ class GoalServiceTest {
                 .isInstanceOf(GoalNotArchivedException.class);
 
         verify(goalRepo, never()).delete(any());
+    }
+
+    // ------------ outdoor events --------------
+
+    @Test
+    void create_outdoorGoal_publishesOutdoorTrue() {
+        when(goalRepo.save(any(Goal.class))).thenAnswer(returnsFirstArg());
+        var request = new CreateGoalRequest("Run", null, null, null, GoalPeriod.WEEKLY, 3, null, null,
+                null, null, null, null, null, null, null, null, true);
+
+        goalService.create(USER_ID, request);
+
+        assertThat(publishedEvent().outdoor()).isTrue();
+    }
+
+    @Test
+    void create_indoorGoal_publishesNothing() {
+        when(goalRepo.save(any(Goal.class))).thenAnswer(returnsFirstArg());
+        var request = createRequest(null, GoalPeriod.DAILY, 1, null, null, null, null, null);
+
+        goalService.create(USER_ID, request);
+
+        verify(eventPublisher, never()).publishEvent(any(Object.class));
+    }
+
+    @Test
+    void update_indoorToOutdoor_publishesOutdoorTrue() {
+        Goal goal = existingGoal();
+        when(goalRepo.findByIdAndUserId(GOAL_ID, USER_ID)).thenReturn(Optional.of(goal));
+        when(goalRepo.saveAndFlush(goal)).thenReturn(goal);
+
+        goalService.update(USER_ID, GOAL_ID, updateOutdoor(true));
+
+        GoalOutdoorChangedEvent event = publishedEvent();
+        assertThat(event.outdoor()).isTrue();
+        assertThat(event.goalId()).isEqualTo(GOAL_ID);
+        assertThat(event.userId()).isEqualTo(USER_ID);
+    }
+
+    @Test
+    void update_outdoorToIndoor_publishesOutdoorFalse() {
+        Goal goal = existingGoal();
+        goal.setOutdoor(true);
+        when(goalRepo.findByIdAndUserId(GOAL_ID, USER_ID)).thenReturn(Optional.of(goal));
+        when(goalRepo.saveAndFlush(goal)).thenReturn(goal);
+
+        goalService.update(USER_ID, GOAL_ID, updateOutdoor(false));
+
+        assertThat(publishedEvent().outdoor()).isFalse();
+    }
+
+    @Test
+    void update_outdoorUnchanged_publishesNothing() {
+        Goal goal = existingGoal();
+        goal.setOutdoor(true);
+        when(goalRepo.findByIdAndUserId(GOAL_ID, USER_ID)).thenReturn(Optional.of(goal));
+        when(goalRepo.saveAndFlush(goal)).thenReturn(goal);
+
+        goalService.update(USER_ID, GOAL_ID, updateRequest("Run more", null, GoalPeriod.WEEKLY, 3, null, null));
+
+        verify(eventPublisher, never()).publishEvent(any(Object.class));
+    }
+
+    @Test
+    void archive_outdoorGoal_publishesOutdoorFalse() {
+        Goal goal = existingGoal();
+        goal.setOutdoor(true);
+        when(goalRepo.findByIdAndUserId(GOAL_ID, USER_ID)).thenReturn(Optional.of(goal));
+        when(goalRepo.saveAndFlush(goal)).thenReturn(goal);
+
+        goalService.archive(USER_ID, GOAL_ID);
+
+        assertThat(publishedEvent().outdoor()).isFalse();
+    }
+
+    @Test
+    void unarchive_outdoorGoal_publishesOutdoorTrue() {
+        Goal goal = existingGoal();
+        goal.setOutdoor(true);
+        goal.setStatus(GoalStatus.ARCHIVED);
+        when(goalRepo.findByIdAndUserId(GOAL_ID, USER_ID)).thenReturn(Optional.of(goal));
+        when(goalRepo.saveAndFlush(goal)).thenReturn(goal);
+
+        goalService.unarchive(USER_ID, GOAL_ID);
+
+        assertThat(publishedEvent().outdoor()).isTrue();
+    }
+
+    @Test
+    void delete_outdoorGoal_publishesOutdoorFalse() {
+        Goal goal = existingGoal();
+        goal.setOutdoor(true);
+        goal.setStatus(GoalStatus.ARCHIVED);
+        when(goalRepo.findByIdAndUserId(GOAL_ID, USER_ID)).thenReturn(Optional.of(goal));
+
+        goalService.delete(USER_ID, GOAL_ID);
+
+        assertThat(publishedEvent().outdoor()).isFalse();
     }
 }
