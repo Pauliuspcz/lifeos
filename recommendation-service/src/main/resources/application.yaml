@@ -15,6 +15,24 @@ spring:
         prefer-ip-address: true
   application:
     name: recommendation-service
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://localhost:${RECOMMENDATION_DB_PORT:5436}/${RECOMMENDATION_DB_NAME:recommendation_db}
+  jpa:
+    show-sql: false
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: ${RABBITMQ_USER:lifeos}
+    password: ${RABBITMQ_PASSWORD:lifeos_dev}
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-retries: 3
+        default-requeue-rejected: false
 
 management:
   endpoints:
