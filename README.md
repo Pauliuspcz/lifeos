@@ -131,14 +131,14 @@ who gets a weather recommendation. Recommendation-service fetches the weather fr
 ![LifeOS Microservices Architecture](../../../Users/Pauli/Downloads/LifeOS%20Microservices%20Architecture-2026-11-14-214127.png)
 
 ### Services
-| Service          | Container Port | Responsibility                                                        | Database                 | Instances                | Docs                                   |
-|------------------|----------------|-----------------------------------------------------------------------|--------------------------|--------------------------|----------------------------------------|
-| user-service           | 8080 | Register, login (email/password + Google), issues JWT, user profile                                  | `user_db`                | 1                        | [README](user-service/README.md)           |
-| goal-service           | 8081 | User goals, template catalog, publishes outdoor-goal events                                          | `goal_db`                | 1                        | [README](goal-service/README.md)           |
-| progress-service       | 8082 | Check-ins / logged progress, publishes progress events                                               | `progress_db`            | 2                        | —                                          |
-| report-service         | 8083 | Consumes progress events, computes streak, completion rate, history                                  | `report_db`              | 2                        | [README](report-service/README.md)         |
-| recommendation-service | 8084 | Weather rating for outdoor goals (Open-Meteo, cached), complementary goal suggestions, consumes outdoor-goal events | `recommendation_db`      | 1                        | [README](recommendation-service/README.md) |
-| gateway                | 8100 | Single entry point, routes `/auth`, `/profile`, `/api/goal`, `/api/catalog`, `/api/progress`, `/api/reports`, `/api/recommendations` | —                        | 1                        | — |
+| Service          | Container Port | Responsibility                                                        | Database                 | Instances                | Docs                               |
+|------------------|----------------|-----------------------------------------------------------------------|--------------------------|--------------------------|------------------------------------|
+| user-service           | 8080 | Register, login (email/password + Google), issues JWT, user profile                                  | `user_db`                | 1                        | [README](user-service/README.md)   |
+| goal-service           | 8081 | User goals, template catalog, publishes outdoor-goal events                                          | `goal_db`                | 1                        | [README](goal-service/README.md)   |
+| progress-service       | 8082 | Check-ins / logged progress, publishes progress events                                               | `progress_db`            | 2                        | -                                  |
+| report-service         | 8083 | Consumes progress events, computes streak, completion rate, history                                  | `report_db`              | 2                        | [README](report-service/README.md) |
+| recommendation-service | 8084 | Weather rating for outdoor goals (Open-Meteo, cached), complementary goal suggestions, consumes outdoor-goal events | `recommendation_db`      | 1                        | -                                  |
+| gateway                | 8100 | Single entry point, routes `/auth`, `/profile`, `/api/goal`, `/api/catalog`, `/api/progress`, `/api/reports`, `/api/recommendations` | —                        | 1                        | -                                  |
 
 User-service signs the JWT with the private key. Every other service validates it itself with the public key,
 so user-service is only needed to log in, not on every request.
