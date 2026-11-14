@@ -3,6 +3,7 @@ import { GoalsCard, useGoals } from "../features/goals";
 import { StreaksCard, useGoalReports } from "../features/report";
 import { CheckinCard, useProgress } from "../features/progress";
 import { countInPeriod } from "../features/progress";
+import { OutdoorWeatherCard } from "../features/weather";
 
 const MOODS = [
   { n: 1, word: "Awful" },
@@ -32,6 +33,7 @@ export default function DashboardPage() {
           onArchive={archiveGoal}
           countFor={(g) => countInPeriod(entries, g)}
         />
+        <OutdoorWeatherCard goals={goals} />
         <CheckinCard
           goals={goals}
           entries={entries}

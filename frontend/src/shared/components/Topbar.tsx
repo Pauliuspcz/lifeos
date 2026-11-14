@@ -6,6 +6,7 @@ import {
   LOG_PATH,
   PROFILE_PATH,
 } from "../config/routes";
+import { WeatherChip } from "../../features/weather";
 
 export default function Topbar() {
   return (
@@ -20,6 +21,7 @@ export default function Topbar() {
         <NavLink to={LOG_PATH}>Log</NavLink>
         <span>Journal</span>
       </nav>
+      <WeatherChip />
       <Link to={PROFILE_PATH} className="topbar-profile">
         Profile
       </Link>

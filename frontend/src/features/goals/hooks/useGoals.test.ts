@@ -38,6 +38,7 @@ const goal = (id: number, status: Goal["status"] = "ACTIVE"): Goal => ({
   iconKey: null,
   color: null,
   categoryId: null,
+  outdoor: false,
 });
 
 const newGoal = {

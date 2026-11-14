@@ -105,4 +105,29 @@ class WeatherApiTest extends AbstractIntegrationTest {
 
         verifyOpenMeteoCalled(0);
     }
+    @Test
+    void getMine_withOutdoorGoal_returnsWeather() throws Exception {
+        insertOutdoorGoal(10L, 1L);
+        openMeteoReturns(CLOUDY_NIGHT);
+
+        getMyWeather(LAT, LON)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rating").value("OK"));
+    }
+
+    @Test
+    void getMine_withoutOutdoorGoal_returns204_andSkipsOpenMeteo() throws Exception {
+        getMyWeather(LAT, LON)
+                .andExpect(status().isNoContent());
+
+        verifyOpenMeteoCalled(0);
+    }
+
+    @Test
+    void getMine_onlyOtherUserHasOutdoorGoal_returns204() throws Exception {
+        insertOutdoorGoal(11L, 2L);
+
+        getMyWeather(LAT, LON)
+                .andExpect(status().isNoContent());
+    }
 }

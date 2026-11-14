@@ -1,4 +1,6 @@
 spring:
+  datasource:
+    password: test
   cloud:
     consul:
       enabled: false

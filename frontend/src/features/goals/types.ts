@@ -41,6 +41,7 @@ export type Goal = {
   createdAt: string;
   updatedAt: string;
   archivedAt: string | null;
+  outdoor: boolean;
 };
 
 export type CreateGoalRequest = {

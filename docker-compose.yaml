@@ -56,6 +56,8 @@ services:
         condition: service_completed_successfully
       goal-db:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173}
       SPRING_DATASOURCE_URL: jdbc:postgresql://goal-db:5432/${GOAL_DB_NAME}
@@ -64,6 +66,9 @@ services:
       JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
       SPRING_CLOUD_CONSUL_HOST: "consul"
       TZ: Europe/Oslo
+      SPRING_RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
 
   progress-db:
     image: postgres:15-alpine
@@ -145,16 +150,42 @@ services:
       SPRING_CLOUD_CONSUL_HOST: "consul"
       TZ: Europe/Oslo
 
+  recommendation-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${RECOMMENDATION_DB_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${RECOMMENDATION_DB_PORT}:5432"
+    volumes:
+      - "recommendation-db-data:/var/lib/postgresql/data"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${RECOMMENDATION_DB_NAME}" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   recommendation-service:
     build: ./recommendation-service
     depends_on:
       consul-importer:
         condition: service_completed_successfully
+      recommendation-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173}
       JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
       SPRING_CLOUD_CONSUL_HOST: "consul"
       TZ: Europe/Oslo
+      SPRING_DATASOURCE_URL: jdbc:postgresql://recommendation-db:5432/${RECOMMENDATION_DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
 
   rabbitmq:
     image: rabbitmq:4.1-management
@@ -201,3 +232,4 @@ volumes:
   goal-db-data:
   progress-db-data:
   report-db-data:
+  recommendation-db-data:

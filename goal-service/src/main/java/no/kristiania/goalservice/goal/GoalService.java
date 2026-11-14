@@ -6,10 +6,12 @@ import no.kristiania.goalservice.goal.enums.GoalPeriod;
 import no.kristiania.goalservice.goal.enums.GoalStatus;
 import no.kristiania.goalservice.goal.enums.GoalType;
 import no.kristiania.goalservice.goal.enums.TrackingType;
+import no.kristiania.goalservice.goal.events.GoalOutdoorChangedEvent;
 import no.kristiania.goalservice.goal.exceptions.GoalArchivedException;
 import no.kristiania.goalservice.goal.exceptions.GoalNotArchivedException;
 import no.kristiania.goalservice.goal.exceptions.GoalNotFoundException;
 import no.kristiania.goalservice.goal.exceptions.InvalidGoalException;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,9 +29,11 @@ import java.util.Objects;
 public class GoalService {
 
     private final GoalRepository goalRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public GoalService(GoalRepository goalRepository) {
+    public GoalService(GoalRepository goalRepository, ApplicationEventPublisher eventPublisher) {
         this.goalRepository = goalRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -40,11 +44,16 @@ public class GoalService {
         goal.setTrackingType(r.trackingType() != null ? r.trackingType() : TrackingType.COUNT);
         goal.setCategoryId(r.categoryId());
         goal.setTemplateId(r.templateId());
+        goal.setOutdoor(Boolean.TRUE.equals(r.outdoor()));
         applyEditable(goal, new Editable(r.title(), r.description(), r.period(), r.timesPerPeriod(),
                 r.amountPerSession(), r.unit(), r.targetTime(), r.startDate(), r.targetDate(),
                 r.motivation(), r.iconKey(), r.color()));
         validateAndNormalize(goal, true);
-        return goalRepository.save(goal);
+        Goal saved = goalRepository.save(goal);
+        if (goal.isOutdoor()) {
+            eventPublisher.publishEvent(GoalOutdoorChangedEvent.of(goal, true));
+        }
+        return saved;
     }
 
     public List<Goal> findAll(Long userId, GoalStatus status) {
@@ -68,11 +77,18 @@ public class GoalService {
             throw new ObjectOptimisticLockingFailureException(Goal.class, id);
         }
         LocalDate previousTargetDate = goal.getTargetDate();
+        boolean wasOutdoor = goal.isOutdoor();
         applyEditable(goal, new Editable(r.title(), r.description(), r.period(), r.timesPerPeriod(),
                 r.amountPerSession(), r.unit(), r.targetTime(), r.startDate(), r.targetDate(),
                 r.motivation(), r.iconKey(), r.color()));
+        if (r.outdoor() != null) {
+            goal.setOutdoor(r.outdoor());
+        }
         boolean targetDateChanged = !Objects.equals(previousTargetDate, goal.getTargetDate());
         validateAndNormalize(goal, targetDateChanged);
+        if (goal.isOutdoor() != wasOutdoor) {
+            eventPublisher.publishEvent(GoalOutdoorChangedEvent.of(goal, goal.isOutdoor()));
+        }
         return goalRepository.saveAndFlush(goal);
     }
 
@@ -82,6 +98,9 @@ public class GoalService {
         if (goal.getStatus() == GoalStatus.ACTIVE) {
             goal.setStatus(GoalStatus.ARCHIVED);
             goal.setArchivedAt(Instant.now().truncatedTo(ChronoUnit.MICROS));
+            if (goal.isOutdoor()) {
+                eventPublisher.publishEvent(GoalOutdoorChangedEvent.of(goal, false));
+            }
         }
         return goalRepository.saveAndFlush(goal);
     }
@@ -92,6 +111,9 @@ public class GoalService {
         if (goal.getStatus() == GoalStatus.ARCHIVED) {
             goal.setStatus(GoalStatus.ACTIVE);
             goal.setArchivedAt(null);
+            if (goal.isOutdoor()) {
+                eventPublisher.publishEvent(GoalOutdoorChangedEvent.of(goal, true));
+            }
         }
         return goalRepository.saveAndFlush(goal);
     }
@@ -101,6 +123,9 @@ public class GoalService {
         Goal goal = findById(userId, id);
         if (goal.getStatus() != GoalStatus.ARCHIVED) {
             throw new GoalNotArchivedException();
+        }
+        if (goal.isOutdoor()) {
+            eventPublisher.publishEvent(GoalOutdoorChangedEvent.of(goal, false));
         }
         goalRepository.delete(goal);
     }

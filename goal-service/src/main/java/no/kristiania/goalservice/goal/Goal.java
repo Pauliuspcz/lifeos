@@ -89,6 +89,9 @@ public class Goal {
 
     private String color;
 
+    @Column(nullable = false)
+    private boolean outdoor;
+
     @PrePersist
     protected void onCreate() {
         Instant now = Instant.now().truncatedTo(ChronoUnit.MICROS);

@@ -31,14 +31,14 @@ class GoalRequestValidationTest {
                                             Integer times, BigDecimal amount, String unit,
                                             String motivation, String iconKey, String color) {
         return new CreateGoalRequest(title, description, null, null, period, times, amount, unit,
-                null, null, null, null, null, motivation, iconKey, color);
+                null, null, null, null, null, motivation, iconKey, color, null);
     }
 
     private static UpdateGoalRequest update(String title, String description, GoalPeriod period,
                                             Integer times, BigDecimal amount, String unit,
                                             String motivation, String iconKey, String color) {
         return new UpdateGoalRequest(title, description, period, times, amount, unit,
-                null, null, null, motivation, iconKey, color, null);
+                null, null, null, motivation, iconKey, color, null, null);
     }
 
     private static CreateGoalRequest valid() {

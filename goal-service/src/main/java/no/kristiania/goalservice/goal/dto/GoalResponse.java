@@ -33,7 +33,8 @@ public record GoalResponse(
         Long version,
         Instant createdAt,
         Instant updatedAt,
-        Instant archivedAt
+        Instant archivedAt,
+        boolean outdoor
 ) {
     public static GoalResponse from(Goal g) {
         return new GoalResponse(
@@ -41,6 +42,6 @@ public record GoalResponse(
                 g.getPeriod(), g.getTimesPerPeriod(), g.getAmountPerSession(), g.getUnit(),
                 g.getTargetTime(), g.getStartDate(), g.getTargetDate(), g.getMotivation(),
                 g.getIconKey(), g.getColor(), g.getCategoryId(), g.getTemplateId(),
-                g.getStatus(), g.getVersion(), g.getCreatedAt(), g.getUpdatedAt(), g.getArchivedAt());
+                g.getStatus(), g.getVersion(), g.getCreatedAt(), g.getUpdatedAt(), g.getArchivedAt(), g.isOutdoor());
     }
 }

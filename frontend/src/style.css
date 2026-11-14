@@ -93,6 +93,17 @@ body {
   color: #374151;
   text-decoration: none;
 }
+
+.topbar-weather {
+  margin-left: auto;
+  font-size: 14px;
+  color: #6b7280;
+  white-space: nowrap;
+}
+.topbar-weather + .topbar-profile {
+  margin-left: 0;
+}
+
 .topbar-profile:hover {
   background: #f3f4f6;
 }
@@ -115,6 +126,7 @@ body {
   grid-template-columns: 2fr 1fr;
   grid-template-areas:
     "checkin goals"
+    "scale   outdoor"
     "scale   streaks"
     "scale   streak";
   gap: 24px;
@@ -144,12 +156,52 @@ body {
 .streaks-box {
   grid-area: streaks;
 }
+.outdoor-box {
+  grid-area: outdoor;
+}
+.outdoor-label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8e8e93;
+}
+.outdoor-temp {
+  margin: 4px 0 0;
+  font-size: 40px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.outdoor-temp span {
+  margin-left: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: #6e6e73;
+}
+.outdoor-reason {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: #6e6e73;
+}
+.outdoor-reason.poor {
+  color: #d70015;
+}
+.outdoor-goals {
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid #f2f2f7;
+  font-size: 13px;
+}
 
 .goals-box,
 .streak-box,
 .checkin-box,
 .scale-box,
-.streaks-box {
+.streaks-box,
+.outdoor-box {
   background: #fff;
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -552,6 +604,6 @@ body {
 @media (max-width: 800px) {
   .dashboard {
     grid-template-columns: 1fr;
-    grid-template-areas: "checkin" "goals" "streaks" "scale" "streak";
+    grid-template-areas: "checkin" "outdoor" "goals" "streaks" "scale" "streak";
   }
 }

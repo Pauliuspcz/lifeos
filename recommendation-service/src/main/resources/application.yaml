@@ -15,6 +15,24 @@ spring:
         prefer-ip-address: true
   application:
     name: recommendation-service
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://localhost:${RECOMMENDATION_DB_PORT:5436}/${RECOMMENDATION_DB_NAME:recommendation_db}
+  jpa:
+    show-sql: false
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: ${RABBITMQ_USER:lifeos}
+    password: ${RABBITMQ_PASSWORD:lifeos_dev}
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-retries: 3
+        default-requeue-rejected: false
 
 management:
   endpoints:
@@ -47,3 +65,24 @@ app:
       ok-hot-feels-like: 27
       ice-risk-min-temp: -2
       ice-risk-max-temp: 2
+  complements:
+    rules:
+      "[TRAINING]":
+        - suggested-category: FOOD_DRINK
+          reason: "Eating and drinking well may help you get more out of your training."
+        - suggested-category: SLEEP
+          reason: "Good sleep can help your body recover from training."
+      "[SLEEP]":
+        - suggested-category: MIND
+          reason: "A calmer mind can make it easier to fall asleep."
+      "[MIND]":
+        - suggested-category: SLEEP
+          reason: "Better sleep may make it easier to stay calm and focused."
+      "[FOOD_DRINK]":
+        - suggested-category: SLEEP
+          reason: "Regular sleep can make healthy eating habits easier to keep."
+      "[LEARNING]":
+        - suggested-category: SLEEP
+          reason: "Sleep may help new knowledge stick."
+        - suggested-category: MIND
+          reason: "Short breaks for your mind could make it easier to focus."

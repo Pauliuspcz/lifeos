@@ -56,6 +56,7 @@ const goal = (id: number, period: Goal["period"] = "WEEKLY"): Goal => ({
   iconKey: null,
   color: null,
   categoryId: null,
+  outdoor: false,
 });
 
 const entry = (id: number, goalId: number, date: string): Progress => ({
