@@ -128,7 +128,8 @@ events to RabbitMQ that report-service consumes asynchronously to build its stat
 Goal-service publishes an event when a goal is marked as outdoor, which recommendation-service uses to decide
 who gets a weather recommendation. Recommendation-service fetches the weather from the external Open-Meteo API.
 
-![LifeOS Microservices Architecture](../../../Users/Pauli/Downloads/LifeOS%20Microservices%20Architecture-2026-11-14-214127.png)
+
+![LifeOS Microservices Architecture](docs/architecture.png)
 
 ### Services
 | Service          | Container Port | Responsibility                                                        | Database                 | Instances                | Docs                               |
