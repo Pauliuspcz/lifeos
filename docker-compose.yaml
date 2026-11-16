@@ -161,7 +161,11 @@ services:
     volumes:
       - "recommendation-db-data:/var/lib/postgresql/data"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${RECOMMENDATION_DB_NAME}" ]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER} -d ${RECOMMENDATION_DB_NAME}",
+        ]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -207,14 +211,12 @@ services:
     ports:
       - "8500:8500"
       - "8600:8600/udp"
-    command:
-      agent -dev -node=lifeos -client=0.0.0.0
+    command: agent -dev -node=lifeos -client=0.0.0.0
 
   consul-importer:
     build: ./consul
     depends_on:
       - consul
-
 
   gateway:
     container_name: gateway

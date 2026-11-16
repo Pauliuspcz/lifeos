@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import no.kristiania.goalservice.goal.enums.GoalPeriod;
-import no.kristiania.goalservice.goal.enums.GoalType;
 import no.kristiania.goalservice.goal.enums.TrackingType;
 import org.hibernate.annotations.Immutable;
 
@@ -22,19 +21,16 @@ public class GoalTemplate {
     @Id
     private Long id;
 
+    private String code;
+
     @Column(name = "category_id")
     private Long categoryId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", insertable = false, updatable = false)
-    private Category category;
+    @Column(name = "direction_id")
+    private Long directionId;
 
     private String title;
     private String description;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "goal_type")
-    private GoalType goalType;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tracking_type")
@@ -55,6 +51,11 @@ public class GoalTemplate {
 
     @Column(name = "default_target_time")
     private LocalTime defaultTargetTime;
+
+    @Column(name = "default_duration_days")
+    private Integer defaultDurationDays;
+
+    private boolean outdoor;
 
     @Enumerated(EnumType.STRING)
     private Difficulty difficulty;

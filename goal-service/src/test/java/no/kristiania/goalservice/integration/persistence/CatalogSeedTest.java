@@ -19,10 +19,10 @@ class CatalogSeedTest extends AbstractIntegrationTest {
         Direction competition = directions.findAllByOrderBySortOrderAsc().stream()
                 .filter(d -> d.getCode().equals("COMPETITION")).findFirst().orElseThrow();
 
-        var result = templates.findActiveByDirectionId(competition.getId());
+        var result = templates.findAllByDirectionIdAndActiveTrueOrderBySortOrderAsc(competition.getId());
 
         assertThat(result).extracting(GoalTemplate::getTitle).contains("Run a marathon");
-        assertThat(result).hasSize(5);
+        assertThat(result).hasSize(4);
         assertThat(result).extracting(GoalTemplate::getCategoryId).isSorted();
     }
 

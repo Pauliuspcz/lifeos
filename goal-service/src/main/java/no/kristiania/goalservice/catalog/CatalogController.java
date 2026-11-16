@@ -25,6 +25,11 @@ public class CatalogController {
         return catalogService.listCategories().stream().map(CategoryResponse::from).toList();
     }
 
+    @GetMapping("/categories/{id}/directions")
+    public List<DirectionResponse> categoryDirections(@PathVariable Long id) {
+        return catalogService.listDirectionsForCategory(id).stream().map(DirectionResponse::from).toList();
+    }
+
     @GetMapping("/categories/{id}/templates")
     public List<TemplateResponse> categoryTemplates(@PathVariable Long id) {
         return catalogService.listTemplatesForCategory(id).stream().map(TemplateResponse::from).toList();

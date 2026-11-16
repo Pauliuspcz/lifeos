@@ -12,7 +12,7 @@ public record UpdateGoalRequest(
         @Size(max = 1000) String description,
         GoalPeriod period,
         @Min(1) Integer timesPerPeriod,
-        @Positive @Digits(integer = 8, fraction = 2) BigDecimal amountPerSession,
+        @Positive @Digits(integer = 10, fraction = 2) BigDecimal targetAmount,
         @Size(max = 50) String unit,
         LocalTime targetTime,
         LocalDate startDate,
