@@ -10,6 +10,7 @@ public record WeatherResponse(
         double temperature,
         double feelsLike,
         double precipitationMm,
+        double recentPrecipitationMm,
         double windSpeedKmh,
         WeatherCondition condition,
         boolean day,
@@ -17,6 +18,6 @@ public record WeatherResponse(
 ) {
     public WeatherResponse asStale() {
     return new WeatherResponse(latitude, longitude, observedAt, temperature, feelsLike,
-            precipitationMm, windSpeedKmh, condition, day, true);
+            precipitationMm, recentPrecipitationMm, windSpeedKmh, condition, day, true);
     }
 }

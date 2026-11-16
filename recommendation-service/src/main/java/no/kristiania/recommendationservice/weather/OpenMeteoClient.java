@@ -7,6 +7,7 @@ import org.springframework.web.client.RestClient;
 @Component
 public class OpenMeteoClient {
     private final RestClient openMeteoRestClient;
+    private static final int PAST_HOURS = 12;
 
     public OpenMeteoClient(RestClient openMeteoRestClient) {
         this.openMeteoRestClient = openMeteoRestClient;
@@ -18,6 +19,9 @@ public class OpenMeteoClient {
                         .queryParam("latitude", lat)
                         .queryParam("longitude", lon)
                         .queryParam("current", "temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,is_day")
+                        .queryParam("hourly", "precipitation")
+                        .queryParam("past_hours", PAST_HOURS)
+                        .queryParam("forecast_hours", 12)
                         .queryParam("timezone", "auto")
                         .build())
                 .retrieve()

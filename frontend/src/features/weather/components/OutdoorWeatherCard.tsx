@@ -33,6 +33,7 @@ export default function OutdoorWeatherCard({ goals }: Props) {
           {mine.reason}
         </p>
       )}
+      {mine?.advice && <p className="outdoor-reason">{mine.advice}</p>}
       {names.length > 0 && <p className="outdoor-goals">{names.join(" · ")}</p>}
     </div>
   );

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import com.github.benmanes.caffeine.cache.Cache;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Slf4j
@@ -87,10 +88,24 @@ public class WeatherService {
                 current.temperature(),
                 current.apparentTemperature(),
                 current.precipitation(),
+                recentPrecipitation(response.hourly(), current.time()),
                 current.windSpeed(),
                 WeatherCondition.fromWmoCode(current.weatherCode()),
                 current.isDay() == 1,
                 false
         );
+    }
+    private static double recentPrecipitation(OpenMeteoResponse.Hourly hourly, LocalDateTime now) {
+        if (hourly == null || hourly.time() == null || hourly.precipitation() == null) {
+            return 0;
+        }
+        double sum = 0;
+        for (int i = 0; i < hourly.time().size(); i++) {
+            Double mm = hourly.precipitation().get(i);
+            if (mm != null && !hourly.time().get(i).isAfter(now)) {
+                sum += mm;
+            }
+        }
+        return Math.round(sum * 10) / 10.0;
     }
 }

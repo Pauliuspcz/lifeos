@@ -18,6 +18,7 @@ export type Weather = {
   temperature: number;
   feelsLike: number;
   precipitationMm: number;
+  recentPrecipitationMm: number;
   windSpeedKmh: number;
   condition: WeatherCondition;
   day: boolean;
@@ -28,6 +29,7 @@ export type WeatherRecommendation = {
   weather: Weather;
   rating: Rating;
   reason: string;
+  advice: string | null;
 };
 
 export const CONDITION_LABEL: Record<WeatherCondition, string> = {

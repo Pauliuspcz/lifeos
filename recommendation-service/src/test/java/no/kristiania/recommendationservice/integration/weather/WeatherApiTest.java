@@ -17,6 +17,12 @@ class WeatherApiTest extends AbstractIntegrationTest {
             {"current": {"time": "2026-11-12T16:00", "temperature_2m": 2.8, "apparent_temperature": -0.3,
              "precipitation": 0.0, "weather_code": 3, "wind_speed_10m": 7.9, "is_day": 0}}""";
 
+    private static final String DRY_NOW_RAINED_EARLIER = """
+            {"current": {"time": "2026-11-12T16:15", "temperature_2m": 1.0, "apparent_temperature": -2.0,
+             "precipitation": 0.0, "weather_code": 3, "wind_speed_10m": 5.0, "is_day": 0},
+             "hourly": {"time": ["2026-11-12T14:00", "2026-11-12T15:00", "2026-11-12T16:00", "2026-11-12T17:00"],
+                        "precipitation": [0.4, 0.3, 0.0, 2.0]}}""";
+
     @Test
     void get_returnsWeatherFromOpenMeteo() throws Exception {
         openMeteoReturns(CLOUDY_NIGHT);
@@ -27,6 +33,17 @@ class WeatherApiTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.weather.condition").value("CLOUDY"))
                 .andExpect(jsonPath("$.weather.day").value(false))
                 .andExpect(jsonPath("$.rating").value("OK"));
+    }
+
+    @Test
+    void get_rainedEarlierNearFreezing_returnsRiskOfIce() throws Exception {
+        openMeteoReturns(DRY_NOW_RAINED_EARLIER);
+
+        getWeather(LAT, LON)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.weather.recentPrecipitationMm").value(0.7))
+                .andExpect(jsonPath("$.rating").value("POOR"))
+                .andExpect(jsonPath("$.reason").value("Risk of ice"));
     }
 
     @Test

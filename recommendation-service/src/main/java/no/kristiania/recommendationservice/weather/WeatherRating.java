@@ -13,11 +13,12 @@ public final class WeatherRating {
     public static WeatherRecommendation rate(WeatherResponse w, WeatherRatingProperties p) {
         String precipitationType = w.condition() == WeatherCondition.SNOW ? "snow" : "rain";
         boolean nearZero = w.temperature() >= p.iceRiskMinTemp() && w.temperature() <= p.iceRiskMaxTemp();
+        boolean wetGround = w.recentPrecipitationMm() > 0 && w.temperature() <= p.iceRiskMaxTemp();
 
         if (w.condition() == WeatherCondition.THUNDERSTORM) {
             return poor(w, "Thunderstorm", p);
         }
-        if (w.condition() == WeatherCondition.FREEZING_RAIN || (w.precipitationMm() > 0 && nearZero)) {
+        if (w.condition() == WeatherCondition.FREEZING_RAIN || (w.precipitationMm() > 0 && nearZero) || wetGround) {
             return poor(w, "Risk of ice", p);
         }
         if (w.precipitationMm() >= p.heavyPrecipitationMm()) {

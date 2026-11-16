@@ -17,8 +17,13 @@ class WeatherRatingTest {
 
     private static WeatherRecommendation rate(WeatherCondition condition, double temp, double feelsLike,
                                               double precipitation, double wind) {
+        return rate(condition, temp, feelsLike, precipitation, wind, 0);
+    }
+
+    private static WeatherRecommendation rate(WeatherCondition condition, double temp, double feelsLike,
+                                              double precipitation, double wind, double recentPrecipitation) {
         WeatherResponse weather = new WeatherResponse(59.9, 10.8, LocalDateTime.of(2026, 11, 12, 12, 0),
-                temp, feelsLike, precipitation, wind, condition, true, false);
+                temp, feelsLike, precipitation, recentPrecipitation, wind, condition, true, false);
         return WeatherRating.rate(weather, PROPS);
     }
 
@@ -115,5 +120,24 @@ class WeatherRatingTest {
     void goodHasNoAdvice() {
         WeatherRecommendation result = rate(WeatherCondition.CLEAR, 12, 12, 0, 5);
         assertThat(result.advice()).isNull();
+    }
+
+    @Test
+    void wetGroundNearFreezingIsRiskOfIce() {
+        WeatherRecommendation result = rate(WeatherCondition.CLOUDY, 1, -3, 0, 5, 2.0);
+        assertThat(result.rating()).isEqualTo(Rating.POOR);
+        assertThat(result.reason()).isEqualTo("Risk of ice");
+    }
+
+    @Test
+    void dryAtOneDegreeIsNotIce() {
+        WeatherRecommendation result = rate(WeatherCondition.CLOUDY, 1, -3, 0, 5, 0);
+        assertThat(result.rating()).isEqualTo(Rating.OK);
+    }
+
+    @Test
+    void recentRainWhenMildIsFine() {
+        WeatherRecommendation result = rate(WeatherCondition.CLOUDY, 8, 7, 0, 5, 3.0);
+        assertThat(result.rating()).isEqualTo(Rating.GOOD);
     }
 }
