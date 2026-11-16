@@ -22,3 +22,15 @@ export type Suggestion = {
   recommendation: Recommendation;
   suggestedTarget: number | null;
 };
+
+export type ActivityDay = {
+  date: string;
+  count: number;
+  level: number;
+};
+
+export type ActivityReport = {
+  totalCheckins: number;
+  activeDays: number;
+  days: ActivityDay[];
+};
