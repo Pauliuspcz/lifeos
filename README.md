@@ -184,8 +184,8 @@ so user-service is only needed to log in, not on every request.
   `/api/reports/**` -> report, `/api/recommendations/**` -> recommendation) to `lb://<service-name>`,
   load-balancing between instances. The gateway does no authentication itself; each service validates the JWT.
 - **Service discovery and health checks** (Consul, UI on http://localhost:8500): every service registers on startup,
-  and Consul checks each instance's `/actuator/health`. When a container is recreated, its old registration can stay
-  in Consul as critical for a while, and the gateway may still route a request to it (see [Decisions](#decisions-assumptions-and-simplifications)).
+  and Consul checks each instance's `/actuator/health`. When a container is recreated, its old registration stays
+  in Consul as critical for about a minute before it is removed. The gateway only routes to passing instances, so it skips it. (see [Decisions](#decisions-assumptions-and-simplifications)).
 - **Central configuration** (Consul KV): shared settings are stored under `config/application/data`, loaded into
   Consul at startup by the `consul-importer` container, and read by all services (`spring.config.import: optional:consul:`).
   Today this holds the discovery settings, including a random instance id per instance.
@@ -226,7 +226,7 @@ so user-service is only needed to log in, not on every request.
 - No outbox or dead-letter queue: if a service crashes between saving and publishing, the event is lost.
 - Progress events go on two queues and report runs two instances, so a very fast check-in + undo can be processed in the wrong order.
 - The progress -> goal call has no timeout or circuit breaker yet.
-- A recreated container can leave a stale instance in Consul, and the gateway may route to it until it is removed.
+- A recreated container leaves its old instance in Consul as critical for about 1 minute before Consul removes it. The gateway skips critical instances (`query-passing`). Consul checks each instance every 10 seconds, so for up to 10 seconds after an instance dies, the gateway may still send requests to it.
 - Ice risk is estimated from current temperature and precipitation only; existing ice is not detected.
 - Complement suggestions are fixed rules in configuration and only available through the API.
 - `AMOUNT`, `DURATION`, `TIME_TARGET` and `LIMIT` goals are logged as simple daily check-ins (no amounts or times); `EVENT` goals can't be logged.
