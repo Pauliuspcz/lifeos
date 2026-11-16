@@ -32,7 +32,7 @@ export default function ActivityCalendar() {
           <span>Today</span>
         </div>
       )}
-      <p className="activity-note">Includes archived and deleted goals</p>
+      <p className="activity-note">Includes archived goals</p>
     </section>
   );
 }

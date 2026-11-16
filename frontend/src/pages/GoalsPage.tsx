@@ -6,6 +6,7 @@ import { HOME_PATH } from "../shared/config/routes";
 import { GoalStatus, useGoals } from "../features/goals";
 import GoalWizard from "../features/goals/catalog/components/GoalWizard";
 import GoalList from "../features/goals/components/GoalList";
+import { listProgressForGoal } from "../features/progress";
 
 export default function GoalsPage() {
   const navigate = useNavigate();
@@ -89,15 +90,24 @@ export default function GoalsPage() {
               loadError={loadError}
               emptyText="No archived goals."
               onUnarchive={(id) => run(() => unarchiveGoal(id))}
-              onDelete={(g) => {
-                if (
-                  window.confirm(
-                    `Delete "${g.title}" permanently? This can't be undone.`,
-                  )
-                ) {
-                  void run(() => removeGoal(g.id));
-                }
-              }}
+              onDelete={(g) =>
+                void run(async () => {
+                  const checkins = await listProgressForGoal(g.id);
+                  if (checkins.length > 0) {
+                    setActionError(
+                      `"${g.title}" has check-ins, so it can't be deleted. It stays archived to keep your history.`,
+                    );
+                    return;
+                  }
+                  if (
+                    window.confirm(
+                      `Delete "${g.title}" permanently? This can't be undone.`,
+                    )
+                  ) {
+                    await removeGoal(g.id);
+                  }
+                })
+              }
             />
           )}
         </section>

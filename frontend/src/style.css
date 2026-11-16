@@ -229,6 +229,14 @@ h2 {
   border-top: 1px solid var(--separator);
   font-size: var(--text-sm);
 }
+.outdoor-source {
+  margin: var(--space-sm) 0 0;
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+.outdoor-source a {
+  color: inherit;
+}
 
 .goals-box,
 .streak-box,

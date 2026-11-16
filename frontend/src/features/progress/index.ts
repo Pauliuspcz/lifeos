@@ -6,3 +6,4 @@ export type { ProgressEntry, ProgressWindow, TrackingModel } from "./types";
 export { default as LogGoalCard } from "./components/LogGoalCard";
 export { useProgressWindow } from "./hooks/useProgressWindow";
 export { modelOf } from "./utils/model";
+export { listProgressForGoal } from "./api";
