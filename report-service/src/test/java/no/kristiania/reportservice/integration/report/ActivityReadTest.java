@@ -6,6 +6,9 @@ import java.time.LocalDate;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.http.HttpHeaders.CACHE_CONTROL;
+import static org.springframework.http.HttpHeaders.ETAG;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
 class ActivityReadTest extends AbstractReportApiTest {
 
@@ -35,5 +38,26 @@ class ActivityReadTest extends AbstractReportApiTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalCheckins").value(0))
                 .andExpect(jsonPath("$.days.length()").value(expectedDays));
+    }
+
+    @Test
+    void get_sameData_returns304() throws Exception {
+        insertRecord(USER, 10L, LocalDate.now());
+        String etag = getActivity(USER)
+                .andExpect(status().isOk())
+                .andExpect(header().string(CACHE_CONTROL, "no-cache, private"))
+                .andReturn().getResponse().getHeader(ETAG);
+
+        getActivity(USER, etag).andExpect(status().isNotModified());
+    }
+
+    @Test
+    void get_afterNewCheckIn_returns200() throws Exception {
+        String etag = getActivity(USER).andReturn().getResponse().getHeader(ETAG);
+        insertRecord(USER, 10L, LocalDate.now());
+
+        getActivity(USER, etag)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalCheckins").value(1));
     }
 }
