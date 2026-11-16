@@ -74,7 +74,7 @@ CREATE TABLE goals (
                        target_date      DATE,
                        outdoor          BOOLEAN        NOT NULL DEFAULT FALSE,
                        status           VARCHAR(20)    NOT NULL DEFAULT 'ACTIVE',
-                       category_id      BIGINT         REFERENCES categories (id),
+                       category_id      BIGINT         NOT NULL REFERENCES categories (id),
                        template_id      BIGINT         REFERENCES goal_templates (id),
                        motivation       VARCHAR(500),
                        icon_key         VARCHAR(50),

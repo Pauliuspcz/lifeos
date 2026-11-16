@@ -19,7 +19,7 @@ public record CreateGoalRequest(
         LocalTime targetTime,
         LocalDate startDate,
         LocalDate targetDate,
-        Long categoryId,
+        @NotNull Long categoryId,
         Long templateId,
         @Size(max = 500) String motivation,
         @Size(max = 50) String iconKey,

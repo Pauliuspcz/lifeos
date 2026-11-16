@@ -1,5 +1,8 @@
 package no.kristiania.goalservice.goal;
 
+import no.kristiania.goalservice.catalog.CategoryRepository;
+import no.kristiania.goalservice.catalog.GoalTemplate;
+import no.kristiania.goalservice.catalog.GoalTemplateRepository;
 import no.kristiania.goalservice.goal.dto.CreateGoalRequest;
 import no.kristiania.goalservice.goal.dto.UpdateGoalRequest;
 import no.kristiania.goalservice.goal.enums.GoalPeriod;
@@ -28,10 +31,15 @@ import java.util.Objects;
 public class GoalService {
 
     private final GoalRepository goalRepository;
+    private final CategoryRepository categories;
+    private final GoalTemplateRepository templates;
     private final ApplicationEventPublisher eventPublisher;
 
-    public GoalService(GoalRepository goalRepository, ApplicationEventPublisher eventPublisher) {
+    public GoalService(GoalRepository goalRepository, CategoryRepository categories,
+                       GoalTemplateRepository templates, ApplicationEventPublisher eventPublisher) {
         this.goalRepository = goalRepository;
+        this.categories = categories;
+        this.templates = templates;
         this.eventPublisher = eventPublisher;
     }
 
@@ -46,6 +54,7 @@ public class GoalService {
         applyEditable(goal, new Editable(r.title(), r.description(), r.period(), r.timesPerPeriod(),
                 r.targetAmount(), r.unit(), r.targetTime(), r.startDate(), r.targetDate(),
                 r.motivation(), r.iconKey(), r.color()));
+        validateReferences(goal);
         if (goal.getStartDate() == null) {
             goal.setStartDate(LocalDate.now());
         }
@@ -149,6 +158,21 @@ public class GoalService {
         g.setMotivation(e.motivation());
         g.setIconKey(e.iconKey());
         g.setColor(e.color());
+    }
+
+    private void validateReferences(Goal g) {
+        if (g.getCategoryId() != null && !categories.existsById(g.getCategoryId())) {
+            throw new InvalidGoalException("Unknown categoryId " + g.getCategoryId());
+        }
+        if (g.getTemplateId() != null) {
+            GoalTemplate t = templates.findById(g.getTemplateId())
+                    .orElseThrow(() -> new InvalidGoalException("Unknown templateId " + g.getTemplateId()));
+            if (g.getCategoryId() == null) {
+                g.setCategoryId(t.getCategoryId());
+            } else if (!g.getCategoryId().equals(t.getCategoryId())) {
+                throw new InvalidGoalException("categoryId does not match the template's category");
+            }
+        }
     }
 
     private void validateAndNormalize(Goal g, boolean checkTargetDateInFuture) {
