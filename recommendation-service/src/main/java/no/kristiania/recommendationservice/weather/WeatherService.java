@@ -2,18 +2,20 @@ package no.kristiania.recommendationservice.weather;
 
 import lombok.extern.slf4j.Slf4j;
 import no.kristiania.recommendationservice.outdoor.OutdoorGoalRepo;
-import no.kristiania.recommendationservice.weather.dto.OpenMeteoResponse;
+import no.kristiania.recommendationservice.weather.dto.BestTime;
+import no.kristiania.recommendationservice.weather.openmeteo.OpenMeteoResponse;
 import no.kristiania.recommendationservice.weather.dto.WeatherRecommendation;
-import no.kristiania.recommendationservice.weather.dto.WeatherResponse;
-import no.kristiania.recommendationservice.weather.enums.WeatherCondition;
 import no.kristiania.recommendationservice.weather.exceptions.WeatherUnavailableException;
+import no.kristiania.recommendationservice.weather.openmeteo.OpenMeteoClient;
+import no.kristiania.recommendationservice.weather.openmeteo.OpenMeteoMapper;
 import no.kristiania.recommendationservice.weather.props.WeatherCacheProperties;
 import no.kristiania.recommendationservice.weather.props.WeatherRatingProperties;
+import no.kristiania.recommendationservice.weather.rules.BestWindow;
+import no.kristiania.recommendationservice.weather.rules.WeatherRating;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import com.github.benmanes.caffeine.cache.Cache;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Slf4j
@@ -37,7 +39,10 @@ public class WeatherService {
     }
 
     public WeatherRecommendation getRecommendation(double lat, double lon) {
-        return WeatherRating.rate(getWeather(lat, lon), weatherRatingProperties);
+        CachedWeather data = getWeather(lat, lon);
+        WeatherRecommendation rated = WeatherRating.rate(data.weather(), weatherRatingProperties);
+        BestTime bestTime = BestWindow.find(data.forecast(), data.weather().observedAt(), weatherRatingProperties);
+        return new WeatherRecommendation(rated.weather(), rated.rating(), rated.reason(), rated.advice(), bestTime);
     }
 
     public Optional<WeatherRecommendation> getRecommendationForUser(Long userId, double lat, double lon) {
@@ -47,28 +52,27 @@ public class WeatherService {
         return Optional.of(getRecommendation(lat, lon));
     }
 
-    public WeatherResponse getWeather(double lat, double lon) {
+    private CachedWeather getWeather(double lat, double lon) {
         Location location = Location.rounded(lat, lon);
         CachedWeather cached = weatherCache.getIfPresent(location);
 
-        if (cached != null && cached.fetchedAt().isAfter(Instant.now().minus(weatherCacheProperties.freshTtl())
-        )) {
-            return cached.weather();
+        if (cached != null && cached.fetchedAt().isAfter(Instant.now().minus(weatherCacheProperties.freshTtl()))) {
+            return cached;
         }
         try {
-            WeatherResponse fresh = fetch(location);
-            weatherCache.put(location, new CachedWeather(fresh, Instant.now()));
+            CachedWeather fresh = fetch(location);
+            weatherCache.put(location, fresh);
             return fresh;
         } catch (WeatherUnavailableException e) {
             if (cached == null) {
                 throw e;
             }
             log.warn("Serving stale weather for {} fetched at {}", location, cached.fetchedAt());
-            return cached.weather().asStale();
+            return new CachedWeather(cached.weather().asStale(), cached.forecast(), cached.fetchedAt());
         }
     }
 
-    private WeatherResponse fetch(Location location) {
+    private CachedWeather fetch(Location location) {
         log.info("Fetching weather from Open-Meteo for {}", location);
         OpenMeteoResponse response;
         try {
@@ -81,31 +85,7 @@ public class WeatherService {
             log.warn("Open-Meteo returned no current weather for {}", location);
             throw new WeatherUnavailableException();
         }
-        OpenMeteoResponse.Current current = response.current();
-        return new WeatherResponse(
-                location.lat(), location.lon(),
-                current.time(),
-                current.temperature(),
-                current.apparentTemperature(),
-                current.precipitation(),
-                recentPrecipitation(response.hourly(), current.time()),
-                current.windSpeed(),
-                WeatherCondition.fromWmoCode(current.weatherCode()),
-                current.isDay() == 1,
-                false
-        );
-    }
-    private static double recentPrecipitation(OpenMeteoResponse.Hourly hourly, LocalDateTime now) {
-        if (hourly == null || hourly.time() == null || hourly.precipitation() == null) {
-            return 0;
-        }
-        double sum = 0;
-        for (int i = 0; i < hourly.time().size(); i++) {
-            Double mm = hourly.precipitation().get(i);
-            if (mm != null && !hourly.time().get(i).isAfter(now)) {
-                sum += mm;
-            }
-        }
-        return Math.round(sum * 10) / 10.0;
+        return new CachedWeather(OpenMeteoMapper.current(response, location),
+                OpenMeteoMapper.forecast(response.hourly(), location), Instant.now());
     }
 }

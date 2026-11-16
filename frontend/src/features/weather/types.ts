@@ -25,11 +25,19 @@ export type Weather = {
   stale: boolean;
 };
 
+export type BestTime = {
+  from: string;
+  to: string;
+  rating: Rating;
+  temperature: number;
+};
+
 export type WeatherRecommendation = {
   weather: Weather;
   rating: Rating;
   reason: string;
   advice: string | null;
+  bestTime: BestTime | null;
 };
 
 export const CONDITION_LABEL: Record<WeatherCondition, string> = {

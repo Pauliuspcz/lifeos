@@ -119,6 +119,6 @@ public abstract class AbstractIntegrationTest {
     protected void makeCachedWeatherOlder(double lat, double lon, Duration age) {
         Location location = Location.rounded(lat, lon);
         CachedWeather cached = weatherCache.getIfPresent(location);
-        weatherCache.put(location, new CachedWeather(cached.weather(), cached.fetchedAt().minus(age)));
+        weatherCache.put(location, new CachedWeather(cached.weather(), cached.forecast(), cached.fetchedAt().minus(age)));
     }
 }

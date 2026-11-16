@@ -1,4 +1,4 @@
-package no.kristiania.recommendationservice.weather;
+package no.kristiania.recommendationservice.weather.rules;
 
 import no.kristiania.recommendationservice.weather.dto.WeatherRecommendation;
 import no.kristiania.recommendationservice.weather.dto.WeatherResponse;

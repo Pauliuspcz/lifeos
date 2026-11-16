@@ -1,6 +1,6 @@
 package no.kristiania.recommendationservice.unit.weather;
 
-import no.kristiania.recommendationservice.weather.BestWindow;
+import no.kristiania.recommendationservice.weather.rules.BestWindow;
 import no.kristiania.recommendationservice.weather.dto.BestTime;
 import no.kristiania.recommendationservice.weather.dto.WeatherResponse;
 import no.kristiania.recommendationservice.weather.enums.Rating;

@@ -7,6 +7,7 @@ import java.time.Duration;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.startsWith;
 
 class WeatherApiTest extends AbstractIntegrationTest {
 
@@ -22,6 +23,17 @@ class WeatherApiTest extends AbstractIntegrationTest {
              "precipitation": 0.0, "weather_code": 3, "wind_speed_10m": 5.0, "is_day": 0},
              "hourly": {"time": ["2026-11-12T14:00", "2026-11-12T15:00", "2026-11-12T16:00", "2026-11-12T17:00"],
                         "precipitation": [0.4, 0.3, 0.0, 2.0]}}""";
+
+    private static final String RAIN_THEN_DRY = """
+            {"current": {"time": "2026-11-12T10:15", "temperature_2m": 8.0, "apparent_temperature": 6.0,
+             "precipitation": 2.0, "weather_code": 63, "wind_speed_10m": 5.0, "is_day": 1},
+             "hourly": {"time": ["2026-11-12T10:00", "2026-11-12T11:00", "2026-11-12T12:00", "2026-11-12T13:00", "2026-11-12T14:00"],
+                        "temperature_2m": [8.0, 8.0, 9.0, 9.0, 8.0],
+                        "apparent_temperature": [6.0, 6.0, 8.0, 8.0, 6.0],
+                        "precipitation": [2.0, 2.0, 0.0, 0.0, 2.0],
+                        "weather_code": [63, 63, 1, 1, 63],
+                        "wind_speed_10m": [5.0, 5.0, 5.0, 5.0, 5.0],
+                        "is_day": [1, 1, 1, 1, 1]}}""";
 
     @Test
     void get_returnsWeatherFromOpenMeteo() throws Exception {
@@ -44,6 +56,18 @@ class WeatherApiTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.weather.recentPrecipitationMm").value(0.7))
                 .andExpect(jsonPath("$.rating").value("POOR"))
                 .andExpect(jsonPath("$.reason").value("Risk of ice"));
+    }
+
+    @Test
+    void get_rainNowDryLater_returnsBestTime() throws Exception {
+        openMeteoReturns(RAIN_THEN_DRY);
+
+        getWeather(LAT, LON)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rating").value("POOR"))
+                .andExpect(jsonPath("$.bestTime.from").value(startsWith("2026-11-12T12:00")))
+                .andExpect(jsonPath("$.bestTime.to").value(startsWith("2026-11-12T14:00")))
+                .andExpect(jsonPath("$.bestTime.rating").value("GOOD"));
     }
 
     @Test
