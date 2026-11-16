@@ -65,6 +65,7 @@ app:
       ok-hot-feels-like: 27
       ice-risk-min-temp: -2
       ice-risk-max-temp: 2
+      poor-advice: "Try an indoor session today. It still counts for your streak."
   complements:
     rules:
       "[TRAINING]":

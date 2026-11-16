@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class WeatherRatingTest {
     private static final WeatherRatingProperties PROPS =
-            new WeatherRatingProperties(1.0, 40, 25, -10, 32, 0, 27, -2, 2);
+            new WeatherRatingProperties(1.0, 40, 25, -10, 32, 0, 27, -2, 2, "Go indoors");
 
     private static WeatherRecommendation rate(WeatherCondition condition, double temp, double feelsLike,
                                               double precipitation, double wind) {
@@ -103,5 +103,17 @@ class WeatherRatingTest {
     void mildAndCalmIsGood() {
         WeatherRecommendation result = rate(WeatherCondition.CLEAR, 15, 15, 0, 5);
         assertThat(result.rating()).isEqualTo(Rating.GOOD);
+    }
+
+    @Test
+    void poorHasAdvice() {
+        WeatherRecommendation result = rate(WeatherCondition.THUNDERSTORM, 15, 15, 0.5, 10);
+        assertThat(result.advice()).isEqualTo("Go indoors");
+    }
+
+    @Test
+    void goodHasNoAdvice() {
+        WeatherRecommendation result = rate(WeatherCondition.CLEAR, 12, 12, 0, 5);
+        assertThat(result.advice()).isNull();
     }
 }

@@ -15,19 +15,19 @@ public final class WeatherRating {
         boolean nearZero = w.temperature() >= p.iceRiskMinTemp() && w.temperature() <= p.iceRiskMaxTemp();
 
         if (w.condition() == WeatherCondition.THUNDERSTORM) {
-            return poor(w, "Thunderstorm");
+            return poor(w, "Thunderstorm", p);
         }
         if (w.condition() == WeatherCondition.FREEZING_RAIN || (w.precipitationMm() > 0 && nearZero)) {
-            return poor(w, "Risk of ice");
+            return poor(w, "Risk of ice", p);
         }
         if (w.precipitationMm() >= p.heavyPrecipitationMm()) {
-            return poor(w, "Heavy " + precipitationType + " (" + w.precipitationMm() + " mm)");
+            return poor(w, "Heavy " + precipitationType + " (" + w.precipitationMm() + " mm)", p);
         }
         if (w.windSpeedKmh() >= p.poorWindKmh()) {
-            return poor(w, "Strong wind (" + w.windSpeedKmh() + " km/h)");
+            return poor(w, "Strong wind (" + w.windSpeedKmh() + " km/h)", p);
         }
         if (w.feelsLike() <= p.poorColdFeelsLike() || w.feelsLike() >= p.poorHotFeelsLike()) {
-            return poor(w, "Feels like " + w.feelsLike() + "°C");
+            return poor(w, "Feels like " + w.feelsLike() + "°C", p);
         }
 
         if (w.temperature() < 0) {
@@ -42,14 +42,14 @@ public final class WeatherRating {
         if (w.feelsLike() < p.okColdFeelsLike() || w.feelsLike() > p.okHotFeelsLike()) {
             return ok(w, "Feels like " + w.feelsLike() + "°C");
         }
-        return new WeatherRecommendation(w, Rating.GOOD, "Good weather for outdoor activity");
+        return new WeatherRecommendation(w, Rating.GOOD, "Good weather for outdoor activity", null);
     }
 
-    private static WeatherRecommendation poor(WeatherResponse w, String reason) {
-        return new WeatherRecommendation(w, Rating.POOR, reason);
+    private static WeatherRecommendation poor(WeatherResponse w, String reason, WeatherRatingProperties p) {
+        return new WeatherRecommendation(w, Rating.POOR, reason, p.poorAdvice());
     }
 
     private static WeatherRecommendation ok(WeatherResponse w, String reason) {
-        return new WeatherRecommendation(w, Rating.OK, reason);
+        return new WeatherRecommendation(w, Rating.OK, reason, null);
     }
 }
