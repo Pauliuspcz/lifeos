@@ -1,8 +1,6 @@
 package no.kristiania.reportservice.report;
 
-import no.kristiania.reportservice.report.dto.GoalReport;
-import no.kristiania.reportservice.report.dto.PeriodCount;
-import no.kristiania.reportservice.report.dto.Suggestion;
+import no.kristiania.reportservice.report.dto.*;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
@@ -11,6 +9,7 @@ import java.util.List;
 @Service
 public class ReportService {
     private static final int HISTORY_SIZE = 12;
+    private static final int ACTIVITY_WEEKS = 53;
     private final ProgressRecordRepo progressRecordRepo;
     public ReportService(ProgressRecordRepo progressRecordRepo) {
         this.progressRecordRepo = progressRecordRepo;
@@ -40,5 +39,21 @@ public class ReportService {
         List<PeriodCount> history = PeriodStats.history(entries, today, HISTORY_SIZE);
         Suggestion suggestion = PeriodStats.suggestion(entries, today);
         return new GoalReport(goalId, entries.size(), lastDate, last30Days, previous30Days, currentStreak, successRate, history, suggestion);
+    }
+
+    public ActivityReport getActivity(Long userId) {
+        LocalDate today = LocalDate.now();
+        LocalDate from = ActivityStats.start(today, ACTIVITY_WEEKS);
+        List<ProgressRecord> entries =
+                progressRecordRepo.findByUserIdAndDateGreaterThanEqual(userId, from);
+        List<ActivityDay> days = ActivityStats.days(entries, today, ACTIVITY_WEEKS);
+
+        int totalCheckins = 0;
+        int activeDays = 0;
+        for (ActivityDay day : days) {
+            totalCheckins += day.count();
+            if (day.count() > 0) activeDays++;
+        }
+        return new ActivityReport(totalCheckins, activeDays, days);
     }
 }
