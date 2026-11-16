@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.hamcrest.Matchers.startsWith;
@@ -34,6 +35,17 @@ class WeatherApiTest extends AbstractIntegrationTest {
                         "weather_code": [63, 63, 1, 1, 63],
                         "wind_speed_10m": [5.0, 5.0, 5.0, 5.0, 5.0],
                         "is_day": [1, 1, 1, 1, 1]}}""";
+
+    private static final String DRIZZLE_ALL_DAY = """
+            {"current": {"time": "2026-11-12T10:15", "temperature_2m": 8.0, "apparent_temperature": 6.0,
+             "precipitation": 0.3, "weather_code": 51, "wind_speed_10m": 5.0, "is_day": 1},
+             "hourly": {"time": ["2026-11-12T10:00", "2026-11-12T11:00", "2026-11-12T12:00"],
+                        "temperature_2m": [8.0, 8.0, 8.0],
+                        "apparent_temperature": [6.0, 6.0, 6.0],
+                        "precipitation": [0.3, 0.3, 0.3],
+                        "weather_code": [51, 51, 51],
+                        "wind_speed_10m": [5.0, 5.0, 5.0],
+                        "is_day": [1, 1, 1]}}""";
 
     @Test
     void get_returnsWeatherFromOpenMeteo() throws Exception {
@@ -67,7 +79,18 @@ class WeatherApiTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.rating").value("POOR"))
                 .andExpect(jsonPath("$.bestTime.from").value(startsWith("2026-11-12T12:00")))
                 .andExpect(jsonPath("$.bestTime.to").value(startsWith("2026-11-12T14:00")))
-                .andExpect(jsonPath("$.bestTime.rating").value("GOOD"));
+                .andExpect(jsonPath("$.bestTime.rating").value("GOOD"))
+                .andExpect(jsonPath("$.advice").value(nullValue()));
+    }
+
+    @Test
+    void get_sameWeatherAllDay_hidesBestTime() throws Exception {
+        openMeteoReturns(DRIZZLE_ALL_DAY);
+
+        getWeather(LAT, LON)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rating").value("OK"))
+                .andExpect(jsonPath("$.bestTime").value(nullValue()));
     }
 
     @Test

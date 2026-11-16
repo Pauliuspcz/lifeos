@@ -77,10 +77,10 @@ class WeatherRatingTest {
     }
 
     @Test
-    void belowFreezingIsOkWithIceWarning() {
+    void belowFreezingIsOk() {
         WeatherRecommendation result = rate(WeatherCondition.CLEAR, -3, -5, 0, 5);
         assertThat(result.rating()).isEqualTo(Rating.OK);
-        assertThat(result.reason()).isEqualTo("Below freezing – watch for icy paths");
+        assertThat(result.reason()).isEqualTo("Below freezing");
     }
 
     @Test
@@ -139,5 +139,23 @@ class WeatherRatingTest {
     void recentRainWhenMildIsFine() {
         WeatherRecommendation result = rate(WeatherCondition.CLOUDY, 8, 7, 0, 5, 3.0);
         assertThat(result.rating()).isEqualTo(Rating.GOOD);
+    }
+
+    @Test
+    void chillyAdvisesLayers() {
+        WeatherRecommendation result = rate(WeatherCondition.CLOUDY, 0, -4, 0, 5);
+        assertThat(result.advice()).isEqualTo("Wear layers");
+    }
+
+    @Test
+    void lightRainAdvisesJacket() {
+        WeatherRecommendation result = rate(WeatherCondition.RAIN, 8, 6, 0.3, 5);
+        assertThat(result.advice()).isEqualTo("Bring a rain jacket");
+    }
+
+    @Test
+    void belowFreezingAdvisesGrip() {
+        WeatherRecommendation result = rate(WeatherCondition.CLEAR, -3, -3, 0, 5);
+        assertThat(result.advice()).isEqualTo("Wear shoes with good grip");
     }
 }

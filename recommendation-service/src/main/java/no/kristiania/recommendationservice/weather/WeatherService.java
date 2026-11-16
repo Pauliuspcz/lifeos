@@ -41,8 +41,10 @@ public class WeatherService {
     public WeatherRecommendation getRecommendation(double lat, double lon) {
         CachedWeather data = getWeather(lat, lon);
         WeatherRecommendation rated = WeatherRating.rate(data.weather(), weatherRatingProperties);
-        BestTime bestTime = BestWindow.find(data.forecast(), data.weather().observedAt(), weatherRatingProperties);
-        return new WeatherRecommendation(rated.weather(), rated.rating(), rated.reason(), rated.advice(), bestTime);
+        BestTime found = BestWindow.find(data.forecast(), data.weather().observedAt(), weatherRatingProperties);
+        BestTime bestTime = found != null && found.rating().isBetterThan(rated.rating()) ? found : null;
+        String advice = bestTime != null ? null : rated.advice();
+        return new WeatherRecommendation(rated.weather(), rated.rating(), rated.reason(), advice, bestTime);
     }
 
     public Optional<WeatherRecommendation> getRecommendationForUser(Long userId, double lat, double lon) {

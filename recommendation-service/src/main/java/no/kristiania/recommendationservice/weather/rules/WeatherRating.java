@@ -30,18 +30,20 @@ public final class WeatherRating {
         if (w.feelsLike() <= p.poorColdFeelsLike() || w.feelsLike() >= p.poorHotFeelsLike()) {
             return poor(w, "Feels like " + w.feelsLike() + "°C", p);
         }
-
         if (w.temperature() < 0) {
-            return ok(w, "Below freezing – watch for icy paths");
+            return ok(w, "Below freezing", "Wear shoes with good grip");
         }
         if (w.precipitationMm() > 0) {
-            return ok(w, "Light " + precipitationType + " (" + w.precipitationMm() + " mm)");
+            return ok(w, "Light " + precipitationType + " (" + w.precipitationMm() + " mm)", "Bring a rain jacket");
         }
         if (w.windSpeedKmh() >= p.okWindKmh()) {
-            return ok(w, "Windy (" + w.windSpeedKmh() + " km/h)");
+            return ok(w, "Windy (" + w.windSpeedKmh() + " km/h)", "Pick a sheltered route");
         }
-        if (w.feelsLike() < p.okColdFeelsLike() || w.feelsLike() > p.okHotFeelsLike()) {
-            return ok(w, "Feels like " + w.feelsLike() + "°C");
+        if (w.feelsLike() < p.okColdFeelsLike()) {
+            return ok(w, "Feels like " + w.feelsLike() + "°C", "Wear layers");
+        }
+        if (w.feelsLike() > p.okHotFeelsLike()) {
+            return ok(w, "Feels like " + w.feelsLike() + "°C", "Bring water and avoid the midday heat");
         }
         return new WeatherRecommendation(w, Rating.GOOD, "Good weather for outdoor activity", null);
     }
@@ -50,7 +52,7 @@ public final class WeatherRating {
         return new WeatherRecommendation(w, Rating.POOR, reason, p.poorAdvice());
     }
 
-    private static WeatherRecommendation ok(WeatherResponse w, String reason) {
-        return new WeatherRecommendation(w, Rating.OK, reason, null);
+    private static WeatherRecommendation ok(WeatherResponse w, String reason, String advice) {
+        return new WeatherRecommendation(w, Rating.OK, reason, advice);
     }
 }
