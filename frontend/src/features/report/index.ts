@@ -3,3 +3,4 @@ export { useGoalReports } from "./hooks/useGoalReports";
 export { averagePerPeriod, daysSince, lastCheckinLabel } from "./utils/dates";
 export { default as GoalInsightCard } from "./components/GoalInsightCard";
 export { default as StreaksCard } from "./components/StreaksCard";
+export { default as ActivityCalendar } from "./components/ActivityCalendar";

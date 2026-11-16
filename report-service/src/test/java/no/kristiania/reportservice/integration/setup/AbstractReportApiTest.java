@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import static no.kristiania.reportservice.integration.setup.JwtTestSupport.bearer;
 import static no.kristiania.reportservice.integration.setup.JwtTestSupport.tokenFor;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpHeaders.IF_NONE_MATCH;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 public abstract class AbstractReportApiTest extends AbstractIntegrationTest {
@@ -18,6 +19,17 @@ public abstract class AbstractReportApiTest extends AbstractIntegrationTest {
     protected ResultActions getReport(long userId, long goalId) throws Exception {
         return mockMvc.perform(get("/api/reports/goals/{goalId}", goalId)
                 .header(AUTHORIZATION, bearer(tokenFor(userId))));
+    }
+
+    protected ResultActions getActivity(long userId) throws Exception {
+        return mockMvc.perform(get("/api/reports/activity")
+                .header(AUTHORIZATION, bearer(tokenFor(userId))));
+    }
+
+    protected ResultActions getActivity(long userId, String etag) throws Exception {
+        return mockMvc.perform(get("/api/reports/activity")
+                .header(AUTHORIZATION, bearer(tokenFor(userId)))
+                .header(IF_NONE_MATCH, etag));
     }
 
     protected void insertRecord(long userId, long goalId, LocalDate date) {

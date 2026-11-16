@@ -1,6 +1,6 @@
 package no.kristiania.recommendationservice.unit.weather;
 
-import no.kristiania.recommendationservice.weather.WeatherRating;
+import no.kristiania.recommendationservice.weather.rules.WeatherRating;
 import no.kristiania.recommendationservice.weather.dto.WeatherRecommendation;
 import no.kristiania.recommendationservice.weather.dto.WeatherResponse;
 import no.kristiania.recommendationservice.weather.enums.Rating;
@@ -13,12 +13,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class WeatherRatingTest {
     private static final WeatherRatingProperties PROPS =
-            new WeatherRatingProperties(1.0, 40, 25, -10, 32, 0, 27, -2, 2);
+            new WeatherRatingProperties(1.0, 40, 25, -10, 32, 0, 27, -2, 2, "Go indoors");
 
     private static WeatherRecommendation rate(WeatherCondition condition, double temp, double feelsLike,
                                               double precipitation, double wind) {
+        return rate(condition, temp, feelsLike, precipitation, wind, 0);
+    }
+
+    private static WeatherRecommendation rate(WeatherCondition condition, double temp, double feelsLike,
+                                              double precipitation, double wind, double recentPrecipitation) {
         WeatherResponse weather = new WeatherResponse(59.9, 10.8, LocalDateTime.of(2026, 11, 12, 12, 0),
-                temp, feelsLike, precipitation, wind, condition, true, false);
+                temp, feelsLike, precipitation, recentPrecipitation, wind, condition, true, false);
         return WeatherRating.rate(weather, PROPS);
     }
 
@@ -72,10 +77,10 @@ class WeatherRatingTest {
     }
 
     @Test
-    void belowFreezingIsOkWithIceWarning() {
+    void belowFreezingIsOk() {
         WeatherRecommendation result = rate(WeatherCondition.CLEAR, -3, -5, 0, 5);
         assertThat(result.rating()).isEqualTo(Rating.OK);
-        assertThat(result.reason()).isEqualTo("Below freezing – watch for icy paths");
+        assertThat(result.reason()).isEqualTo("Below freezing");
     }
 
     @Test
@@ -103,5 +108,54 @@ class WeatherRatingTest {
     void mildAndCalmIsGood() {
         WeatherRecommendation result = rate(WeatherCondition.CLEAR, 15, 15, 0, 5);
         assertThat(result.rating()).isEqualTo(Rating.GOOD);
+    }
+
+    @Test
+    void poorHasAdvice() {
+        WeatherRecommendation result = rate(WeatherCondition.THUNDERSTORM, 15, 15, 0.5, 10);
+        assertThat(result.advice()).isEqualTo("Go indoors");
+    }
+
+    @Test
+    void goodHasNoAdvice() {
+        WeatherRecommendation result = rate(WeatherCondition.CLEAR, 12, 12, 0, 5);
+        assertThat(result.advice()).isNull();
+    }
+
+    @Test
+    void wetGroundNearFreezingIsRiskOfIce() {
+        WeatherRecommendation result = rate(WeatherCondition.CLOUDY, 1, -3, 0, 5, 2.0);
+        assertThat(result.rating()).isEqualTo(Rating.POOR);
+        assertThat(result.reason()).isEqualTo("Risk of ice");
+    }
+
+    @Test
+    void dryAtOneDegreeIsNotIce() {
+        WeatherRecommendation result = rate(WeatherCondition.CLOUDY, 1, -3, 0, 5, 0);
+        assertThat(result.rating()).isEqualTo(Rating.OK);
+    }
+
+    @Test
+    void recentRainWhenMildIsFine() {
+        WeatherRecommendation result = rate(WeatherCondition.CLOUDY, 8, 7, 0, 5, 3.0);
+        assertThat(result.rating()).isEqualTo(Rating.GOOD);
+    }
+
+    @Test
+    void chillyAdvisesLayers() {
+        WeatherRecommendation result = rate(WeatherCondition.CLOUDY, 0, -4, 0, 5);
+        assertThat(result.advice()).isEqualTo("Wear layers");
+    }
+
+    @Test
+    void lightRainAdvisesJacket() {
+        WeatherRecommendation result = rate(WeatherCondition.RAIN, 8, 6, 0.3, 5);
+        assertThat(result.advice()).isEqualTo("Bring a rain jacket");
+    }
+
+    @Test
+    void belowFreezingAdvisesGrip() {
+        WeatherRecommendation result = rate(WeatherCondition.CLEAR, -3, -3, 0, 5);
+        assertThat(result.advice()).isEqualTo("Wear shoes with good grip");
     }
 }

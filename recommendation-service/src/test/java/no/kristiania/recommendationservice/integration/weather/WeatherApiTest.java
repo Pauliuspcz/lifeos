@@ -5,8 +5,10 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.startsWith;
 
 class WeatherApiTest extends AbstractIntegrationTest {
 
@@ -16,6 +18,34 @@ class WeatherApiTest extends AbstractIntegrationTest {
     private static final String CLOUDY_NIGHT = """
             {"current": {"time": "2026-11-12T16:00", "temperature_2m": 2.8, "apparent_temperature": -0.3,
              "precipitation": 0.0, "weather_code": 3, "wind_speed_10m": 7.9, "is_day": 0}}""";
+
+    private static final String DRY_NOW_RAINED_EARLIER = """
+            {"current": {"time": "2026-11-12T16:15", "temperature_2m": 1.0, "apparent_temperature": -2.0,
+             "precipitation": 0.0, "weather_code": 3, "wind_speed_10m": 5.0, "is_day": 0},
+             "hourly": {"time": ["2026-11-12T14:00", "2026-11-12T15:00", "2026-11-12T16:00", "2026-11-12T17:00"],
+                        "precipitation": [0.4, 0.3, 0.0, 2.0]}}""";
+
+    private static final String RAIN_THEN_DRY = """
+            {"current": {"time": "2026-11-12T10:15", "temperature_2m": 8.0, "apparent_temperature": 6.0,
+             "precipitation": 2.0, "weather_code": 63, "wind_speed_10m": 5.0, "is_day": 1},
+             "hourly": {"time": ["2026-11-12T10:00", "2026-11-12T11:00", "2026-11-12T12:00", "2026-11-12T13:00", "2026-11-12T14:00"],
+                        "temperature_2m": [8.0, 8.0, 9.0, 9.0, 8.0],
+                        "apparent_temperature": [6.0, 6.0, 8.0, 8.0, 6.0],
+                        "precipitation": [2.0, 2.0, 0.0, 0.0, 2.0],
+                        "weather_code": [63, 63, 1, 1, 63],
+                        "wind_speed_10m": [5.0, 5.0, 5.0, 5.0, 5.0],
+                        "is_day": [1, 1, 1, 1, 1]}}""";
+
+    private static final String DRIZZLE_ALL_DAY = """
+            {"current": {"time": "2026-11-12T10:15", "temperature_2m": 8.0, "apparent_temperature": 6.0,
+             "precipitation": 0.3, "weather_code": 51, "wind_speed_10m": 5.0, "is_day": 1},
+             "hourly": {"time": ["2026-11-12T10:00", "2026-11-12T11:00", "2026-11-12T12:00"],
+                        "temperature_2m": [8.0, 8.0, 8.0],
+                        "apparent_temperature": [6.0, 6.0, 6.0],
+                        "precipitation": [0.3, 0.3, 0.3],
+                        "weather_code": [51, 51, 51],
+                        "wind_speed_10m": [5.0, 5.0, 5.0],
+                        "is_day": [1, 1, 1]}}""";
 
     @Test
     void get_returnsWeatherFromOpenMeteo() throws Exception {
@@ -27,6 +57,40 @@ class WeatherApiTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.weather.condition").value("CLOUDY"))
                 .andExpect(jsonPath("$.weather.day").value(false))
                 .andExpect(jsonPath("$.rating").value("OK"));
+    }
+
+    @Test
+    void get_rainedEarlierNearFreezing_returnsRiskOfIce() throws Exception {
+        openMeteoReturns(DRY_NOW_RAINED_EARLIER);
+
+        getWeather(LAT, LON)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.weather.recentPrecipitationMm").value(0.7))
+                .andExpect(jsonPath("$.rating").value("POOR"))
+                .andExpect(jsonPath("$.reason").value("Risk of ice"));
+    }
+
+    @Test
+    void get_rainNowDryLater_returnsBestTime() throws Exception {
+        openMeteoReturns(RAIN_THEN_DRY);
+
+        getWeather(LAT, LON)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rating").value("POOR"))
+                .andExpect(jsonPath("$.bestTime.from").value(startsWith("2026-11-12T12:00")))
+                .andExpect(jsonPath("$.bestTime.to").value(startsWith("2026-11-12T14:00")))
+                .andExpect(jsonPath("$.bestTime.rating").value("GOOD"))
+                .andExpect(jsonPath("$.advice").value(nullValue()));
+    }
+
+    @Test
+    void get_sameWeatherAllDay_hidesBestTime() throws Exception {
+        openMeteoReturns(DRIZZLE_ALL_DAY);
+
+        getWeather(LAT, LON)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rating").value("OK"))
+                .andExpect(jsonPath("$.bestTime").value(nullValue()));
     }
 
     @Test

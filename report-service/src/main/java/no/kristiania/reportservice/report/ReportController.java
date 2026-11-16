@@ -1,6 +1,8 @@
 package no.kristiania.reportservice.report;
 
+import no.kristiania.reportservice.report.dto.ActivityReport;
 import no.kristiania.reportservice.report.dto.GoalReport;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,4 +23,10 @@ public class ReportController {
         return ResponseEntity.ok(reportService.getGoalReport(userId, goalId));
     }
 
+    @GetMapping("/activity")
+    public ResponseEntity<ActivityReport> getActivity(@AuthenticationPrincipal Long userId) {
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noCache().cachePrivate())
+                .body(reportService.getActivity(userId));
+    }
 }

@@ -13,3 +13,11 @@ export const deleteProgress = (id: number) =>
 
 export const fetchProgressWindow = () =>
   request<ProgressWindow>("GET", progressEndpoints.window, undefined, true);
+
+export const listProgressForGoal = (goalId: number) =>
+  request<Progress[]>(
+    "GET",
+    progressEndpoints.forGoal(goalId),
+    undefined,
+    true,
+  );

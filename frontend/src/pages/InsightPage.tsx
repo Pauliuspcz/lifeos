@@ -1,6 +1,10 @@
 import Topbar from "../shared/components/Topbar";
 import { useGoals } from "../features/goals";
-import { GoalInsightCard, useGoalReports } from "../features/report";
+import {
+  GoalInsightCard,
+  useGoalReports,
+  ActivityCalendar,
+} from "../features/report";
 
 export default function InsightPage() {
   const { goals, loading: goalsLoading } = useGoals("ACTIVE");
@@ -22,14 +26,13 @@ export default function InsightPage() {
         {loadError && <p className="error">{loadError}</p>}
         {!isLoading && !loadError && goals.length === 0 && <p>No goals yet.</p>}
         <div className="insight-grid">
-          <section className="activity">
-            <h2>Activity</h2>
-            <p className="muted">Contribution calendar coming soon.</p>
-          </section>
+          <ActivityCalendar />
           <div className="stats insight-stats">
             <div>
               <strong>{last30Total}</strong>
-              <span className="muted">check-ins last 30 days</span>
+              <span className="muted">
+                check-ins last 30 days · active goals
+              </span>
             </div>
             <div>
               <strong>{activeStreaks}</strong>

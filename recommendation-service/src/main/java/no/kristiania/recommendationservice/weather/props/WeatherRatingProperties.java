@@ -12,5 +12,6 @@ public record WeatherRatingProperties(
         double okColdFeelsLike,
         double okHotFeelsLike,
         double iceRiskMinTemp,
-        double iceRiskMaxTemp
+        double iceRiskMaxTemp,
+        String poorAdvice
 ) {}

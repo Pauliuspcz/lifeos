@@ -61,6 +61,7 @@ export type CreateGoalRequest = {
   motivation?: string | null;
   iconKey?: string | null;
   color?: string | null;
+  outdoor?: boolean;
 };
 
 export const PERIOD_LABEL: Record<GoalPeriod, string> = {

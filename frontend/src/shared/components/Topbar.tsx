@@ -6,22 +6,20 @@ import {
   LOG_PATH,
   PROFILE_PATH,
 } from "../config/routes";
-import { WeatherChip } from "../../features/weather";
+import logo from "../../assets/lifeos-logo.png";
 
 export default function Topbar() {
   return (
     <header className="topbar">
       <Link to={HOME_PATH} className="topbar-logo">
-        LifeOS
+        <img src={logo} alt="LifeOS" />
       </Link>
       <nav className="topbar-nav">
         <NavLink to={HOME_PATH}>Today</NavLink>
         <NavLink to={INSIGHT_PATH}>Insights</NavLink>
         <NavLink to={GOAL_PATH}>Goals</NavLink>
         <NavLink to={LOG_PATH}>Log</NavLink>
-        <span>Journal</span>
       </nav>
-      <WeatherChip />
       <Link to={PROFILE_PATH} className="topbar-profile">
         Profile
       </Link>

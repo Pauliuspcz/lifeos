@@ -25,4 +25,14 @@ class ReportOwnershipTest extends AbstractReportApiTest {
                 .andExpect(jsonPath("$.totalSessions").value(0))
                 .andExpect(jsonPath("$.lastDate").value(nullValue()));
     }
+
+    @Test
+    void getActivity_otherUser_returnsNoneOfTheirData() throws Exception {
+        insertRecord(OWNER, GOAL_ID, LocalDate.now());
+
+        getActivity(OWNER).andExpect(jsonPath("$.totalCheckins").value(1));
+        getActivity(OTHER)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalCheckins").value(0));
+    }
 }

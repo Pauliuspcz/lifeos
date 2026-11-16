@@ -93,7 +93,7 @@ export default function GoalsCard({
         onClose={() => setWizardKey((k) => k + 1)}
       >
         <div className="box-header">
-          <h2></h2>
+          <h2>New goal</h2>
           <button
             type="button"
             className="btn-outline"
