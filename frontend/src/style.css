@@ -131,6 +131,7 @@ h2 {
 .topbar-profile {
   grid-area: profile;
   justify-self: end;
+  margin-right: calc(25vw - var(--space-xl) - var(--space-md));
   padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius-md);
   font-size: var(--text-md);
@@ -144,6 +145,9 @@ h2 {
 @media (max-width: 1100px) {
   .topbar-logo {
     margin-left: 0;
+  }
+  .topbar-profile {
+    margin-right: 0;
   }
 }
 
@@ -305,6 +309,17 @@ h2 {
   border-radius: var(--radius-md);
   font: inherit;
 }
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.goal-dialog .checkbox-row input {
+  width: auto;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--accent);
+}
 .goal-dialog form button {
   padding: var(--space-md) var(--space-lg);
   border: none;
@@ -314,6 +329,55 @@ h2 {
   font: inherit;
   font-weight: 600;
   cursor: pointer;
+}
+
+/* New goal dialog: centred title, Close on the right */
+.goal-dialog > .box-header {
+  position: relative;
+  justify-content: flex-end;
+  margin-bottom: var(--space-sm);
+}
+.goal-dialog > .box-header h2 {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* New goal dialog: fields */
+.goal-dialog h3 {
+  margin: 0;
+  font-size: var(--text-xl);
+}
+.goal-dialog label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+.goal-dialog input,
+.goal-dialog select {
+  padding: var(--space-sm) var(--space-md);
+  color: var(--text);
+}
+.goal-dialog input[type="color"] {
+  width: 48px;
+  height: 32px;
+  padding: 2px;
+  cursor: pointer;
+}
+.goal-dialog label.checkbox-row {
+  flex-direction: row;
+  font-size: var(--text-md);
+  color: var(--text);
+}
+.goal-dialog form .btn-outline {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
 /* Vaner i dag */

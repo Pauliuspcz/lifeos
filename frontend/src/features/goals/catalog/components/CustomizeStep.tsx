@@ -42,6 +42,7 @@ type FormState = {
   targetDate: string;
   motivation: string;
   color: string;
+  outdoor: boolean;
 };
 
 function initialState(t: Template | null): FormState {
@@ -58,6 +59,7 @@ function initialState(t: Template | null): FormState {
     targetDate: "",
     motivation: "",
     color: t?.color ?? "#4caf50",
+    outdoor: false,
   };
 }
 
@@ -127,6 +129,7 @@ export default function CustomizeStep({
       targetDate: fields.includes("targetDate") ? form.targetDate : null,
       motivation: form.motivation.trim() || null,
       color: form.color,
+      outdoor: form.outdoor,
       iconKey: template?.iconKey ?? null,
       categoryId: template?.categoryId ?? null,
       templateId: template?.id ?? null,
@@ -278,7 +281,19 @@ export default function CustomizeStep({
           onChange={(e) => set({ color: e.target.value })}
         />
       </Field>
-
+      <div>
+        <label className="checkbox-row">
+          <input
+            type="checkbox"
+            checked={form.outdoor}
+            onChange={(e) => set({ outdoor: e.target.checked })}
+          />
+          Outdoor activity
+        </label>
+        <p className="muted">
+          Get weather tips for this goal on your dashboard.
+        </p>
+      </div>
       <button type="submit">Create</button>
       {error && <p className="error">{error}</p>}
     </form>
