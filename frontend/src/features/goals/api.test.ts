@@ -42,10 +42,12 @@ describe("goals api", () => {
     const body = {
       title: "Run",
       description: null,
+      trackingType: "CHECK" as const,
       period: "WEEKLY" as const,
       timesPerPeriod: 3,
-      amountPerSession: null,
+      targetAmount: null,
       unit: null,
+      categoryId: 1,
     };
     requestMock.mockResolvedValue({ id: 5, ...body });
 

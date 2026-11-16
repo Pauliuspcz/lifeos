@@ -8,20 +8,24 @@ export const DIFFICULTY_LABEL = {
 } as const;
 
 export function describeTemplate(t: Template): string {
-  const per = t.defaultPeriod ? ` per ${PERIOD_LABEL[t.defaultPeriod]}` : "";
-  switch (t.trackingType) {
-    case "COUNT":
-      return `${t.defaultTimesPerPeriod ?? 1}×${per}`;
-    case "AMOUNT":
-    case "DURATION":
-      return `${t.defaultTargetAmount ?? ""} ${t.defaultUnit ?? ""}${per}`.trim();
-    case "LIMIT":
-      return `max ${t.defaultTargetAmount ?? ""} ${t.defaultUnit ?? ""}${per}`.trim();
-    case "TIME_TARGET":
-      return `at ${t.defaultTargetTime?.slice(0, 5) ?? ""}`;
-    case "EVENT":
-      return "Pick a date";
-    default:
-      return "Daily";
+  const parts: string[] = [];
+  if (t.trackingType === "AMOUNT") {
+    const amount =
+      `${t.defaultTargetAmount ?? ""} ${t.defaultUnit ?? ""}`.trim();
+    parts.push(
+      t.defaultPeriod
+        ? `${amount} per ${PERIOD_LABEL[t.defaultPeriod]}`
+        : `${amount} by a date`,
+    );
+  } else {
+    const period = t.defaultPeriod ?? "DAILY";
+    parts.push(
+      period === "DAILY"
+        ? "Every day"
+        : `${t.defaultTimesPerPeriod ?? 1}× per ${PERIOD_LABEL[period]}`,
+    );
   }
+  if (t.defaultTargetTime) parts.push(`at ${t.defaultTargetTime.slice(0, 5)}`);
+  if (t.defaultDurationDays) parts.push(`${t.defaultDurationDays} days`);
+  return parts.join(" · ");
 }

@@ -40,11 +40,6 @@ export default function LogGoalCard({
         <h2>{goal.title}</h2>
         <span className="muted">{status}</span>
       </div>
-      {goal.amountPerSession !== null && (
-        <p className="muted">
-          {goal.amountPerSession} {goal.unit}
-        </p>
-      )}
       <div className="day-chips">
         {chipDays.map((d) => {
           const entry = byDate.get(d);

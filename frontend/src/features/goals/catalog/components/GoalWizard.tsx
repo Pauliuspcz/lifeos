@@ -1,15 +1,18 @@
 import { useState } from "react";
-import DirectionStep from "../../catalog/components/DirectionStep";
-import TemplateStep from "../../catalog/components/TemplateStep";
-import type { Direction, Template } from "../types";
+import type { Category, Direction, Template } from "../types";
 import { CreateGoalRequest } from "../../types";
+import AreaStep from "./AreaStep";
+import FocusStep from "./FocusStep";
+import TemplateStep from "./TemplateStep";
 import CustomizeStep from "./CustomizeStep";
 
 type WizardState =
-  | { step: "direction" }
-  | { step: "template"; direction: Direction }
+  | { step: "area" }
+  | { step: "focus"; area: Category }
+  | { step: "template"; area: Category; direction: Direction }
   | {
       step: "customize";
+      area: Category;
       direction: Direction | null;
       template: Template | null;
     };
@@ -20,39 +23,53 @@ type Props = {
 };
 
 export default function GoalWizard({ onCreate, onDone }: Props) {
-  const [state, setState] = useState<WizardState>({ step: "direction" });
+  const [state, setState] = useState<WizardState>({ step: "area" });
 
-  if (state.step === "direction") {
+  if (state.step === "area") {
+    return <AreaStep onPick={(area) => setState({ step: "focus", area })} />;
+  }
+
+  if (state.step === "focus") {
+    const { area } = state;
     return (
-      <DirectionStep
-        onPick={(direction) => setState({ step: "template", direction })}
+      <FocusStep
+        area={area}
+        onBack={() => setState({ step: "area" })}
+        onPick={(direction) => setState({ step: "template", area, direction })}
         onCustom={() =>
-          setState({ step: "customize", direction: null, template: null })
+          setState({ step: "customize", area, direction: null, template: null })
         }
       />
     );
   }
 
   if (state.step === "template") {
+    const { area, direction } = state;
     return (
       <TemplateStep
-        direction={state.direction}
-        onBack={() => setState({ step: "direction" })}
+        area={area}
+        direction={direction}
+        onBack={() => setState({ step: "focus", area })}
         onPick={(template) =>
-          setState({ step: "customize", direction: state.direction, template })
+          setState({ step: "customize", area, direction, template })
+        }
+        onCustom={() =>
+          setState({ step: "customize", area, direction, template: null })
         }
       />
     );
   }
 
+  const { area, direction, template } = state;
   return (
     <CustomizeStep
-      template={state.template}
+      area={area}
+      template={template}
       onBack={() =>
         setState(
-          state.direction
-            ? { step: "template", direction: state.direction }
-            : { step: "direction" },
+          direction
+            ? { step: "template", area, direction }
+            : { step: "focus", area },
         )
       }
       onCreate={onCreate}

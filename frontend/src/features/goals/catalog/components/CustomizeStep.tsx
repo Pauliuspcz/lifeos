@@ -1,28 +1,27 @@
 import { useState, type ReactNode, type SubmitEvent } from "react";
 import { ApiError, FieldErrors } from "../../../../shared/api/client";
-import { FIELDS_BY_TRACKING } from "../../GoalDisplay";
 import {
   CreateGoalRequest,
   GoalPeriod,
-  GoalType,
   PERIOD_LABEL,
-  PERIODS,
-  TRACKING_TYPES,
   TrackingType,
 } from "../../types";
-import { Template } from "../types";
+import { addDays, todayIso } from "../dateUtils";
+import type { Category, Template } from "../types";
+import WizardProgress from "./WizardProgress";
+
+const CHECK_PERIODS: GoalPeriod[] = ["DAILY", "WEEKLY", "MONTHLY"];
+const AMOUNT_PERIODS: GoalPeriod[] = ["WEEKLY", "MONTHLY"];
 
 const TRACKING_LABEL: Record<TrackingType, string> = {
   CHECK: "Done / not done",
-  COUNT: "Number of times",
-  AMOUNT: "Amount",
-  DURATION: "Duration",
-  LIMIT: "Max limit",
-  TIME_TARGET: "Time of day",
-  EVENT: "Goal with a date",
+  AMOUNT: "Add up an amount (e.g. 1,000 km)",
 };
 
+type AmountMode = "PERIOD" | "DATE";
+
 type Props = {
+  area: Category;
   template: Template | null;
   onBack: () => void;
   onCreate: (req: CreateGoalRequest) => Promise<void>;
@@ -31,35 +30,37 @@ type Props = {
 
 type FormState = {
   title: string;
-  description: string;
-  goalType: GoalType;
   trackingType: TrackingType;
   period: GoalPeriod;
   timesPerPeriod: number;
   amount: number | null;
   unit: string;
+  amountMode: AmountMode;
+  amountPeriod: GoalPeriod;
+  startDate: string;
+  endDate: string;
   targetTime: string;
-  targetDate: string;
   motivation: string;
-  color: string;
   outdoor: boolean;
 };
 
 function initialState(t: Template | null): FormState {
+  const trackingType = t?.trackingType ?? "CHECK";
   return {
     title: t?.title ?? "",
-    description: t?.description ?? "",
-    goalType: t?.goalType ?? "HABIT",
-    trackingType: t?.trackingType ?? "COUNT",
-    period: t?.defaultPeriod ?? "WEEKLY",
+    trackingType,
+    period: trackingType === "CHECK" ? (t?.defaultPeriod ?? "DAILY") : "DAILY",
     timesPerPeriod: t?.defaultTimesPerPeriod ?? 1,
     amount: t?.defaultTargetAmount ?? null,
     unit: t?.defaultUnit ?? "",
+    amountMode:
+      t && trackingType === "AMOUNT" && !t.defaultPeriod ? "DATE" : "PERIOD",
+    amountPeriod: t?.defaultPeriod ?? "MONTHLY",
+    startDate: todayIso(),
+    endDate: "",
     targetTime: t?.defaultTargetTime?.slice(0, 5) ?? "",
-    targetDate: "",
     motivation: "",
-    color: t?.color ?? "#4caf50",
-    outdoor: false,
+    outdoor: t?.outdoor ?? false,
   };
 }
 
@@ -76,6 +77,7 @@ function Field(props: { label: string; error?: string; children: ReactNode }) {
 }
 
 export default function CustomizeStep({
+  area,
   template,
   onBack,
   onCreate,
@@ -84,26 +86,51 @@ export default function CustomizeStep({
   const [form, setForm] = useState<FormState>(() => initialState(template));
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [error, setError] = useState("");
-
-  const fields = FIELDS_BY_TRACKING[form.trackingType];
-  const showAmount = fields.includes("amount") || form.trackingType === "COUNT";
-  const amountRequired = fields.includes("amount");
   const set = (patch: Partial<FormState>) =>
     setForm((f) => ({ ...f, ...patch }));
 
+  const today = todayIso();
+  const isCheck = form.trackingType === "CHECK";
+  const needsDate = !isCheck && form.amountMode === "DATE";
+  const durationDays = template?.defaultDurationDays ?? null;
+  const challengeEnd = durationDays
+    ? addDays(form.startDate || today, durationDays)
+    : null;
+  const showTime = isCheck && !!template?.defaultTargetTime;
+  const canPickOutdoor = area.code === "BODY";
+
+  function summary(): string {
+    let text: string;
+    if (isCheck) {
+      text =
+        form.period === "DAILY"
+          ? "Every day"
+          : `${form.timesPerPeriod}× per ${PERIOD_LABEL[form.period]}`;
+      if (durationDays) text += ` for ${durationDays} days`;
+    } else {
+      const amount = `${form.amount ?? "…"} ${form.unit}`.trim();
+      text = needsDate
+        ? `${amount} by ${form.endDate || "…"}`
+        : `${amount} per ${PERIOD_LABEL[form.amountPeriod]}`;
+    }
+    return `${text}, starting ${form.startDate || "…"}`;
+  }
+
   function validate(): FieldErrors {
     const e: FieldErrors = {};
-    const today = new Date().toISOString().slice(0, 10);
     if (!form.title.trim()) e.title = "Title is required";
-    if (fields.includes("timesPerPeriod") && form.timesPerPeriod < 1)
+    if (!form.startDate) e.startDate = "Pick a start date";
+    if (isCheck && form.period !== "DAILY" && form.timesPerPeriod < 1)
       e.timesPerPeriod = "At least 1";
-    if (amountRequired && (form.amount === null || form.amount <= 0))
-      e.amountPerSession = "Amount must be greater than 0";
-    if (amountRequired && !form.unit.trim()) e.unit = "Unit is required";
-    if (fields.includes("targetTime") && !form.targetTime)
-      e.targetTime = "Pick a time";
-    if (fields.includes("targetDate") && form.targetDate <= today)
+    if (!isCheck && (form.amount === null || form.amount <= 0))
+      e.targetAmount = "Amount must be greater than 0";
+    if (!isCheck && !form.unit.trim()) e.unit = "Unit is required";
+    if (needsDate && (!form.endDate || form.endDate <= today))
       e.targetDate = "Pick a future date";
+    if (isCheck && !challengeEnd && form.endDate && form.endDate <= today)
+      e.targetDate = "Pick a future date";
+    if (form.endDate && form.startDate && form.endDate <= form.startDate)
+      e.targetDate = "End date must be after the start date";
     return e;
   }
 
@@ -116,23 +143,29 @@ export default function CustomizeStep({
 
     const req: CreateGoalRequest = {
       title: form.title.trim(),
-      description: form.description.trim() || null,
-      goalType: form.trackingType === "EVENT" ? "EVENT" : form.goalType,
+      description: template?.description ?? null,
       trackingType: form.trackingType,
-      period: fields.includes("period") ? form.period : null,
-      timesPerPeriod: fields.includes("timesPerPeriod")
-        ? form.timesPerPeriod
+      period: isCheck ? form.period : needsDate ? null : form.amountPeriod,
+      timesPerPeriod: isCheck
+        ? form.period === "DAILY"
+          ? 1
+          : form.timesPerPeriod
         : null,
-      amountPerSession: showAmount ? form.amount : null,
-      unit: showAmount ? form.unit.trim() || null : null,
-      targetTime: fields.includes("targetTime") ? form.targetTime : null,
-      targetDate: fields.includes("targetDate") ? form.targetDate : null,
-      motivation: form.motivation.trim() || null,
-      color: form.color,
-      outdoor: form.outdoor,
-      iconKey: template?.iconKey ?? null,
-      categoryId: template?.categoryId ?? null,
+      targetAmount: isCheck ? null : form.amount,
+      unit: isCheck ? null : form.unit.trim(),
+      targetTime: showTime && form.targetTime ? form.targetTime : null,
+      startDate: form.startDate,
+      targetDate: isCheck
+        ? (challengeEnd ?? (form.endDate || null))
+        : needsDate
+          ? form.endDate
+          : null,
+      categoryId: area.id,
       templateId: template?.id ?? null,
+      motivation: form.motivation.trim() || null,
+      iconKey: template?.iconKey ?? area.iconKey ?? null,
+      color: area.color ?? null,
+      outdoor: canPickOutdoor ? form.outdoor : (template?.outdoor ?? false),
     };
 
     try {
@@ -150,11 +183,27 @@ export default function CustomizeStep({
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className="wizard-form" onSubmit={handleSubmit}>
+      <WizardProgress step={3} color={area.color} />
       <button type="button" className="btn-outline" onClick={onBack}>
         ← Back
       </button>
       <h3>{template ? template.title : "Create your own goal"}</h3>
+      <span
+        className="area-chip"
+        style={{
+          borderLeft: `4px solid ${area.color ?? "#ccc"}`,
+          paddingLeft: 8,
+        }}
+      >
+        {area.name}
+      </span>
+      <p className="goal-summary">{summary()}</p>
+      {durationDays && (
+        <p className="muted">
+          Challenge · {durationDays} days, ends {challengeEnd}
+        </p>
+      )}
 
       {!template && (
         <Field label="How do you want to track it?">
@@ -164,7 +213,7 @@ export default function CustomizeStep({
               set({ trackingType: e.target.value as TrackingType })
             }
           >
-            {TRACKING_TYPES.map((t) => (
+            {(Object.keys(TRACKING_LABEL) as TrackingType[]).map((t) => (
               <option key={t} value={t}>
                 {TRACKING_LABEL[t]}
               </option>
@@ -181,38 +230,41 @@ export default function CustomizeStep({
         />
       </Field>
 
-      {fields.includes("period") && (
-        <Field label="Period" error={fieldErrors.period}>
-          <select
-            value={form.period}
-            onChange={(e) => set({ period: e.target.value as GoalPeriod })}
-          >
-            {PERIODS.map((p) => (
-              <option key={p} value={p}>
-                per {PERIOD_LABEL[p]}
-              </option>
-            ))}
-          </select>
-        </Field>
-      )}
-
-      {fields.includes("timesPerPeriod") && (
-        <Field label="Times per period" error={fieldErrors.timesPerPeriod}>
-          <input
-            type="number"
-            min={1}
-            value={form.timesPerPeriod}
-            onChange={(e) => set({ timesPerPeriod: Number(e.target.value) })}
-          />
-        </Field>
-      )}
-
-      {showAmount && (
+      {isCheck && (
         <>
-          <Field
-            label={amountRequired ? "Amount" : "Amount per session (optional)"}
-            error={fieldErrors.amountPerSession}
-          >
+          <Field label="How often?" error={fieldErrors.period}>
+            <select
+              value={form.period}
+              onChange={(e) => set({ period: e.target.value as GoalPeriod })}
+            >
+              {CHECK_PERIODS.map((p) => (
+                <option key={p} value={p}>
+                  {p === "DAILY" ? "Every day" : `Per ${PERIOD_LABEL[p]}`}
+                </option>
+              ))}
+            </select>
+          </Field>
+          {form.period !== "DAILY" && (
+            <Field
+              label={`Times per ${PERIOD_LABEL[form.period]}`}
+              error={fieldErrors.timesPerPeriod}
+            >
+              <input
+                type="number"
+                min={1}
+                value={form.timesPerPeriod}
+                onChange={(e) =>
+                  set({ timesPerPeriod: Number(e.target.value) })
+                }
+              />
+            </Field>
+          )}
+        </>
+      )}
+
+      {!isCheck && (
+        <>
+          <Field label="Amount" error={fieldErrors.targetAmount}>
             <input
               type="number"
               min={0}
@@ -225,32 +277,71 @@ export default function CustomizeStep({
               }
             />
           </Field>
-          <Field label="Unit (e.g. km, L, min)" error={fieldErrors.unit}>
+          <Field label="Unit (e.g. km, books, reps)" error={fieldErrors.unit}>
             <input
               value={form.unit}
               maxLength={50}
               onChange={(e) => set({ unit: e.target.value })}
             />
           </Field>
+          <Field label="When should you reach it?">
+            <select
+              value={form.amountMode}
+              onChange={(e) =>
+                set({ amountMode: e.target.value as AmountMode })
+              }
+            >
+              <option value="PERIOD">Every week or month</option>
+              <option value="DATE">By a date</option>
+            </select>
+          </Field>
+          {form.amountMode === "PERIOD" && (
+            <Field label="Per" error={fieldErrors.period}>
+              <select
+                value={form.amountPeriod}
+                onChange={(e) =>
+                  set({ amountPeriod: e.target.value as GoalPeriod })
+                }
+              >
+                {AMOUNT_PERIODS.map((p) => (
+                  <option key={p} value={p}>
+                    {PERIOD_LABEL[p]}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          )}
         </>
       )}
 
-      {fields.includes("targetTime") && (
-        <Field label="Time of day" error={fieldErrors.targetTime}>
+      <Field label="Start date" error={fieldErrors.startDate}>
+        <input
+          type="date"
+          min={today}
+          value={form.startDate}
+          onChange={(e) => set({ startDate: e.target.value })}
+        />
+      </Field>
+
+      {(needsDate || (isCheck && !durationDays)) && (
+        <Field
+          label={needsDate ? "Target date" : "End date (optional)"}
+          error={fieldErrors.targetDate}
+        >
           <input
-            type="time"
-            value={form.targetTime}
-            onChange={(e) => set({ targetTime: e.target.value })}
+            type="date"
+            value={form.endDate}
+            onChange={(e) => set({ endDate: e.target.value })}
           />
         </Field>
       )}
 
-      {fields.includes("targetDate") && (
-        <Field label="Date" error={fieldErrors.targetDate}>
+      {showTime && (
+        <Field label="Time of day (optional)" error={fieldErrors.targetTime}>
           <input
-            type="date"
-            value={form.targetDate}
-            onChange={(e) => set({ targetDate: e.target.value })}
+            type="time"
+            value={form.targetTime}
+            onChange={(e) => set({ targetTime: e.target.value })}
           />
         </Field>
       )}
@@ -266,34 +357,22 @@ export default function CustomizeStep({
         />
       </Field>
 
-      <Field label="Description (optional)" error={fieldErrors.description}>
-        <input
-          value={form.description}
-          maxLength={1000}
-          onChange={(e) => set({ description: e.target.value })}
-        />
-      </Field>
+      {canPickOutdoor && (
+        <div>
+          <label className="checkbox-row">
+            <input
+              type="checkbox"
+              checked={form.outdoor}
+              onChange={(e) => set({ outdoor: e.target.checked })}
+            />
+            Outdoor activity
+          </label>
+          <p className="muted">
+            Get weather tips for this goal on your dashboard.
+          </p>
+        </div>
+      )}
 
-      <Field label="Color" error={fieldErrors.color}>
-        <input
-          type="color"
-          value={form.color}
-          onChange={(e) => set({ color: e.target.value })}
-        />
-      </Field>
-      <div>
-        <label className="checkbox-row">
-          <input
-            type="checkbox"
-            checked={form.outdoor}
-            onChange={(e) => set({ outdoor: e.target.checked })}
-          />
-          Outdoor activity
-        </label>
-        <p className="muted">
-          Get weather tips for this goal on your dashboard.
-        </p>
-      </div>
       <button type="submit">Create</button>
       {error && <p className="error">{error}</p>}
     </form>

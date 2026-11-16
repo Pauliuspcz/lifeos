@@ -807,3 +807,176 @@ h2 {
     grid-template-areas: "checkin" "outdoor" "goals" "streaks" "scale" "streak";
   }
 }
+
+/* ---------- Shared buttons ---------- */
+.btn-outline {
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-outline:hover {
+  background: var(--fill);
+}
+
+/* ---------- Goals page layout ---------- */
+.page > h1 {
+  margin: var(--space-xl) 0 var(--space-lg);
+  font-size: var(--text-2xl);
+}
+.page > .goals-box {
+  width: 100%;
+  max-width: 640px;
+  min-width: 0;
+  box-sizing: border-box;
+  margin-bottom: var(--space-xl);
+}
+.goal-dialog {
+  width: min(520px, calc(100vw - 32px));
+}
+
+/* ---------- Wizard: progress ---------- */
+.wizard-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-lg);
+}
+.wizard-progress .muted {
+  margin-left: var(--space-sm);
+}
+
+/* ---------- Wizard: cards (area, focus, goal) ---------- */
+.direction-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-md);
+  width: 100%;
+  margin: var(--space-lg) 0;
+}
+.direction-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  min-width: 0;
+  padding: var(--space-lg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    border-color 0.12s ease;
+}
+.direction-card strong {
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+.direction-card:hover {
+  border-color: var(--text-tertiary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.direction-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.area-card {
+  min-height: 112px;
+}
+.wizard-progress + h3,
+.btn-outline + h3 {
+  margin: var(--space-sm) 0 var(--space-xs);
+  font-size: var(--text-xl);
+}
+
+/* ---------- Wizard: customize form (works in page and dialog) ---------- */
+.wizard-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+.wizard-form h3 {
+  margin: 0;
+  font-size: var(--text-xl);
+}
+.wizard-form label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+.wizard-form input,
+.wizard-form select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+.wizard-form input:focus,
+.wizard-form select:focus {
+  outline: 2px solid var(--accent-light);
+  border-color: var(--accent);
+}
+.wizard-form label.checkbox-row {
+  flex-direction: row;
+  font-size: var(--text-md);
+  color: var(--text);
+}
+.wizard-form .checkbox-row input {
+  width: auto;
+  margin: 0;
+  accent-color: var(--accent);
+}
+.wizard-form button[type="submit"] {
+  padding: var(--space-md) var(--space-lg);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.wizard-form button[type="submit"]:hover {
+  filter: brightness(1.08);
+}
+.wizard-form > .btn-outline {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.area-chip {
+  align-self: flex-start;
+  padding: var(--space-xs) var(--space-md) var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  background: var(--fill);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+.goal-summary {
+  margin: 0;
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
+  font-weight: 600;
+}

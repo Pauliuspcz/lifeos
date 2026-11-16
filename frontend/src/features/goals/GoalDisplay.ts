@@ -1,33 +1,14 @@
-import { PERIOD_LABEL, type Goal, type TrackingType } from "./types";
-
-export type FieldKey =
-  "period" | "timesPerPeriod" | "amount" | "targetTime" | "targetDate";
-
-export const FIELDS_BY_TRACKING: Record<TrackingType, FieldKey[]> = {
-  CHECK: [],
-  COUNT: ["period", "timesPerPeriod"],
-  AMOUNT: ["amount"],
-  DURATION: ["amount"],
-  LIMIT: ["amount"],
-  TIME_TARGET: ["targetTime"],
-  EVENT: ["targetDate"],
-};
+import { PERIOD_LABEL, type Goal } from "./types";
 
 export function describeGoal(g: Goal): string {
-  const per = g.period ? ` per ${PERIOD_LABEL[g.period]}` : "";
-  switch (g.trackingType) {
-    case "COUNT":
-      return `${g.timesPerPeriod ?? 1}×${per}`;
-    case "AMOUNT":
-    case "DURATION":
-      return `${g.amountPerSession ?? ""} ${g.unit ?? ""}${per}`.trim();
-    case "LIMIT":
-      return `max ${g.amountPerSession ?? ""} ${g.unit ?? ""}${per}`.trim();
-    case "TIME_TARGET":
-      return `at ${g.targetTime?.slice(0, 5) ?? ""}`;
-    case "EVENT":
-      return g.targetDate ? `by ${g.targetDate}` : "";
-    default:
-      return per ? `Daily` : "";
+  if (g.trackingType === "AMOUNT") {
+    const amount = `${g.targetAmount ?? ""} ${g.unit ?? ""}`.trim();
+    if (g.period) return `${amount} per ${PERIOD_LABEL[g.period]}`;
+    return g.targetDate ? `${amount} by ${g.targetDate}` : amount;
   }
+  const base =
+    !g.period || g.period === "DAILY"
+      ? "Every day"
+      : `${g.timesPerPeriod ?? 1}× per ${PERIOD_LABEL[g.period]}`;
+  return g.targetDate ? `${base} until ${g.targetDate}` : base;
 }

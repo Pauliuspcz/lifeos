@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
-
-import { listCategories, listDirectionTemplates } from "../api";
-import type { Category, Template } from "../types";
+import { listDirectionTemplates } from "../api";
+import type { Template } from "../types";
 import { ApiError } from "../../../../shared/api/client";
 
 export function useDirectionTemplates(directionId: number) {
   const [templates, setTemplates] = useState<Template[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
 
@@ -14,16 +12,14 @@ export function useDirectionTemplates(directionId: number) {
     let cancelled = false;
     setLoading(true);
     setLoadError("");
-    Promise.all([listDirectionTemplates(directionId), listCategories()])
-      .then(([t, c]) => {
-        if (cancelled) return;
-        setTemplates(t);
-        setCategories(c);
+    listDirectionTemplates(directionId)
+      .then((t) => {
+        if (!cancelled) setTemplates(t);
       })
       .catch((err) => {
         if (cancelled) return;
         const code = err instanceof ApiError ? ` (${err.status})` : "";
-        setLoadError("Could not load suggestions" + code);
+        setLoadError("Could not load goals" + code);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -33,5 +29,5 @@ export function useDirectionTemplates(directionId: number) {
     };
   }, [directionId]);
 
-  return { templates, categories, loading, loadError };
+  return { templates, loading, loadError };
 }
