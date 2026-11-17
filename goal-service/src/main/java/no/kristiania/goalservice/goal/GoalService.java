@@ -87,10 +87,14 @@ public class GoalService {
             throw new ObjectOptimisticLockingFailureException(Goal.class, id);
         }
         LocalDate previousTargetDate = goal.getTargetDate();
+        LocalDate previousStartDate = goal.getStartDate();
         boolean wasOutdoor = goal.isOutdoor();
         applyEditable(goal, new Editable(r.title(), r.description(), r.period(), r.timesPerPeriod(),
                 r.targetAmount(), r.unit(), r.targetTime(), r.startDate(), r.targetDate(),
                 r.motivation(), r.iconKey(), r.color()));
+        if (goal.getStartDate() == null) {
+            goal.setStartDate(previousStartDate);
+        }
         if (r.outdoor() != null) {
             goal.setOutdoor(r.outdoor());
         }
