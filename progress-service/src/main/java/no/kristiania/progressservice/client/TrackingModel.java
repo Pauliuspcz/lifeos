@@ -2,7 +2,6 @@ package no.kristiania.progressservice.client;
 
 import no.kristiania.progressservice.progress.exceptions.UnsupportedTrackingException;
 
-//Todo: lowekey midlertidig til jeg har endra seeding osv i goal service
 public enum TrackingModel {
     DAILY_CHECK, WEEKLY_COUNT, CUMULATIVE_SUM;
 
@@ -11,8 +10,13 @@ public enum TrackingModel {
             throw new UnsupportedTrackingException("Goal has no trackingType");
         }
         return switch (goal.trackingType()) {
-            case "COUNT" -> WEEKLY_COUNT;
-            case "CHECK", "AMOUNT", "DURATION", "TIME_TARGET", "LIMIT" -> DAILY_CHECK;
+            case "AMOUNT" -> CUMULATIVE_SUM;
+            case "CHECK" -> switch (String.valueOf(goal.period())) {
+                case "DAILY" -> DAILY_CHECK;
+                case "WEEKLY" -> WEEKLY_COUNT;
+                default -> throw new UnsupportedTrackingException(
+                        "Unsupported period for CHECK: " + goal.period());
+            };
             default -> throw new UnsupportedTrackingException(
                     "Unsupported trackingType: " + goal.trackingType());
         };

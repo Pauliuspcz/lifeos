@@ -3,7 +3,10 @@ package no.kristiania.reportservice.report;
 import no.kristiania.reportservice.report.dto.*;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -55,5 +58,13 @@ public class ReportService {
             if (day.count() > 0) activeDays++;
         }
         return new ActivityReport(totalCheckins, activeDays, days);
+    }
+
+    private static List<ProgressRecord> onePerGoalDay(List<ProgressRecord> entries) {
+        Map<String, ProgressRecord> seen = new LinkedHashMap<>();
+        for (ProgressRecord e : entries) {
+            seen.putIfAbsent(e.getGoalId() + "|" + e.getDate(), e);
+        }
+        return new ArrayList<>(seen.values());
     }
 }
