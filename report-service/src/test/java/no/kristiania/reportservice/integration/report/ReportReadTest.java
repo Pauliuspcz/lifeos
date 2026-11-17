@@ -40,4 +40,17 @@ class ReportReadTest extends AbstractReportApiTest {
                 .andExpect(jsonPath("$.history.length()").value(12))
                 .andExpect(jsonPath("$.suggestion.recommendation").value("NONE"));
     }
+
+    @Test
+    void get_severalEntriesSameDay_countAsOneSession() throws Exception {
+        LocalDate today = LocalDate.now();
+        insertRecord(USER, GOAL_ID, today);
+        insertRecord(USER, GOAL_ID, today);
+        insertRecord(USER, GOAL_ID, today);
+
+        getReport(USER, GOAL_ID)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalSessions").value(1))
+                .andExpect(jsonPath("$.last30Days").value(1));
+    }
 }
