@@ -1,4 +1,4 @@
-package no.kristiania.goalservice.catalog;
+package no.kristiania.goalservice.catalog.category;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

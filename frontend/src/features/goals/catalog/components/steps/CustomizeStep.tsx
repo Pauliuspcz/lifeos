@@ -1,13 +1,21 @@
 import { useState, type ReactNode, type SubmitEvent } from "react";
 import { ApiError, FieldErrors } from "../../../../../shared/api/client";
 import {
+  RelationHints,
+  titleLookup,
+  toGoalRef,
+  useRelationHints,
+  type GoalRef,
+} from "../../../../relations";
+import {
   CreateGoalRequest,
+  Goal,
   GoalPeriod,
   PERIOD_LABEL,
   TrackingType,
 } from "../../../types";
 import { addDays, todayIso } from "../../dateUtils";
-import type { Category, Template } from "../../types";
+import type { Category, Direction, Template } from "../../types";
 import WizardProgress from "../WizardProgress";
 
 const CHECK_PERIODS: GoalPeriod[] = ["DAILY", "WEEKLY", "MONTHLY"];
@@ -23,6 +31,8 @@ type AmountMode = "PERIOD" | "DATE";
 type Props = {
   area: Category;
   template: Template | null;
+  direction?: Direction | null;
+  activeGoals?: Goal[];
   onCreate: (req: CreateGoalRequest) => Promise<void>;
   onDone?: () => void;
 };
@@ -78,6 +88,8 @@ function Field(props: { label: string; error?: string; children: ReactNode }) {
 export default function CustomizeStep({
   area,
   template,
+  direction,
+  activeGoals,
   onCreate,
   onDone,
 }: Props) {
@@ -96,6 +108,20 @@ export default function CustomizeStep({
     : null;
   const showTime = isCheck && !!template?.defaultTargetTime;
   const canPickOutdoor = area.code === "BODY";
+
+  const candidate: GoalRef = {
+    templateCode: template?.code ?? null,
+    directionCode: direction?.code ?? null,
+    period: isCheck ? form.period : needsDate ? null : form.amountPeriod,
+  };
+  const hints = useRelationHints(
+    (activeGoals ?? []).map(toGoalRef),
+    candidate,
+    activeGoals !== undefined,
+  );
+  const lookup = titleLookup(activeGoals ?? []);
+  const titleOf = (code: string) =>
+    template && code === template.code ? template.title : lookup(code);
 
   function summary(): string {
     let text: string;
@@ -367,6 +393,8 @@ export default function CustomizeStep({
           </p>
         </div>
       )}
+
+      <RelationHints hints={hints} titleOf={titleOf} max={3} />
 
       <button type="submit">Create</button>
       {error && <p className="error">{error}</p>}

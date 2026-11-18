@@ -1259,3 +1259,37 @@ h2 {
   margin: var(--space-sm) 0 0;
   color: var(--text-secondary);
 }
+
+.relation-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.relation {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-sm) var(--space-md);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
+  font-size: var(--text-sm);
+}
+.relation span {
+  color: var(--text-secondary);
+}
+.relation-tension {
+  border-left-color: var(--warning);
+  background: color-mix(in srgb, var(--warning) 8%, var(--surface));
+}
+.relation-redundant {
+  border-left-color: var(--text-tertiary);
+  background: var(--fill);
+}
+.relation-overload {
+  border-left-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 6%, var(--surface));
+}

@@ -19,9 +19,11 @@ import java.util.List;
 public class GoalController {
 
     private final GoalService goalService;
+    private final GoalResponseMapper mapper;
 
-    public GoalController(GoalService goalService) {
+    public GoalController(GoalService goalService, GoalResponseMapper mapper) {
         this.goalService = goalService;
+        this.mapper = mapper;
     }
 
     @PostMapping
@@ -30,34 +32,34 @@ public class GoalController {
         Goal goal = goalService.create(userId, request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}").buildAndExpand(goal.getId()).toUri();
-        return ResponseEntity.created(location).body(GoalResponse.from(goal));
+        return ResponseEntity.created(location).body(mapper.toResponse(goal));
     }
 
     @GetMapping
     public List<GoalResponse> list(@AuthenticationPrincipal Long userId,
                                    @RequestParam(required = false) GoalStatus status) {
-        return goalService.findAll(userId, status).stream().map(GoalResponse::from).toList();
+        return mapper.toResponses(goalService.findAll(userId, status));
     }
 
     @GetMapping("/{id}")
     public GoalResponse get(@AuthenticationPrincipal Long userId, @PathVariable Long id) {
-        return GoalResponse.from(goalService.findById(userId, id));
+        return mapper.toResponse(goalService.findById(userId, id));
     }
 
     @PutMapping("/{id}")
     public GoalResponse update(@AuthenticationPrincipal Long userId, @PathVariable Long id,
                                @Valid @RequestBody UpdateGoalRequest request) {
-        return GoalResponse.from(goalService.update(userId, id, request));
+        return mapper.toResponse(goalService.update(userId, id, request));
     }
 
     @PatchMapping("/{id}/archive")
     public GoalResponse archive(@AuthenticationPrincipal Long userId, @PathVariable Long id) {
-        return GoalResponse.from(goalService.archive(userId, id));
+        return mapper.toResponse(goalService.archive(userId, id));
     }
 
     @PatchMapping("/{id}/unarchive")
     public GoalResponse unarchive(@AuthenticationPrincipal Long userId, @PathVariable Long id) {
-        return GoalResponse.from(goalService.unarchive(userId, id));
+        return mapper.toResponse(goalService.unarchive(userId, id));
     }
 
     //TODO fjerne?

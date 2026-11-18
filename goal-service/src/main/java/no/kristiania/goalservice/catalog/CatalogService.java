@@ -1,5 +1,7 @@
 package no.kristiania.goalservice.catalog;
 
+import no.kristiania.goalservice.catalog.category.Category;
+import no.kristiania.goalservice.catalog.category.CategoryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
