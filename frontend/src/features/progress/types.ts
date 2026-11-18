@@ -40,6 +40,7 @@ export type GoalProgressSummary = {
   unit: string | null;
   startDate: string | null;
   targetDate: string | null;
+  currentPeriod: DateRange | null;
   expected: number | null;
   delta: number | null;
 };

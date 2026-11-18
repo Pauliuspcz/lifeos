@@ -151,11 +151,17 @@ public class ProgressService {
             throw new UnsupportedTrackingException("Goal is not an amount goal");
         }
         LocalDate today = LocalDate.now(clock);
-        BigDecimal total = progressRepo.sumAmount(userId, goalId);
-        BigDecimal expected = Pace.expected(
-                goal.targetAmount(), goal.startDate(), goal.targetDate(), today);
+        DateRange current = goal.period() == null ? null
+                : AmountPeriod.current(goal.period(), goal.startDate(), today);
+
+        BigDecimal total = current == null
+                ? progressRepo.sumAmount(userId, goalId)
+                : progressRepo.sumAmountBetween(userId, goalId, current.from(), current.to());
+        LocalDate paceFrom = current == null ? goal.startDate() : current.from();
+        LocalDate paceTo = current == null ? goal.targetDate() : current.to();
+        BigDecimal expected = Pace.expected(goal.targetAmount(), paceFrom, paceTo, today);
         BigDecimal delta = expected == null ? null : total.subtract(expected);
         return new GoalProgressSummary(goalId, total, goal.targetAmount(), goal.unit(),
-                goal.startDate(), goal.targetDate(), expected, delta);
+                goal.startDate(), goal.targetDate(), current, expected, delta);
     }
 }
