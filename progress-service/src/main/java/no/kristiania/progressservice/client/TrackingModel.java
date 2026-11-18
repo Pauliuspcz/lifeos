@@ -3,7 +3,7 @@ package no.kristiania.progressservice.client;
 import no.kristiania.progressservice.progress.exceptions.UnsupportedTrackingException;
 
 public enum TrackingModel {
-    DAILY_CHECK, WEEKLY_COUNT, CUMULATIVE_SUM;
+    DAILY_CHECK, WEEKLY_COUNT, MONTHLY_COUNT, CUMULATIVE_SUM;
 
     public static TrackingModel from(GoalSummary goal) {
         if (goal.trackingType() == null) {
@@ -14,6 +14,7 @@ public enum TrackingModel {
             case "CHECK" -> switch (String.valueOf(goal.period())) {
                 case "DAILY" -> DAILY_CHECK;
                 case "WEEKLY" -> WEEKLY_COUNT;
+                case "MONTHLY" -> MONTHLY_COUNT;
                 default -> throw new UnsupportedTrackingException(
                         "Unsupported period for CHECK: " + goal.period());
             };

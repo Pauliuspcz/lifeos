@@ -87,8 +87,8 @@ public class ProgressService {
         progress.setTrackingModel(model);
         progress.setAmount(cumulative ? request.amount() : null);
 
-        int targetCount = (model == TrackingModel.WEEKLY_COUNT && goal.timesPerPeriod() != null)
-                ? goal.timesPerPeriod() : 1;
+        boolean counted = model == TrackingModel.WEEKLY_COUNT || model == TrackingModel.MONTHLY_COUNT;
+        int targetCount = (counted && goal.timesPerPeriod() != null) ? goal.timesPerPeriod() : 1;
         // Amount goals count as "days with progress" in report-service
         String eventPeriod = cumulative ? "DAILY" : goal.period();
 
@@ -136,10 +136,12 @@ public class ProgressService {
     public ProgressWindowResponse window(Long userId, Long goalId) {
         LocalDate today = LocalDate.now(clock);
         LocalDate weekStart = LogWindow.weekStart(today);
+        LocalDate monthStart = LogWindow.monthStart(today);
         LocalDate from = today.minusDays(6);
+        LocalDate fetchFrom = monthStart.isBefore(from) ? monthStart : from;
 
         List<ProgressEntryView> entries = progressRepo
-                .findByUserIdAndDateBetweenOrderByDateDesc(userId, from, today).stream()
+                .findByUserIdAndDateBetweenOrderByDateDesc(userId, fetchFrom, today).stream()
                 .filter(p -> goalId == null || p.getGoalId().equals(goalId))
                 .map(p -> ProgressEntryView.from(p,
                         LogWindow.contains(p.getTrackingModel(), today, p.getDate())))
@@ -149,7 +151,7 @@ public class ProgressService {
         for (TrackingModel m : TrackingModel.values()) {
             editable.put(m, new DateRange(LogWindow.earliest(m, today), today));
         }
-        return new ProgressWindowResponse(today, weekStart, from, editable, entries);
+        return new ProgressWindowResponse(today, weekStart, monthStart, from, editable, entries);
     }
 
     public GoalProgressSummary summary(Long userId, Long goalId) {

@@ -37,4 +37,18 @@ class LogWindowTest {
     void futureDateIsOutsideWindow() {
         assertThat(LogWindow.contains(TrackingModel.DAILY_CHECK, WEDNESDAY, WEDNESDAY.plusDays(1))).isFalse();
     }
+
+    @Test
+    void monthlyCanLogAtMostSevenDaysBack() {
+        LocalDate friday = LocalDate.of(2026, 11, 20);
+        assertThat(LogWindow.earliest(TrackingModel.MONTHLY_COUNT, friday))
+                .isEqualTo(LocalDate.of(2026, 11, 14));
+    }
+
+    @Test
+    void monthlyCannotLogLastMonth() {
+        LocalDate dec3 = LocalDate.of(2026, 12, 3);
+        assertThat(LogWindow.earliest(TrackingModel.MONTHLY_COUNT, dec3))
+                .isEqualTo(LocalDate.of(2026, 12, 1));
+    }
 }

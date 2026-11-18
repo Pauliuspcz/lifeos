@@ -2,6 +2,7 @@ package no.kristiania.progressservice.integration.messaging;
 
 import com.jayway.jsonpath.JsonPath;
 import no.kristiania.progressservice.integration.setup.AbstractProgressApiTest;
+import no.kristiania.progressservice.client.GoalSummary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.core.AmqpAdmin;
@@ -15,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 
 import static no.kristiania.progressservice.config.RabbitConfig.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 class ProgressEventMessagingTest extends AbstractProgressApiTest {
 
@@ -91,5 +93,18 @@ class ProgressEventMessagingTest extends AbstractProgressApiTest {
         postProgress(USER, GOAL_ID, TODAY);
 
         assertThat(nextMessage(1000)).isNull();
+    }
+
+    @Test
+    void monthlyPost_sendsPeriodAndTarget() throws Exception {
+        when(goalClient.getGoal(GOAL_ID)).thenReturn(new GoalSummary(
+                GOAL_ID, "ACTIVE", "CHECK", 2, "MONTHLY", null, null, TODAY, null));
+
+        postProgress(USER, GOAL_ID, TODAY);
+
+        Message message = nextMessage(5000);
+        assertThat(field(message, "$.trackingModel")).isEqualTo("MONTHLY_COUNT");
+        assertThat(field(message, "$.period")).isEqualTo("MONTHLY");
+        assertThat(field(message, "$.targetCount")).isEqualTo(2);
     }
 }

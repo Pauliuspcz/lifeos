@@ -1,4 +1,4 @@
-import { type Goal, timesOf } from "../../goals";
+import { type Goal, PERIOD_LABEL, periodOf, timesOf } from "../../goals";
 import type { ProgressEntry, ProgressWindow, TrackingModel } from "../types";
 import { dayLabel, daysBetween } from "../utils/days";
 
@@ -20,16 +20,19 @@ export default function LogGoalCard({
   onToggle,
 }: Props) {
   const weekly = model === "WEEKLY_COUNT";
+  const counted = model !== "DAILY_CHECK";
   const range = win.editable[model];
   const chipDays = daysBetween(range.from, range.to);
   const historyDays = daysBetween(win.from, win.today);
   const byDate = new Map(entries.map((e) => [e.date, e]));
   const target = timesOf(goal);
-  const weekCount = entries.filter((e) => e.date >= win.weekStart).length;
+  const periodStart =
+    model === "MONTHLY_COUNT" ? win.monthStart : win.weekStart;
+  const periodCount = entries.filter((e) => e.date >= periodStart).length;
 
-  const status = weekly
-    ? `${weekCount}/${target} this week` +
-      (weekCount >= target ? " · done" : "")
+  const status = counted
+    ? `${periodCount}/${target} this ${PERIOD_LABEL[periodOf(goal)]}` +
+      (periodCount >= target ? " · done" : "")
     : byDate.has(win.today)
       ? "Done today"
       : "Not done today";
@@ -56,7 +59,7 @@ export default function LogGoalCard({
               }
               onClick={() => onToggle(goal.id, d, entry)}
             >
-              {dayLabel(d, win.today, !weekly)}
+              {dayLabel(d, win.today, !counted)}
             </button>
           );
         })}
