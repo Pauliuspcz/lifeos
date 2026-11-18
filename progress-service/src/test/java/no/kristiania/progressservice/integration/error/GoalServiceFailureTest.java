@@ -51,6 +51,14 @@ class GoalServiceFailureTest extends AbstractProgressApiTest {
     }
 
     @Test
+    void post_goalServiceRejectsRequest_returns503() throws Exception {
+        when(goalClient.getGoal(GOAL_ID)).thenThrow(HttpClientErrorException.create(
+                HttpStatus.UNAUTHORIZED, "Unauthorized", new HttpHeaders(), null, null));
+
+        postProgress(USER, GOAL_ID, TODAY).andExpect(status().isServiceUnavailable());
+    }
+
+    @Test
     void post_archivedGoal_returns409() throws Exception {
         goalHasStatus(GOAL_ID, "ARCHIVED");
 

@@ -45,6 +45,9 @@ public class ProgressService {
             return goalClient.getGoal(goalId);
         } catch (HttpClientErrorException.NotFound e) {
             throw new GoalNotFoundException(goalId);
+        } catch (HttpClientErrorException e) {
+            log.error("goal-service rejected the request with {}", e.getStatusCode(), e);
+            throw new GoalUnavailableException();
         } catch (ResourceAccessException | HttpServerErrorException e) {
             log.error("goal-service unavailable", e);
             throw new GoalUnavailableException();

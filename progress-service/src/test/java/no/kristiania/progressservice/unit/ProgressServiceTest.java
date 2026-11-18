@@ -8,6 +8,7 @@ import no.kristiania.progressservice.progress.ProgressService;
 import no.kristiania.progressservice.progress.dto.CreateProgressRequest;
 import no.kristiania.progressservice.progress.dto.DateRange;
 import no.kristiania.progressservice.progress.dto.GoalProgressSummary;
+import no.kristiania.progressservice.progress.exceptions.AmountRequiredException;
 import no.kristiania.progressservice.progress.exceptions.LogDateOutsideWindowException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,13 +22,12 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ProgressServiceTest {
@@ -63,6 +63,10 @@ class ProgressServiceTest {
 
     private static CreateProgressRequest log(LocalDate date) {
         return new CreateProgressRequest(GOAL_ID, date, new BigDecimal("5"));
+    }
+
+    private static GoalSummary dailyGoal() {
+        return new GoalSummary(GOAL_ID, "ACTIVE", "CHECK", 1, "DAILY", null, null, TODAY, null);
     }
 
     @Test
@@ -117,5 +121,27 @@ class ProgressServiceTest {
 
         assertThat(summary.total()).isEqualByComparingTo("120");
         assertThat(summary.currentPeriod()).isNull();
+    }
+
+    @Test
+    void createAmountWithoutAmountThrows() {
+        when(goalClient.getGoal(GOAL_ID)).thenReturn(monthlyGoal(TODAY));
+
+        assertThatThrownBy(() -> service.create(USER_ID, new CreateProgressRequest(GOAL_ID, TODAY, null)))
+                .isInstanceOf(AmountRequiredException.class);
+        verify(repo, never()).save(any());
+    }
+
+    @Test
+    void createSameDayTwiceReturnsExisting() {
+        Progress existing = new Progress();
+        when(goalClient.getGoal(GOAL_ID)).thenReturn(dailyGoal());
+        when(repo.findByUserIdAndGoalIdAndDate(USER_ID, GOAL_ID, TODAY)).thenReturn(Optional.of(existing));
+
+        Progress result = service.create(USER_ID, new CreateProgressRequest(GOAL_ID, TODAY, null));
+
+        assertThat(result).isSameAs(existing);
+        verify(repo, never()).save(any());
+        verifyNoInteractions(rabbitTemplate);
     }
 }
