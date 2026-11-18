@@ -8,7 +8,9 @@ type Props = {
 
 export default function StreaksCard({ goals, reports }: Props) {
   const active = goals.filter(
-    (g) => (reports.find((r) => r.goalId === g.id)?.currentStreak ?? 0) > 0,
+    (g) =>
+      g.trackingType === "CHECK" &&
+      (reports.find((r) => r.goalId === g.id)?.currentStreak ?? 0) > 0,
   );
 
   return (

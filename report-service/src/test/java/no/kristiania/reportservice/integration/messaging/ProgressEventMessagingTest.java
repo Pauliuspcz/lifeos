@@ -45,6 +45,15 @@ class ProgressEventMessagingTest extends AbstractIntegrationTest {
         await().during(Duration.ofSeconds(2)).atMost(Duration.ofSeconds(5)).until(() -> countFor(8L) == 1);
     }
 
+    @Test
+    void monthlyEvent_isStored() {
+        rabbitTemplate.convertAndSend(EXCHANGE, ROUTING_KEY_CREATED, new ProgressCreatedEvent(
+                UUID.randomUUID(), 9L, 7L, 33L, LocalDate.of(2026, 11, 8),
+                null, TrackingModel.MONTHLY_COUNT, 1, "MONTHLY", Instant.now()));
+
+        await().atMost(Duration.ofSeconds(10)).until(() -> countFor(9L) == 1);
+    }
+
     private static ProgressCreatedEvent created(long progressId) {
         return new ProgressCreatedEvent(UUID.randomUUID(), progressId, 7L, 33L, LocalDate.of(2026, 11, 8),
                 null, TrackingModel.WEEKLY_COUNT, 2, "WEEKLY", Instant.now());

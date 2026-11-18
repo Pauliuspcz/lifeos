@@ -67,6 +67,13 @@ public class ProgressService {
             throw new LogDateOutsideWindowException(LogWindow.earliest(model, today), today);
         }
 
+        if (cumulative && goal.period() != null) {
+            LocalDate periodStart = AmountPeriod.current(goal.period(), goal.startDate(), today).from();
+            if (request.date().isBefore(periodStart)) {
+                throw new LogDateOutsideWindowException(periodStart, today);
+            }
+        }
+
         if (!cumulative) {
             Optional<Progress> existing = progressRepo
                     .findByUserIdAndGoalIdAndDate(userId, goal.id(), request.date());
@@ -80,8 +87,8 @@ public class ProgressService {
         progress.setTrackingModel(model);
         progress.setAmount(cumulative ? request.amount() : null);
 
-        int targetCount = (model == TrackingModel.WEEKLY_COUNT && goal.timesPerPeriod() != null)
-                ? goal.timesPerPeriod() : 1;
+        boolean counted = model == TrackingModel.WEEKLY_COUNT || model == TrackingModel.MONTHLY_COUNT;
+        int targetCount = (counted && goal.timesPerPeriod() != null) ? goal.timesPerPeriod() : 1;
         // Amount goals count as "days with progress" in report-service
         String eventPeriod = cumulative ? "DAILY" : goal.period();
 
@@ -129,10 +136,12 @@ public class ProgressService {
     public ProgressWindowResponse window(Long userId, Long goalId) {
         LocalDate today = LocalDate.now(clock);
         LocalDate weekStart = LogWindow.weekStart(today);
+        LocalDate monthStart = LogWindow.monthStart(today);
         LocalDate from = today.minusDays(6);
+        LocalDate fetchFrom = monthStart.isBefore(from) ? monthStart : from;
 
         List<ProgressEntryView> entries = progressRepo
-                .findByUserIdAndDateBetweenOrderByDateDesc(userId, from, today).stream()
+                .findByUserIdAndDateBetweenOrderByDateDesc(userId, fetchFrom, today).stream()
                 .filter(p -> goalId == null || p.getGoalId().equals(goalId))
                 .map(p -> ProgressEntryView.from(p,
                         LogWindow.contains(p.getTrackingModel(), today, p.getDate())))
@@ -142,7 +151,7 @@ public class ProgressService {
         for (TrackingModel m : TrackingModel.values()) {
             editable.put(m, new DateRange(LogWindow.earliest(m, today), today));
         }
-        return new ProgressWindowResponse(today, weekStart, from, editable, entries);
+        return new ProgressWindowResponse(today, weekStart, monthStart, from, editable, entries);
     }
 
     public GoalProgressSummary summary(Long userId, Long goalId) {
@@ -151,11 +160,17 @@ public class ProgressService {
             throw new UnsupportedTrackingException("Goal is not an amount goal");
         }
         LocalDate today = LocalDate.now(clock);
-        BigDecimal total = progressRepo.sumAmount(userId, goalId);
-        BigDecimal expected = Pace.expected(
-                goal.targetAmount(), goal.startDate(), goal.targetDate(), today);
+        DateRange current = goal.period() == null ? null
+                : AmountPeriod.current(goal.period(), goal.startDate(), today);
+
+        BigDecimal total = current == null
+                ? progressRepo.sumAmount(userId, goalId)
+                : progressRepo.sumAmountBetween(userId, goalId, current.from(), current.to());
+        LocalDate paceFrom = current == null ? goal.startDate() : current.from();
+        LocalDate paceTo = current == null ? goal.targetDate() : current.to();
+        BigDecimal expected = Pace.expected(goal.targetAmount(), paceFrom, paceTo, today);
         BigDecimal delta = expected == null ? null : total.subtract(expected);
         return new GoalProgressSummary(goalId, total, goal.targetAmount(), goal.unit(),
-                goal.startDate(), goal.targetDate(), expected, delta);
+                goal.startDate(), goal.targetDate(), current, expected, delta);
     }
 }

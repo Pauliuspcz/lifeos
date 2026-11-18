@@ -11,12 +11,16 @@ export default function InsightPage() {
   const { reports, loading, loadError } = useGoalReports(goals);
   const isLoading = goalsLoading || loading;
   const last30Total = reports.reduce((sum, r) => sum + r.last30Days, 0);
-  const activeStreaks = reports.filter((r) => r.currentStreak > 0).length;
+  const checkReports = reports.filter(
+    (r) => goals.find((g) => g.id === r.goalId)?.trackingType === "CHECK",
+  );
+  const activeStreaks = checkReports.filter((r) => r.currentStreak > 0).length;
   const avgCompletion =
-    reports.length === 0
+    checkReports.length === 0
       ? 0
       : Math.round(
-          reports.reduce((sum, r) => sum + r.successRate, 0) / reports.length,
+          checkReports.reduce((sum, r) => sum + r.successRate, 0) /
+            checkReports.length,
         );
   return (
     <>

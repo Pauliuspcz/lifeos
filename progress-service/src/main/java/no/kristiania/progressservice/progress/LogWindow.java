@@ -13,10 +13,18 @@ public final class LogWindow {
         return today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
     }
 
+    public static LocalDate monthStart(LocalDate today) {
+        return today.withDayOfMonth(1);
+    }
+
     public static LocalDate earliest(TrackingModel model, LocalDate today) {
         return switch (model) {
-            case DAILY_CHECK -> today.minusDays(2);
-            case WEEKLY_COUNT, CUMULATIVE_SUM -> weekStart(today);
+            case DAILY_CHECK, CUMULATIVE_SUM -> today.minusDays(2);
+            case WEEKLY_COUNT -> weekStart(today);
+            case MONTHLY_COUNT -> {
+                LocalDate weekAgo = today.minusDays(6);
+                yield monthStart(today).isAfter(weekAgo) ? monthStart(today) : weekAgo;
+            }
         };
     }
 
