@@ -5,6 +5,7 @@ import { DIFFICULTY_LABEL, describeTemplate } from "../../templateDisplay";
 import type { Category, Direction, Template } from "../../types";
 import GoalIcon from "../GoalIcon";
 import WizardProgress from "../WizardProgress";
+import TemplateBadges from "../TemplateBadges";
 
 type Props = {
   area: Category;
@@ -54,6 +55,7 @@ export default function TemplateStep({
               <span className="muted">{DIFFICULTY_LABEL[t.difficulty]}</span>
             )}
             {t.outdoor && <span className="muted">Outdoor</span>}
+            <TemplateBadges template={t} />
           </button>
         ))}
       </div>
