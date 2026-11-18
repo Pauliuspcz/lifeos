@@ -8,6 +8,12 @@ import GoalWizard from "../features/goals/catalog/components/GoalWizard";
 import GoalList from "../features/goals/components/GoalList";
 import { listProgressForGoal } from "../features/progress";
 import { Check } from "lucide-react";
+import {
+  RelationHints,
+  titleLookup,
+  toGoalRef,
+  useRelationHints,
+} from "../features/relations";
 
 export default function GoalsPage() {
   const navigate = useNavigate();
@@ -23,6 +29,12 @@ export default function GoalsPage() {
     unarchiveGoal,
     removeGoal,
   } = useGoals(tab);
+
+  const hints = useRelationHints(
+    goals.map(toGoalRef),
+    null,
+    tab === "ACTIVE" && goals.length > 0,
+  );
 
   async function run(action: () => Promise<void>) {
     setActionError("");
@@ -48,6 +60,9 @@ export default function GoalsPage() {
       <Topbar />
       <div className="page">
         <h1>Goals</h1>
+        {tab === "ACTIVE" && (
+          <RelationHints hints={hints} titleOf={titleLookup(goals)} max={3} />
+        )}
         {notice && (
           <p className="notice" role="status">
             {notice} <Check size={18} />

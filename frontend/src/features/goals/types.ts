@@ -29,6 +29,8 @@ export type Goal = {
   createdAt: string;
   updatedAt: string;
   archivedAt: string | null;
+  templateCode?: string | null;
+  directionCode?: string | null;
 };
 
 export type CreateGoalRequest = {

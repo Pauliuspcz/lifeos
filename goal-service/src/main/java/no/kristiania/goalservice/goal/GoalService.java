@@ -1,6 +1,6 @@
 package no.kristiania.goalservice.goal;
 
-import no.kristiania.goalservice.catalog.CategoryRepository;
+import no.kristiania.goalservice.catalog.category.CategoryRepository;
 import no.kristiania.goalservice.catalog.GoalTemplate;
 import no.kristiania.goalservice.catalog.GoalTemplateRepository;
 import no.kristiania.goalservice.goal.dto.CreateGoalRequest;

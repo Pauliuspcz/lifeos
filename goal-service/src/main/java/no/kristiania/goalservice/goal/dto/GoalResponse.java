@@ -28,6 +28,8 @@ public record GoalResponse(
         String color,
         Long categoryId,
         Long templateId,
+        String templateCode,
+        String directionCode,
         GoalStatus status,
         Long version,
         Instant createdAt,
@@ -35,11 +37,16 @@ public record GoalResponse(
         Instant archivedAt
 ) {
     public static GoalResponse from(Goal g) {
+        return from(g, null, null);
+    }
+
+    public static GoalResponse from(Goal g, String templateCode, String directionCode) {
         return new GoalResponse(
                 g.getId(), g.getTitle(), g.getDescription(), g.getTrackingType(),
                 g.getPeriod(), g.getTimesPerPeriod(), g.getTargetAmount(), g.getUnit(),
                 g.getTargetTime(), g.getStartDate(), g.getTargetDate(), g.isOutdoor(),
                 g.getMotivation(), g.getIconKey(), g.getColor(), g.getCategoryId(), g.getTemplateId(),
+                templateCode, directionCode,
                 g.getStatus(), g.getVersion(), g.getCreatedAt(), g.getUpdatedAt(), g.getArchivedAt());
     }
 }

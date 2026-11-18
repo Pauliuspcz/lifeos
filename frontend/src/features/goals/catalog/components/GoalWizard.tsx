@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Category, Direction, Template } from "../types";
-import { CreateGoalRequest } from "../../types";
+import { CreateGoalRequest, Goal } from "../../types";
 import AreaStep from "./steps/AreaStep";
 import FocusStep from "./steps/FocusStep";
 import TemplateStep from "./steps/TemplateStep";
@@ -21,6 +21,7 @@ type WizardState =
 type Props = {
   title: string;
   variant: "page" | "dialog";
+  activeGoals?: Goal[];
   onClose?: () => void;
   onCreate: (req: CreateGoalRequest) => Promise<void>;
   onDone?: () => void;
@@ -29,6 +30,7 @@ type Props = {
 export default function GoalWizard({
   title,
   variant,
+  activeGoals,
   onClose,
   onCreate,
   onDone,
@@ -100,6 +102,8 @@ export default function GoalWizard({
       <CustomizeStep
         area={state.area}
         template={state.template}
+        direction={state.direction}
+        activeGoals={activeGoals}
         onCreate={onCreate}
         onDone={onDone}
       />

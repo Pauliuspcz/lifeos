@@ -23,6 +23,7 @@ export default function GoalsCard({
 }: Props) {
   const [wizardKey, setWizardKey] = useState(0);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const [notice, setNotice] = useState("");
 
   async function handleArchive(goalId: number) {
     try {
@@ -31,8 +32,6 @@ export default function GoalsCard({
       alert((err as Error).message);
     }
   }
-
-  const [notice, setNotice] = useState("");
 
   function handleCreated() {
     dialogRef.current?.close();
@@ -108,6 +107,7 @@ export default function GoalsCard({
           key={wizardKey}
           variant="dialog"
           title="New goal"
+          activeGoals={goals}
           onClose={() => dialogRef.current?.close()}
           onCreate={onCreate}
           onDone={handleCreated}
