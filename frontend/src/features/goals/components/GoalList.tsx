@@ -32,7 +32,6 @@ export default function GoalList({
           className="goal-row"
           key={g.id}
           style={{
-            width: "100px",
             borderLeft: `4px solid ${g.color ?? "#ccc"}`,
           }}
         >

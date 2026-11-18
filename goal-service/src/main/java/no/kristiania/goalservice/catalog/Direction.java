@@ -6,9 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Immutable;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 @Entity
 @Immutable
 @Table(name = "directions")
@@ -18,6 +15,9 @@ public class Direction {
 
     @Id
     private Long id;
+
+    @Column(name = "category_id")
+    private Long categoryId;
 
     private String code;
     private String name;
@@ -30,11 +30,4 @@ public class Direction {
 
     @Column(name = "sort_order")
     private int sortOrder;
-
-    @Immutable
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "direction_templates",
-            joinColumns = @JoinColumn(name = "direction_id"),
-            inverseJoinColumns = @JoinColumn(name = "template_id"))
-    private Set<GoalTemplate> templates = new LinkedHashSet<>();
 }

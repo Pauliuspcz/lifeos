@@ -28,11 +28,18 @@ public class CatalogService {
         return directions.findAllByOrderBySortOrderAsc();
     }
 
+    public List<Direction> listDirectionsForCategory(Long categoryId) {
+        if (!categories.existsById(categoryId)) {
+            throw new CatalogItemNotFoundException("Category", categoryId);
+        }
+        return directions.findAllByCategoryIdOrderBySortOrderAsc(categoryId);
+    }
+
     public List<GoalTemplate> listTemplatesForDirection(Long directionId) {
         if (!directions.existsById(directionId)) {
             throw new CatalogItemNotFoundException("Direction", directionId);
         }
-        return templates.findActiveByDirectionId(directionId);
+        return templates.findAllByDirectionIdAndActiveTrueOrderBySortOrderAsc(directionId);
     }
 
     public List<GoalTemplate> listTemplatesForCategory(Long categoryId) {

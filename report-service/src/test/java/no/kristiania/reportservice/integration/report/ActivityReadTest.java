@@ -40,6 +40,19 @@ class ActivityReadTest extends AbstractReportApiTest {
                 .andExpect(jsonPath("$.days.length()").value(expectedDays));
     }
 
+
+    @Test
+    void get_severalEntriesSameGoalAndDay_countOnce() throws Exception {
+        LocalDate today = LocalDate.now();
+        insertRecord(USER, 10L, today);
+        insertRecord(USER, 10L, today);
+
+        getActivity(USER)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalCheckins").value(1))
+                .andExpect(jsonPath("$.days[-1].count").value(1));
+    }
+
     @Test
     void get_sameData_returns304() throws Exception {
         insertRecord(USER, 10L, LocalDate.now());

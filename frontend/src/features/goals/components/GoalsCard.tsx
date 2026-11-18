@@ -50,7 +50,11 @@ export default function GoalsCard({
           <p className="muted">No goals created yet.</p>
         )}
         {goals.map((g) => (
-          <div className="goal-row" key={g.id}>
+          <div
+            className="goal-row"
+            key={g.id}
+            style={{ borderLeft: `4px solid ${g.color ?? "#ccc"}` }}
+          >
             <div className="goal-top">
               <span>{g.title}</span>
               <span className="muted">{describeGoal(g)}</span>
@@ -63,7 +67,7 @@ export default function GoalsCard({
                 ×
               </button>
             </div>
-            {countFor && g.trackingType === "COUNT" && g.timesPerPeriod && (
+            {countFor && g.trackingType === "CHECK" && g.timesPerPeriod && (
               <div className="progress">
                 <div
                   className="progress-fill"
@@ -73,15 +77,9 @@ export default function GoalsCard({
                 />
               </div>
             )}
-            {(g.description ||
-              (g.trackingType === "COUNT" && g.amountPerSession !== null)) && (
+            {g.description && (
               <div className="goal-foot">
                 <span>{g.description}</span>
-                {g.trackingType === "COUNT" && g.amountPerSession !== null && (
-                  <span>
-                    {g.amountPerSession} {g.unit}
-                  </span>
-                )}
               </div>
             )}
           </div>

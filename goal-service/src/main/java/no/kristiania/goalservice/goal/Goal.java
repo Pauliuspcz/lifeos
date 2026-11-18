@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import no.kristiania.goalservice.goal.enums.GoalPeriod;
 import no.kristiania.goalservice.goal.enums.GoalStatus;
-import no.kristiania.goalservice.goal.enums.GoalType;
 import no.kristiania.goalservice.goal.enums.TrackingType;
 
 import java.math.BigDecimal;
@@ -35,22 +34,48 @@ public class Goal {
     private String description;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "tracking_type", nullable = false)
+    private TrackingType trackingType = TrackingType.CHECK;
+
+    @Enumerated(EnumType.STRING)
     private GoalPeriod period;
 
     @Column(name = "times_per_period")
     private Integer timesPerPeriod;
 
-    @Column(name = "amount_per_session")
-    private BigDecimal amountPerSession;
+    @Column(name = "target_amount")
+    private BigDecimal targetAmount;
 
     private String unit;
+
+    @Column(name = "target_time")
+    private LocalTime targetTime;
+
+    @Column(name = "start_date")
+    private LocalDate startDate;
+
+    @Column(name = "target_date")
+    private LocalDate targetDate;
+
+    @Column(nullable = false)
+    private boolean outdoor;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private GoalStatus status = GoalStatus.ACTIVE;
 
+    @Column(name = "category_id")
+    private Long categoryId;
+
     @Column(name = "template_id")
     private Long templateId;
+
+    private String motivation;
+
+    @Column(name = "icon_key")
+    private String iconKey;
+
+    private String color;
 
     @Version
     private Long version;
@@ -63,34 +88,6 @@ public class Goal {
 
     @Column(name = "archived_at")
     private Instant archivedAt;
-
-    @Enumerated(EnumType.STRING) @Column(name = "goal_type", nullable = false)
-    private GoalType goalType = GoalType.HABIT;
-
-    @Enumerated(EnumType.STRING) @Column(name = "tracking_type", nullable = false)
-    private TrackingType trackingType = TrackingType.COUNT;
-
-    @Column(name = "category_id")
-    private Long categoryId;
-
-    @Column(name = "target_time")
-    private LocalTime targetTime;
-
-    @Column(name = "start_date")
-    private LocalDate startDate;
-
-    @Column(name = "target_date")
-    private LocalDate targetDate;
-
-    private String motivation;
-
-    @Column(name = "icon_key")
-    private String iconKey;
-
-    private String color;
-
-    @Column(nullable = false)
-    private boolean outdoor;
 
     @PrePersist
     protected void onCreate() {

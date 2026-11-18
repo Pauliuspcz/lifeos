@@ -1,5 +1,10 @@
 import { request } from "../../shared/api/client";
-import type { CreateProgressRequest, Progress, ProgressWindow } from "./types";
+import type {
+  CreateProgressRequest,
+  GoalProgressSummary,
+  Progress,
+  ProgressWindow,
+} from "./types";
 import { progressEndpoints } from "./endpoints";
 
 export const listProgress = () =>
@@ -18,6 +23,14 @@ export const listProgressForGoal = (goalId: number) =>
   request<Progress[]>(
     "GET",
     progressEndpoints.forGoal(goalId),
+    undefined,
+    true,
+  );
+
+export const fetchGoalSummary = (goalId: number) =>
+  request<GoalProgressSummary>(
+    "GET",
+    progressEndpoints.summary(goalId),
     undefined,
     true,
   );

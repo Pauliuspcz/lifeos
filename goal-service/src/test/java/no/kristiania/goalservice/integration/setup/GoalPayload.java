@@ -12,7 +12,8 @@ public final class GoalPayload {
         return new GoalPayload()
                 .with("title", "Run").with("description", "Morning runs")
                 .with("period", "WEEKLY").with("timesPerPeriod", 3)
-                .with("amountPerSession", 5.0).with("unit", "km");
+                .with("targetAmount", 5.0).with("unit", "km")
+                .with("categoryId", 1);
     }
 
     public GoalPayload with(String field, Object value) { fields.put(field, value); return this; }

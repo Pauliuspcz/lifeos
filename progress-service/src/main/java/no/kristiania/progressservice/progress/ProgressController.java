@@ -1,6 +1,7 @@
 package no.kristiania.progressservice.progress;
 import jakarta.validation.Valid;
 import no.kristiania.progressservice.progress.dto.CreateProgressRequest;
+import no.kristiania.progressservice.progress.dto.GoalProgressSummary;
 import no.kristiania.progressservice.progress.dto.ProgressResponse;
 import no.kristiania.progressservice.progress.dto.ProgressWindowResponse;
 import org.springframework.http.HttpStatus;
@@ -40,5 +41,11 @@ public class ProgressController {
     public ProgressWindowResponse window(@AuthenticationPrincipal Long userId,
                                          @RequestParam(required = false) Long goalId) {
         return progressService.window(userId, goalId);
+    }
+
+    @GetMapping("/summary")
+    public GoalProgressSummary summary(@AuthenticationPrincipal Long userId,
+                                       @RequestParam Long goalId) {
+        return progressService.summary(userId, goalId);
     }
 }

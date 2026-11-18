@@ -9,6 +9,7 @@ import {
   useProgressWindow,
   type ProgressEntry,
 } from "../features/progress";
+import AmountLogCard from "../features/progress/components/AmountLogCard";
 
 export default function LogPage() {
   const {
@@ -20,18 +21,25 @@ export default function LogPage() {
   const [actionError, setActionError] = useState("");
   const [busy, setBusy] = useState(false);
 
-  async function toggle(goalId: number, date: string, entry?: ProgressEntry) {
+  async function run(action: () => Promise<void>) {
     setActionError("");
     setBusy(true);
     try {
-      if (entry) await unlogDay(entry.id);
-      else await logDay(goalId, date);
+      await action();
     } catch (err) {
       setActionError((err as Error).message || "Something went wrong");
     } finally {
       setBusy(false);
     }
   }
+
+  const toggle = (goalId: number, date: string, entry?: ProgressEntry) =>
+    run(() => (entry ? unlogDay(entry.id) : logDay(goalId, date)));
+
+  const logAmount = (goalId: number, date: string, amount: number) =>
+    run(() => logDay(goalId, date, amount));
+
+  const removeEntry = (id: number) => run(() => unlogDay(id));
 
   return (
     <>
@@ -64,13 +72,27 @@ export default function LogPage() {
               </div>
             );
           }
+          const goalEntries = data.entries.filter((e) => e.goalId === g.id);
+          if (model === "CUMULATIVE_SUM") {
+            return (
+              <AmountLogCard
+                key={g.id}
+                goal={g}
+                win={data}
+                entries={goalEntries}
+                busy={busy}
+                onLog={logAmount}
+                onUnlog={removeEntry}
+              />
+            );
+          }
           return (
             <LogGoalCard
               key={g.id}
               goal={g}
               model={model}
               win={data}
-              entries={data.entries.filter((e) => e.goalId === g.id)}
+              entries={goalEntries}
               busy={busy}
               onToggle={toggle}
             />

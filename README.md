@@ -10,6 +10,7 @@ behind a Spring Cloud Gateway with Consul for service discovery and configuratio
 synchronously over REST and asynchronously through RabbitMQ.
 
 **What a user can do:**
+
 - Register and log in with email/password or Google
 - Create custom goals or choose from premade templates, then edit, archive or delete them
 - Check in on today's goals and log progress for earlier days
@@ -20,13 +21,13 @@ synchronously over REST and asynchronously through RabbitMQ.
 ## Contents
 
 - [Quick start](#quick-start)
-    - [Other ways to run](#other-ways-to-run)
-    - [Ports](#ports)
+  - [Other ways to run](#other-ways-to-run)
+  - [Ports](#ports)
 - [Test credentials and seed data](#test-credentials-and-seed-data)
 - [Architecture](#architecture)
-    - [Services](#services)
-    - [Communication](#communication)
-    - [Gateway, discovery, config, scaling](#gateway-discovery-config-scaling)
+  - [Services](#services)
+  - [Communication](#communication)
+  - [Gateway, discovery, config, scaling](#gateway-discovery-config-scaling)
 - [User stories (how to test them)](#user-stories-how-to-test-them)
 - [API (Postman)](#api-postman)
 - [Scope changes](#scope-changes)
@@ -44,13 +45,15 @@ Java, Maven and Node all run inside the containers.
    Google login needs your own Google client ID and is optional; email/password login works without it.
 
 3. Build and start everything:
+
 ```bash
 docker compose up -d --build
 ```
+
 The first build takes a few minutes (Maven and npm download dependencies).
 
 4. Wait until all services show as passing in the Consul UI at: http://localhost:8500
-(about 30–60 seconds after the containers start). Until then the gateway may answer `503`.
+   (about 30–60 seconds after the containers start). Until then the gateway may answer `503`.
 
 5. Open http://localhost:5173 and log in with `demo@lifeos.no` / `demo1234` (see [Test credentials](#test-credentials-and-seed-data)).
 
@@ -90,7 +93,7 @@ Requires JDK 21.
 ### Ports
 
 | What        | URL/PORT                                                              |
-|-------------|-----------------------------------------------------------------------|
+| ----------- | --------------------------------------------------------------------- |
 | Frontend    | http://localhost:5173                                                 |
 | API gateway | http://localhost:8100                                                 |
 | Consul UI   | http://localhost:8500                                                 |
@@ -104,14 +107,15 @@ All seed data is inserted automatically by Flyway migrations on first startup. N
 **Test user**
 
 | Email            | Password   |
-|------------------|------------|
+| ---------------- | ---------- |
 | `demo@lifeos.no` | `demo1234` |
 
 You can also register a new user on the login page.
 
 **Seeded data**
+
 - Test user: `user-service/.../V004__seed_demo_user.sql` (password stored as a BCrypt hash).
-- Goal catalog: 6 categories, 7 directions and 17 habit templates (`goal-service/.../V005__seed_catelog.sql`).
+- Goal catalog:
 - TODO: demo habits and check-ins for the test user.
 
 **Dev-only values:** `.env.example`, the test user and the RSA key pair are public on purpose so the project
@@ -121,6 +125,7 @@ runs from a clean clone. Any real deployment must use its own passwords and gene
 To start over with a clean database: `docker compose down -v`, then `docker compose up -d --build`.
 
 ## Architecture
+
 LifeOS consists of five Spring Boot microservices, each owning its own PostgreSQL database.
 The React frontend talks only to the API gateway, which routes requests to the service instances it finds in Consul.
 Progress-service calls goal-service synchronously to check a goal before logging progress, and publishes
@@ -128,18 +133,18 @@ events to RabbitMQ that report-service consumes asynchronously to build its stat
 Goal-service publishes an event when a goal is marked as outdoor, which recommendation-service uses to decide
 who gets a weather recommendation. Recommendation-service fetches the weather from the external Open-Meteo API.
 
-
 ![LifeOS Microservices Architecture](docs/architecture.png)
 
 ### Services
-| Service          | Container Port | Responsibility                                                        | Database                 | Instances                | Docs                               |
-|------------------|----------------|-----------------------------------------------------------------------|--------------------------|--------------------------|------------------------------------|
-| user-service           | 8080 | Register, login (email/password + Google), issues JWT, user profile                                  | `user_db`                | 1                        | [README](user-service/README.md)   |
-| goal-service           | 8081 | User goals, template catalog, publishes outdoor-goal events                                          | `goal_db`                | 1                        | [README](goal-service/README.md)   |
-| progress-service       | 8082 | Check-ins / logged progress, publishes progress events                                               | `progress_db`            | 2                        | -                                  |
-| report-service         | 8083 | Consumes progress events, computes streak, completion rate, history                                  | `report_db`              | 2                        | [README](report-service/README.md) |
-| recommendation-service | 8084 | Weather rating for outdoor goals (Open-Meteo, cached), complementary goal suggestions, consumes outdoor-goal events | `recommendation_db`      | 1                        | -                                  |
-| gateway                | 8100 | Single entry point, routes `/auth`, `/profile`, `/api/goal`, `/api/catalog`, `/api/progress`, `/api/reports`, `/api/recommendations` | —                        | 1                        | -                                  |
+
+| Service                | Container Port | Responsibility                                                                                                                       | Database            | Instances | Docs                               |
+| ---------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------- | --------- | ---------------------------------- |
+| user-service           | 8080           | Register, login (email/password + Google), issues JWT, user profile                                                                  | `user_db`           | 1         | [README](user-service/README.md)   |
+| goal-service           | 8081           | User goals, template catalog, publishes outdoor-goal events                                                                          | `goal_db`           | 1         | [README](goal-service/README.md)   |
+| progress-service       | 8082           | Check-ins / logged progress, publishes progress events                                                                               | `progress_db`       | 2         | -                                  |
+| report-service         | 8083           | Consumes progress events, computes streak, completion rate, history                                                                  | `report_db`         | 2         | [README](report-service/README.md) |
+| recommendation-service | 8084           | Weather rating for outdoor goals (Open-Meteo, cached), complementary goal suggestions, consumes outdoor-goal events                  | `recommendation_db` | 1         | -                                  |
+| gateway                | 8100           | Single entry point, routes `/auth`, `/profile`, `/api/goal`, `/api/catalog`, `/api/progress`, `/api/reports`, `/api/recommendations` | —                   | 1         | -                                  |
 
 User-service signs the JWT with the private key. Every other service validates it itself with the public key,
 so user-service is only needed to log in, not on every request.
@@ -147,6 +152,7 @@ so user-service is only needed to log in, not on every request.
 ### Communication
 
 **Synchronous (REST)**
+
 - **Frontend -> gateway -> services:** every request carries the user's JWT (`Authorization: Bearer`).
   The gateway looks up the service in Consul and load-balances between instances.
 - **progress-service -> goal-service:** before saving a check-in, progress calls `GET /api/goal/{id}` and forwards the
@@ -158,17 +164,18 @@ so user-service is only needed to log in, not on every request.
   (rounded to 1 decimal): fresh for 10 minutes, and if Open-Meteo is down a stale value up to 3 hours old is returned
   with `stale: true`. With nothing usable in the cache the endpoint answers `503`.
 
-
 **Asynchronous (RabbitMQ)**
 
-*Progress -> report*
+_Progress -> report_
+
 - progress-service publishes `progress.created` and `progress.deleted` events to the topic exchange `lifeos.progress`.
 - report-service consumes them from its own durable queues (`report.progress.created`, `report.progress.deleted`)
   and keeps its own copy of the data, which it uses to compute statistics. It never calls the other services.
 - Events carry a unique `eventId`, so a redelivered event is not counted twice.
 - With two report instances, each event is processed by only one of them (competing consumers).
 
-*Goal -> recommendation*
+_Goal -> recommendation_
+
 - goal-service publishes `goal.outdoor.changed` (`goalId`, `userId`, `outdoor`) to the topic exchange `lifeos.goal`
   when an outdoor goal is created, when the outdoor flag is changed, and when an outdoor goal is archived, unarchived or deleted.
 - The event is sent only after the database transaction has committed, so a change that is rolled back never produces an event.
@@ -203,26 +210,28 @@ so user-service is only needed to log in, not on every request.
 
 ## Decisions, assumptions and simplifications
 
-| Decision                                                   | Why |
-|------------------------------------------------------------|---|
-| Database per service, no shared tables                     | Services can change their schema and be deployed independently. |
-| JWT (RS256) validated in every service, not in the gateway | Only user-service holds the private key; services trust nothing they haven't checked themselves. |
-| Progress -> report via events, report keeps its own copy   | Report keeps working when progress is down, and statistics don't slow down check-ins. |
+| Decision                                                   | Why                                                                                                |
+| ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Database per service, no shared tables                     | Services can change their schema and be deployed independently.                                    |
+| JWT (RS256) validated in every service, not in the gateway | Only user-service holds the private key; services trust nothing they haven't checked themselves.   |
+| Progress -> report via events, report keeps its own copy   | Report keeps working when progress is down, and statistics don't slow down check-ins.              |
 | Goal settings travel inside progress events                | Report never calls goal-service. Downside: a goal edit only reaches report with the next check-in. |
-| Progress -> goal is synchronous and fail-closed (`503`)    | A check-in needs the goal's ownership and target at write time (consistency over availability). |
-| Outdoor goals sent as events to recommendation-service     | The weather endpoint never calls goal-service. |
-| Goal events published after commit                         | A rolled-back change never produces an event. |
-| Open-Meteo instead of OpenWeather                          | No API key, so the feature works from a clean clone. |
-| Stale weather (max 3 h) instead of an error                | Availability over freshness when Open-Meteo is down. |
-| Weather endpoint requires JWT                              | Open-Meteo's free quota is per server IP; an open endpoint could burn it. |
-| Optimistic locking on goals (`@Version`)                   | Two parallel edits can't silently overwrite each other. |
+| Progress -> goal is synchronous and fail-closed (`503`)    | A check-in needs the goal's ownership and target at write time (consistency over availability).    |
+| Outdoor goals sent as events to recommendation-service     | The weather endpoint never calls goal-service.                                                     |
+| Goal events published after commit                         | A rolled-back change never produces an event.                                                      |
+| Open-Meteo instead of OpenWeather                          | No API key, so the feature works from a clean clone.                                               |
+| Stale weather (max 3 h) instead of an error                | Availability over freshness when Open-Meteo is down.                                               |
+| Weather endpoint requires JWT                              | Open-Meteo's free quota is per server IP; an open endpoint could burn it.                          |
+| Optimistic locking on goals (`@Version`)                   | Two parallel edits can't silently overwrite each other.                                            |
 
 ### Assumptions
+
 - All users are in Norway: containers run with `TZ=Europe/Oslo`, and check-in dates come from the browser's local date.
 - Location for weather comes from the browser. If the user denies it, the weather is simply not shown.
 - Dev-only secrets in `.env.example` are never used in a real deployment (see [Test credentials](#test-credentials-and-seed-data)).
 
 ### Simplifications and known limitations
+
 - No outbox or dead-letter queue: if a service crashes between saving and publishing, the event is lost.
 - Progress events go on two queues and report runs two instances, so a very fast check-in + undo can be processed in the wrong order.
 - The progress -> goal call has no timeout or circuit breaker yet.
@@ -233,17 +242,21 @@ so user-service is only needed to log in, not on every request.
 - Google login needs your own Google client ID.
 
 ## Scope changes
+
 **Changed**
+
 - **Weather integration:** planned as a Python service using OpenWeather. Built as a Java recommendation-service using Open-Meteo,
   because Open-Meteo needs no API key (it runs from a clean clone) and the team could reuse the patterns from the other Spring services.
 - **Goal suggestions:** lecturer feedback asked for something unique. We built complement suggestions (e.g. training -> sleep, food)
   as fixed rules in recommendation-service. Conflict warnings were left out.
 
 **Added beyond the plan**
+
 - API gateway, Consul discovery and central config, and two instances of progress and report (exam requirements for C–A).
 - Outdoor goals: goal-service publishes an event, and recommendation-service shows a weather rating only to users with an outdoor goal.
 
 **Reduced or left out**
+
 - Amount, duration and time targets: goals can be created with these types, but progress logs them as simple check-ins.
 - Separate dashboard views for habits and one-time goals.
 - "Best case" items from the plan: photo proof, PWA, Garmin/Google Fit, cloud deployment.

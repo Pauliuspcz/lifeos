@@ -32,3 +32,14 @@ export type ProgressWindow = {
   editable: Record<TrackingModel, DateRange>;
   entries: ProgressEntry[];
 };
+
+export type GoalProgressSummary = {
+  goalId: number;
+  total: number;
+  target: number | null;
+  unit: string | null;
+  startDate: string | null;
+  targetDate: string | null;
+  expected: number | null;
+  delta: number | null;
+};

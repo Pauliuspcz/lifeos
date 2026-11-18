@@ -1,4 +1,5 @@
 package no.kristiania.progressservice.progress;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.kristiania.progressservice.client.GoalClient;
@@ -7,6 +8,7 @@ import no.kristiania.progressservice.client.TrackingModel;
 import no.kristiania.progressservice.config.RabbitConfig;
 import no.kristiania.progressservice.progress.dto.CreateProgressRequest;
 import no.kristiania.progressservice.progress.dto.DateRange;
+import no.kristiania.progressservice.progress.dto.GoalProgressSummary;
 import no.kristiania.progressservice.progress.dto.ProgressEntryView;
 import no.kristiania.progressservice.progress.dto.ProgressWindowResponse;
 import no.kristiania.progressservice.progress.events.ProgressCreatedEvent;
@@ -20,6 +22,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.EnumMap;
@@ -36,7 +39,6 @@ public class ProgressService {
     private final RabbitTemplate rabbitTemplate;
     private final GoalClient goalClient;
     private final Clock clock;
-
 
     private GoalSummary fetchGoal(Long goalId) {
         try {
@@ -55,13 +57,17 @@ public class ProgressService {
             throw new GoalNotActiveException(goal.id());
         }
         TrackingModel model = TrackingModel.from(goal);
+        boolean cumulative = model == TrackingModel.CUMULATIVE_SUM;
+        if (cumulative && request.amount() == null) {
+            throw new AmountRequiredException();
+        }
 
         LocalDate today = LocalDate.now(clock);
         if (!LogWindow.contains(model, today, request.date())) {
             throw new LogDateOutsideWindowException(LogWindow.earliest(model, today), today);
         }
 
-        if (model != TrackingModel.CUMULATIVE_SUM) {
+        if (!cumulative) {
             Optional<Progress> existing = progressRepo
                     .findByUserIdAndGoalIdAndDate(userId, goal.id(), request.date());
             if (existing.isPresent()) return existing.get();
@@ -72,10 +78,12 @@ public class ProgressService {
         progress.setDate(request.date());
         progress.setUserId(userId);
         progress.setTrackingModel(model);
-        progress.setAmount(model == TrackingModel.CUMULATIVE_SUM ? request.amount() : null);
+        progress.setAmount(cumulative ? request.amount() : null);
 
         int targetCount = (model == TrackingModel.WEEKLY_COUNT && goal.timesPerPeriod() != null)
                 ? goal.timesPerPeriod() : 1;
+        // Amount goals count as "days with progress" in report-service
+        String eventPeriod = cumulative ? "DAILY" : goal.period();
 
         Progress saved;
         try {
@@ -84,17 +92,18 @@ public class ProgressService {
             return progressRepo.findByUserIdAndGoalIdAndDate(userId, goal.id(), request.date())
                     .orElseThrow(() -> e);
         }
-        try{
+        try {
             rabbitTemplate.convertAndSend(RabbitConfig.EXCHANGE,
-                    RabbitConfig.ROUTING_KEY_CREATED, ProgressCreatedEvent.from(saved, targetCount, goal.period()));
-        } catch(AmqpException e) {
+                    RabbitConfig.ROUTING_KEY_CREATED,
+                    ProgressCreatedEvent.from(saved, targetCount, eventPeriod));
+        } catch (AmqpException e) {
             log.error("Could not publish ProgressCreatedEvent {}", saved.getEventId(), e);
         }
         return saved;
     }
 
     public List<Progress> findAll(Long userId, Long goalId) {
-        if(goalId == null){
+        if (goalId == null) {
             return progressRepo.findByUserIdOrderByDateDesc(userId);
         }
         return progressRepo.findByGoalIdAndUserIdOrderByDateDesc(goalId, userId);
@@ -109,10 +118,10 @@ public class ProgressService {
                     LogWindow.earliest(progress.getTrackingModel(), today), today);
         }
         progressRepo.delete(progress);
-        try{
+        try {
             rabbitTemplate.convertAndSend(RabbitConfig.EXCHANGE,
                     RabbitConfig.ROUTING_KEY_DELETED, ProgressDeletedEvent.from(progress));
-        }catch (AmqpException e) {
+        } catch (AmqpException e) {
             log.error("Could not publish ProgressDeletedEvent for progress {}", progress.getId(), e);
         }
     }
@@ -136,4 +145,17 @@ public class ProgressService {
         return new ProgressWindowResponse(today, weekStart, from, editable, entries);
     }
 
+    public GoalProgressSummary summary(Long userId, Long goalId) {
+        GoalSummary goal = fetchGoal(goalId);
+        if (TrackingModel.from(goal) != TrackingModel.CUMULATIVE_SUM) {
+            throw new UnsupportedTrackingException("Goal is not an amount goal");
+        }
+        LocalDate today = LocalDate.now(clock);
+        BigDecimal total = progressRepo.sumAmount(userId, goalId);
+        BigDecimal expected = Pace.expected(
+                goal.targetAmount(), goal.startDate(), goal.targetDate(), today);
+        BigDecimal delta = expected == null ? null : total.subtract(expected);
+        return new GoalProgressSummary(goalId, total, goal.targetAmount(), goal.unit(),
+                goal.startDate(), goal.targetDate(), expected, delta);
+    }
 }
