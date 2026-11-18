@@ -5,20 +5,16 @@ import WizardProgress from "../WizardProgress";
 
 type Props = {
   area: Category;
-  onBack: () => void;
   onPick: (direction: Direction) => void;
   onCustom: () => void;
 };
 
-export default function FocusStep({ area, onBack, onPick, onCustom }: Props) {
+export default function FocusStep({ area, onPick, onCustom }: Props) {
   const { directions, loading, loadError } = useCategoryDirections(area.id);
 
   return (
     <div>
       <WizardProgress step={2} color={area.color} />
-      <button type="button" className="btn-outline" onClick={onBack}>
-        ← Back
-      </button>
       <h3 style={{ color: area.color ?? undefined }}>{area.name}</h3>
       <p className="muted">What do you want to change?</p>
       {loading && <p className="muted">Loading…</p>}

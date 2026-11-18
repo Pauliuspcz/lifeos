@@ -31,10 +31,10 @@ export default function AreaStep({ onPick }: Props) {
             onClick={() => onPick(a)}
           >
             <span className="area-head">
+              <strong>{a.name}</strong>
               <span className="area-icon">
                 <GoalIcon name={a.iconKey} size={20} />
               </span>
-              <strong>{a.name}</strong>
             </span>
             {a.description && <span className="muted">{a.description}</span>}
             <span className="muted">{countText(counts[a.id] ?? 0)}</span>

@@ -7,7 +7,6 @@ import WizardProgress from "../WizardProgress";
 type Props = {
   area: Category;
   direction: Direction;
-  onBack: () => void;
   onPick: (template: Template) => void;
   onCustom: () => void;
 };
@@ -15,7 +14,6 @@ type Props = {
 export default function TemplateStep({
   area,
   direction,
-  onBack,
   onPick,
   onCustom,
 }: Props) {
@@ -24,9 +22,6 @@ export default function TemplateStep({
   return (
     <div>
       <WizardProgress step={3} color={area.color} />
-      <button type="button" className="btn-outline" onClick={onBack}>
-        ← Back
-      </button>
       <h3 style={{ color: area.color ?? undefined }}>{direction.name}</h3>
       <p className="muted">Pick a goal to work on over time</p>
       {loading && <p className="muted">Loading…</p>}

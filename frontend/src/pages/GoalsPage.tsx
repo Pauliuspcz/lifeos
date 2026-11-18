@@ -44,11 +44,10 @@ export default function GoalsPage() {
         <h1>Goals</h1>
 
         <section className="goals-box">
-          <div className="box-header">
-            <h2>Create a new goal</h2>
-          </div>
           <GoalWizard
             key={wizardKey}
+            variant="page"
+            title="Create a new goal"
             onCreate={addGoal}
             onDone={handleCreated}
           />

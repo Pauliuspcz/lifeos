@@ -52,14 +52,7 @@ function renderStep(
   template: Template | null,
   onCreate = vi.fn().mockResolvedValue(undefined),
 ) {
-  render(
-    <CustomizeStep
-      area={BODY}
-      template={template}
-      onBack={() => {}}
-      onCreate={onCreate}
-    />,
-  );
+  render(<CustomizeStep area={BODY} template={template} onCreate={onCreate} />);
   return onCreate;
 }
 

@@ -90,18 +90,11 @@ export default function GoalsCard({
         className="goal-dialog"
         onClose={() => setWizardKey((k) => k + 1)}
       >
-        <div className="box-header">
-          <h2>New goal</h2>
-          <button
-            type="button"
-            className="btn-outline"
-            onClick={() => dialogRef.current?.close()}
-          >
-            Close
-          </button>
-        </div>
         <GoalWizard
           key={wizardKey}
+          variant="dialog"
+          title="New goal"
+          onClose={() => dialogRef.current?.close()}
           onCreate={onCreate}
           onDone={() => dialogRef.current?.close()}
         />
