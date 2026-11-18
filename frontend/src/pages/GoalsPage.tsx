@@ -28,6 +28,7 @@ export default function GoalsPage() {
     setActionError("");
     try {
       await action();
+      setWizardKey((k) => k + 1);
     } catch (err) {
       setActionError((err as Error).message || "Something went wrong");
     }
