@@ -16,6 +16,7 @@ function trendLabel(diff: number): string {
 export default function GoalInsightCard({ goal, report }: Props) {
   const period = periodOf(goal);
   const unit = PERIOD_LABEL[period];
+  const isAmount = goal.trackingType === "AMOUNT";
   const last30 = report?.last30Days ?? 0;
   const diff = last30 - (report?.previous30Days ?? 0);
   const total = report?.totalSessions ?? 0;
@@ -42,31 +43,39 @@ export default function GoalInsightCard({ goal, report }: Props) {
     <div className="insight-goal">
       <div className="box-header">
         <h2>{goal.title}</h2>
-        <span className="muted">
-          {streak > 0 ? `${streak} ${streakUnit} in a row` : "No streak yet"}
-        </span>
+        {!isAmount && (
+          <span className="muted">
+            {streak > 0 ? `${streak} ${streakUnit} in a row` : "No streak yet"}
+          </span>
+        )}
       </div>
-      <p>Check-ins: {total}</p>
+      <p>
+        {isAmount ? "Days logged" : "Check-ins"}: {total}
+      </p>
       <p>
         Last 30 days: {last30} ({trendLabel(diff)})
       </p>
-      <p>Completion rate: {successRate}%</p>
-      {suggestionText && <p className="suggestion">{suggestionText}</p>}
-      <p className="muted">Last 12 {unit}s:</p>
-      <div className="history">
-        {history.map((h) => (
-          <div
-            className="week-bar"
-            key={h.periodStart}
-            title={`${h.periodStart}: ${h.count}`}
-          >
-            <div
-              className={"week-fill" + (h.reached ? "" : " missed")}
-              style={{ height: `${(h.count / maxCount) * 100}%` }}
-            />
+      {!isAmount && (
+        <>
+          <p>Completion rate: {successRate}%</p>
+          {suggestionText && <p className="suggestion">{suggestionText}</p>}
+          <p className="muted">Last 12 {unit}s:</p>
+          <div className="history">
+            {history.map((h) => (
+              <div
+                className="week-bar"
+                key={h.periodStart}
+                title={`${h.periodStart}: ${h.count}`}
+              >
+                <div
+                  className={"week-fill" + (h.reached ? "" : " missed")}
+                  style={{ height: `${(h.count / maxCount) * 100}%` }}
+                />
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      )}
       <p>
         Last check-in:
         {lastCheckinLabel(report?.lastDate ?? null)}
