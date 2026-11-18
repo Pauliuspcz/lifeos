@@ -15,8 +15,8 @@ public final class LogWindow {
 
     public static LocalDate earliest(TrackingModel model, LocalDate today) {
         return switch (model) {
-            case DAILY_CHECK -> today.minusDays(2);
-            case WEEKLY_COUNT, CUMULATIVE_SUM -> weekStart(today);
+            case DAILY_CHECK, CUMULATIVE_SUM -> today.minusDays(2);
+            case WEEKLY_COUNT -> weekStart(today);
         };
     }
 

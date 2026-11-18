@@ -67,6 +67,13 @@ public class ProgressService {
             throw new LogDateOutsideWindowException(LogWindow.earliest(model, today), today);
         }
 
+        if (cumulative && goal.period() != null) {
+            LocalDate periodStart = AmountPeriod.current(goal.period(), goal.startDate(), today).from();
+            if (request.date().isBefore(periodStart)) {
+                throw new LogDateOutsideWindowException(periodStart, today);
+            }
+        }
+
         if (!cumulative) {
             Optional<Progress> existing = progressRepo
                     .findByUserIdAndGoalIdAndDate(userId, goal.id(), request.date());

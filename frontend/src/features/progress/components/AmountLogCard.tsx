@@ -4,6 +4,7 @@ import { useGoalSummary } from "../hooks/useGoalSummary";
 import type { ProgressEntry, ProgressWindow } from "../types";
 import { dayLabel, daysBetween } from "../utils/days";
 import { describePace, formatAmount, percent } from "../utils/pace";
+import { format, parseISO } from "date-fns";
 
 type Props = {
   goal: Goal;
@@ -23,14 +24,19 @@ export default function AmountLogCard({
   onUnlog,
 }: Props) {
   const range = win.editable.CUMULATIVE_SUM;
-  const days = daysBetween(range.from, range.to);
   const summary = useGoalSummary(goal.id, win);
+  const periodFrom = summary?.currentPeriod?.from;
+  const inPeriod = (d: string) => !periodFrom || d >= periodFrom;
+  const days = daysBetween(range.from, range.to).filter(inPeriod);
   const [date, setDate] = useState(win.today);
   const [value, setValue] = useState("");
   const [error, setError] = useState("");
 
   const unit = goal.unit ? ` ${goal.unit}` : "";
-  const logged = entries.filter((e) => e.editable);
+  const logged = entries.filter((e) => e.editable && inPeriod(e.date));
+  const periodLabel = summary?.currentPeriod
+    ? `${format(parseISO(summary.currentPeriod.from), "MMM d")} – ${format(parseISO(summary.currentPeriod.to), "MMM d")}`
+    : null;
   const fill = summary ? percent(summary.total, summary.target) : 0;
   const marker =
     summary && summary.expected !== null
@@ -84,8 +90,11 @@ export default function AmountLogCard({
           />
         )}
       </div>
-      {pace && <p className="muted">{pace}</p>}
-
+      {(periodLabel || pace) && (
+        <p className="muted">
+          {[periodLabel, pace].filter(Boolean).join(" · ")}
+        </p>
+      )}
       <div className="day-chips">
         {days.map((d) => (
           <button
