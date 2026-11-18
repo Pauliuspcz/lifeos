@@ -10,7 +10,10 @@ export type Category = {
   sortOrder: number;
 };
 
-export type Direction = Category & { categoryId: number };
+export type Direction = Category & {
+  categoryId: number;
+  iconKey: string | null;
+};
 
 export type Difficulty = "EASY" | "MEDIUM" | "HARD";
 

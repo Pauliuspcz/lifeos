@@ -1,0 +1,91 @@
+import {
+  Accessibility,
+  Activity,
+  Ban,
+  Bed,
+  Book,
+  Brain,
+  Calendar,
+  Circle,
+  Code,
+  Coffee,
+  Droplet,
+  Dumbbell,
+  Footprints,
+  Heart,
+  House,
+  Languages,
+  Leaf,
+  Library,
+  Map as MapIcon,
+  Medal,
+  Moon,
+  Music,
+  PartyPopper,
+  Pen,
+  PenTool,
+  PersonStanding,
+  Phone,
+  PhoneOff,
+  Rocket,
+  Route,
+  Snowflake,
+  Sparkles,
+  Sprout,
+  Sun,
+  TrendingUp,
+  Users,
+  Utensils,
+  type LucideIcon,
+} from "lucide-react";
+
+const ICONS: Record<string, LucideIcon> = {
+  // areas
+  dumbbell: Dumbbell,
+  brain: Brain,
+  sprout: Sprout,
+  home: House,
+  // focuses and templates
+  footprints: Footprints,
+  run: PersonStanding,
+  stretch: Accessibility,
+  leaf: Leaf,
+  moon: Moon,
+  pen: Pen,
+  "pen-tool": PenTool,
+  book: Book,
+  library: Library,
+  code: Code,
+  languages: Languages,
+  music: Music,
+  sparkles: Sparkles,
+  rocket: Rocket,
+  utensils: Utensils,
+  droplet: Droplet,
+  coffee: Coffee,
+  ban: Ban,
+  users: Users,
+  phone: Phone,
+  "phone-off": PhoneOff,
+  "party-popper": PartyPopper,
+  calendar: Calendar,
+  map: MapIcon,
+  route: Route,
+  activity: Activity,
+  "trending-up": TrendingUp,
+  medal: Medal,
+  sun: Sun,
+  snowflake: Snowflake,
+  bed: Bed,
+  heart: Heart,
+};
+
+type Props = {
+  name: string | null | undefined;
+  size?: number;
+};
+
+export default function GoalIcon({ name, size = 20 }: Props) {
+  const Icon = ICONS[name ?? ""] ?? Circle;
+  return <Icon size={size} strokeWidth={1.75} aria-hidden="true" />;
+}

@@ -2,6 +2,7 @@ import type { CreateGoalRequest, Goal } from "../types";
 import { useRef, useState } from "react";
 import { describeGoal } from "../GoalDisplay";
 import GoalWizard from "../catalog/components/GoalWizard";
+import { Check } from "lucide-react";
 
 type Props = {
   goals: Goal[];
@@ -31,6 +32,14 @@ export default function GoalsCard({
     }
   }
 
+  const [notice, setNotice] = useState("");
+
+  function handleCreated() {
+    dialogRef.current?.close();
+    setNotice("Goal created");
+    window.setTimeout(() => setNotice(""), 3000);
+  }
+
   return (
     <>
       <div className="goals-box">
@@ -44,6 +53,11 @@ export default function GoalsCard({
             + New goal
           </button>
         </div>
+        {notice && (
+          <p className="notice" role="status">
+            {notice} <Check size={18} />
+          </p>
+        )}
         {loading && <p className="muted">Loading goals…</p>}
         {loadError && <p className="error">{loadError}</p>}
         {!loading && !loadError && goals.length === 0 && (
@@ -90,20 +104,13 @@ export default function GoalsCard({
         className="goal-dialog"
         onClose={() => setWizardKey((k) => k + 1)}
       >
-        <div className="box-header">
-          <h2>New goal</h2>
-          <button
-            type="button"
-            className="btn-outline"
-            onClick={() => dialogRef.current?.close()}
-          >
-            Close
-          </button>
-        </div>
         <GoalWizard
           key={wizardKey}
+          variant="dialog"
+          title="New goal"
+          onClose={() => dialogRef.current?.close()}
           onCreate={onCreate}
-          onDone={() => dialogRef.current?.close()}
+          onDone={handleCreated}
         />
       </dialog>
     </>

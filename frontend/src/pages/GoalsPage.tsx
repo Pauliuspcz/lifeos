@@ -7,6 +7,7 @@ import { GoalStatus, useGoals } from "../features/goals";
 import GoalWizard from "../features/goals/catalog/components/GoalWizard";
 import GoalList from "../features/goals/components/GoalList";
 import { listProgressForGoal } from "../features/progress";
+import { Check } from "lucide-react";
 
 export default function GoalsPage() {
   const navigate = useNavigate();
@@ -32,9 +33,13 @@ export default function GoalsPage() {
     }
   }
 
+  const [notice, setNotice] = useState("");
+
   function handleCreated() {
     setTab("ACTIVE");
     setWizardKey((k) => k + 1);
+    setNotice("Goal created");
+    window.setTimeout(() => setNotice(""), 3000);
   }
 
   return (
@@ -42,13 +47,16 @@ export default function GoalsPage() {
       <Topbar />
       <div className="page">
         <h1>Goals</h1>
-
+        {notice && (
+          <p className="notice" role="status">
+            {notice} <Check size={18} />
+          </p>
+        )}
         <section className="goals-box">
-          <div className="box-header">
-            <h2>Create a new goal</h2>
-          </div>
           <GoalWizard
             key={wizardKey}
+            variant="page"
+            title="Create a new goal"
             onCreate={addGoal}
             onDone={handleCreated}
           />

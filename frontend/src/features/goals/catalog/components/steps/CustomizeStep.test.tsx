@@ -6,9 +6,9 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ApiError } from "../../../../shared/api/client";
-import { addDays, todayIso } from "../dateUtils";
-import type { Category, Template } from "../types";
+import { ApiError } from "../../../../../shared/api/client";
+import { addDays, todayIso } from "../../dateUtils";
+import type { Category, Template } from "../../types";
 import CustomizeStep from "./CustomizeStep";
 
 afterEach(() => {
@@ -52,14 +52,7 @@ function renderStep(
   template: Template | null,
   onCreate = vi.fn().mockResolvedValue(undefined),
 ) {
-  render(
-    <CustomizeStep
-      area={BODY}
-      template={template}
-      onBack={() => {}}
-      onCreate={onCreate}
-    />,
-  );
+  render(<CustomizeStep area={BODY} template={template} onCreate={onCreate} />);
   return onCreate;
 }
 

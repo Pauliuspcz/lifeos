@@ -1,14 +1,14 @@
 import { useState, type ReactNode, type SubmitEvent } from "react";
-import { ApiError, FieldErrors } from "../../../../shared/api/client";
+import { ApiError, FieldErrors } from "../../../../../shared/api/client";
 import {
   CreateGoalRequest,
   GoalPeriod,
   PERIOD_LABEL,
   TrackingType,
-} from "../../types";
-import { addDays, todayIso } from "../dateUtils";
-import type { Category, Template } from "../types";
-import WizardProgress from "./WizardProgress";
+} from "../../../types";
+import { addDays, todayIso } from "../../dateUtils";
+import type { Category, Template } from "../../types";
+import WizardProgress from "../WizardProgress";
 
 const CHECK_PERIODS: GoalPeriod[] = ["DAILY", "WEEKLY", "MONTHLY"];
 const AMOUNT_PERIODS: GoalPeriod[] = ["WEEKLY", "MONTHLY"];
@@ -23,7 +23,6 @@ type AmountMode = "PERIOD" | "DATE";
 type Props = {
   area: Category;
   template: Template | null;
-  onBack: () => void;
   onCreate: (req: CreateGoalRequest) => Promise<void>;
   onDone?: () => void;
 };
@@ -79,7 +78,6 @@ function Field(props: { label: string; error?: string; children: ReactNode }) {
 export default function CustomizeStep({
   area,
   template,
-  onBack,
   onCreate,
   onDone,
 }: Props) {
@@ -185,9 +183,6 @@ export default function CustomizeStep({
   return (
     <form className="wizard-form" onSubmit={handleSubmit}>
       <WizardProgress step={3} color={area.color} />
-      <button type="button" className="btn-outline" onClick={onBack}>
-        ← Back
-      </button>
       <h3>{template ? template.title : "Create your own goal"}</h3>
       <span
         className="area-chip"

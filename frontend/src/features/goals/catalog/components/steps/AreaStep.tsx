@@ -1,6 +1,9 @@
-import { useAreas } from "../hooks/useAreas";
-import type { Category } from "../types";
-import WizardProgress from "./WizardProgress";
+/*The Area part of picking a goal using our templates*/
+import type { CSSProperties } from "react";
+import { useAreas } from "../../hooks/useAreas";
+import type { Category } from "../../types";
+import GoalIcon from "../GoalIcon";
+import WizardProgress from "../WizardProgress";
 
 type Props = { onPick: (area: Category) => void };
 
@@ -15,7 +18,7 @@ export default function AreaStep({ onPick }: Props) {
   return (
     <div>
       <WizardProgress step={1} />
-      <h3>What do you want to get better at?</h3>
+      <h3>What part of you will change?</h3>
       {loading && <p className="muted">Loading…</p>}
       {loadError && <p className="error">{loadError}</p>}
       <div className="direction-grid area-grid">
@@ -24,10 +27,15 @@ export default function AreaStep({ onPick }: Props) {
             key={a.id}
             type="button"
             className="direction-card area-card"
-            style={{ borderLeft: `4px solid ${a.color ?? "#ccc"}` }}
+            style={{ "--area-color": a.color ?? "#ccc" } as CSSProperties}
             onClick={() => onPick(a)}
           >
-            <strong>{a.name}</strong>
+            <span className="area-head">
+              <strong>{a.name}</strong>
+              <span className="area-icon">
+                <GoalIcon name={a.iconKey} size={20} />
+              </span>
+            </span>
             {a.description && <span className="muted">{a.description}</span>}
             <span className="muted">{countText(counts[a.id] ?? 0)}</span>
           </button>
