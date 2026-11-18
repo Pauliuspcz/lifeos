@@ -1,6 +1,8 @@
+import type { CSSProperties } from "react";
 import { type Goal, PERIOD_LABEL, periodOf, timesOf } from "../../goals";
 import type { ProgressEntry, ProgressWindow, TrackingModel } from "../types";
 import { dayLabel, daysBetween } from "../utils/days";
+import { percent } from "../utils/pace";
 
 type Props = {
   goal: Goal;
@@ -11,6 +13,8 @@ type Props = {
   onToggle: (goalId: number, date: string, entry?: ProgressEntry) => void;
 };
 
+const SEGMENT_MAX = 12;
+
 export default function LogGoalCard({
   goal,
   model,
@@ -19,7 +23,6 @@ export default function LogGoalCard({
   busy,
   onToggle,
 }: Props) {
-  const weekly = model === "WEEKLY_COUNT";
   const counted = model !== "DAILY_CHECK";
   const range = win.editable[model];
   const chipDays = daysBetween(range.from, range.to);
@@ -29,49 +32,82 @@ export default function LogGoalCard({
   const periodStart =
     model === "MONTHLY_COUNT" ? win.monthStart : win.weekStart;
   const periodCount = entries.filter((e) => e.date >= periodStart).length;
+  const done = counted ? periodCount >= target : byDate.has(win.today);
 
   const status = counted
-    ? `${periodCount}/${target} this ${PERIOD_LABEL[periodOf(goal)]}` +
-      (periodCount >= target ? " · done" : "")
-    : byDate.has(win.today)
+    ? `${periodCount}/${target} this ${PERIOD_LABEL[periodOf(goal)]}`
+    : done
       ? "Done today"
       : "Not done today";
 
   return (
-    <div className="log-card">
+    <div
+      className="log-card"
+      style={{ "--goal-color": goal.color ?? undefined } as CSSProperties}
+    >
       <div className="box-header">
         <h2>{goal.title}</h2>
-        <span className="muted">{status}</span>
+        <span className={"log-status" + (done ? " done" : "")}>
+          {done && "✓ "}
+          {status}
+        </span>
       </div>
-      <div className="day-chips">
-        {chipDays.map((d) => {
-          const entry = byDate.get(d);
-          return (
-            <button
-              type="button"
-              key={d}
-              disabled={busy}
-              aria-pressed={entry !== undefined}
-              className={
-                "day-chip" +
-                (entry ? " done" : "") +
-                (d === win.today ? " today" : "")
-              }
-              onClick={() => onToggle(goal.id, d, entry)}
-            >
-              {dayLabel(d, win.today, !counted)}
-            </button>
-          );
-        })}
-      </div>
-      <div className="dots" aria-label="Last 7 days">
-        {historyDays.map((d) => (
-          <span
-            key={d}
-            title={d}
-            className={"dot" + (byDate.has(d) ? " done" : "")}
-          />
+
+      {counted &&
+        (target <= SEGMENT_MAX ? (
+          <div
+            className="segments"
+            role="img"
+            aria-label={`${periodCount} of ${target}`}
+          >
+            {Array.from({ length: target }, (_, i) => (
+              <span
+                key={i}
+                className={"segment" + (i < periodCount ? " filled" : "")}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="progress-bar">
+            <div
+              className="progress-bar-fill"
+              style={{ width: `${percent(periodCount, target)}%` }}
+            />
+          </div>
         ))}
+
+      <div className="log-row">
+        <div className="day-chips">
+          {chipDays.map((d) => {
+            const entry = byDate.get(d);
+            return (
+              <button
+                type="button"
+                key={d}
+                disabled={busy}
+                aria-pressed={entry !== undefined}
+                className={
+                  "day-chip" +
+                  (entry ? " done" : "") +
+                  (d === win.today ? " today" : "")
+                }
+                onClick={() => onToggle(goal.id, d, entry)}
+              >
+                {entry && "✓ "}
+                {dayLabel(d, win.today, !counted)}
+              </button>
+            );
+          })}
+        </div>
+        <div className="dots" role="img" aria-label="Last 7 days">
+          {historyDays.map((d) => (
+            <span
+              key={d}
+              title={d}
+              className={"dot" + (byDate.has(d) ? " done" : "")}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

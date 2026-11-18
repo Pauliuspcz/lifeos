@@ -1,4 +1,3 @@
-import { Archive, ArchiveRestore, Trash2 } from "lucide-react";
 import { useMemo, useState, type CSSProperties } from "react";
 import GoalIcon from "../catalog/components/GoalIcon";
 import { useAreas } from "../catalog/hooks/useAreas";

@@ -1,10 +1,10 @@
+import { format, parseISO } from "date-fns";
 import { useState, type CSSProperties, type FormEvent } from "react";
 import type { Goal } from "../../goals";
 import { useGoalSummary } from "../hooks/useGoalSummary";
 import type { ProgressEntry, ProgressWindow } from "../types";
 import { dayLabel, daysBetween } from "../utils/days";
 import { describePace, formatAmount, percent } from "../utils/pace";
-import { format, parseISO } from "date-fns";
 
 type Props = {
   goal: Goal;
@@ -43,6 +43,9 @@ export default function AmountLogCard({
       ? percent(summary.expected, summary.target)
       : null;
   const pace = summary ? describePace(summary) : null;
+  const delta =
+    summary?.delta != null ? Math.round(summary.delta * 10) / 10 : 0;
+  const paceClass = delta > 0 ? " ahead" : delta < 0 ? " behind" : "";
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -63,9 +66,9 @@ export default function AmountLogCard({
     >
       <div className="box-header">
         <h2>{goal.title}</h2>
-        <span className="muted">
+        <span className="log-status">
           {summary
-            ? `${formatAmount(summary.total)}` +
+            ? formatAmount(summary.total) +
               (summary.target !== null
                 ? ` / ${formatAmount(summary.target)}`
                 : "") +
@@ -90,11 +93,16 @@ export default function AmountLogCard({
           />
         )}
       </div>
+
       {(periodLabel || pace) && (
-        <p className="muted">
-          {[periodLabel, pace].filter(Boolean).join(" · ")}
+        <p className="pace">
+          {periodLabel}
+          {periodLabel && pace && " · "}
+          {pace && <span className={"pace-text" + paceClass}>{pace}</span>}
         </p>
       )}
+
+      <p className="log-label">Log for</p>
       <div className="day-chips">
         {days.map((d) => (
           <button
@@ -109,23 +117,26 @@ export default function AmountLogCard({
             }
             onClick={() => setDate(d)}
           >
-            {dayLabel(d, win.today, false)}
+            {dayLabel(d, win.today, true)}
           </button>
         ))}
       </div>
 
       <form className="amount-form" onSubmit={submit}>
-        <input
-          type="number"
-          inputMode="decimal"
-          step="any"
-          min="0"
-          placeholder={goal.unit ?? "Amount"}
-          aria-label={`Amount${goal.unit ? ` in ${goal.unit}` : ""}`}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          disabled={busy}
-        />
+        <label className="amount-field">
+          <input
+            type="number"
+            inputMode="decimal"
+            step="any"
+            min="0"
+            placeholder="0"
+            aria-label={`Amount${goal.unit ? ` in ${goal.unit}` : ""}`}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            disabled={busy}
+          />
+          {goal.unit && <span className="amount-unit">{goal.unit}</span>}
+        </label>
         <button type="submit" className="btn-dark" disabled={busy}>
           Add
         </button>
@@ -137,7 +148,7 @@ export default function AmountLogCard({
           {logged.map((e) => (
             <li key={e.id}>
               <span>
-                {dayLabel(e.date, win.today, false)} ·{" "}
+                {dayLabel(e.date, win.today, true)} ·{" "}
                 {formatAmount(e.amount ?? 0)}
                 {unit}
               </span>
