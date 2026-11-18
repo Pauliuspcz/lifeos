@@ -1,7 +1,9 @@
 /*The last step in creating a goal */
+import type { CSSProperties } from "react";
 import { useDirectionTemplates } from "../../hooks/useDirectionTemplates";
 import { DIFFICULTY_LABEL, describeTemplate } from "../../templateDisplay";
 import type { Category, Direction, Template } from "../../types";
+import GoalIcon from "../GoalIcon";
 import WizardProgress from "../WizardProgress";
 
 type Props = {
@@ -18,6 +20,7 @@ export default function TemplateStep({
   onCustom,
 }: Props) {
   const { templates, loading, loadError } = useDirectionTemplates(direction.id);
+  const color = area.color ?? "#ccc";
 
   return (
     <div>
@@ -32,10 +35,20 @@ export default function TemplateStep({
             key={t.id}
             type="button"
             className="direction-card"
-            style={{ borderLeft: `4px solid ${area.color ?? "#ccc"}` }}
+            style={
+              {
+                borderLeft: `4px solid ${color}`,
+                "--area-color": color,
+              } as CSSProperties
+            }
             onClick={() => onPick(t)}
           >
-            <strong>{t.title}</strong>
+            <span className="area-head">
+              <strong>{t.title}</strong>
+              <span className="area-icon">
+                <GoalIcon name={t.iconKey} size={20} />
+              </span>
+            </span>
             <span className="muted">{describeTemplate(t)}</span>
             {t.difficulty && (
               <span className="muted">{DIFFICULTY_LABEL[t.difficulty]}</span>
