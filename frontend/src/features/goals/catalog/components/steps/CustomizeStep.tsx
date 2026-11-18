@@ -1,14 +1,14 @@
 import { useState, type ReactNode, type SubmitEvent } from "react";
-import { ApiError, FieldErrors } from "../../../../shared/api/client";
+import { ApiError, FieldErrors } from "../../../../../shared/api/client";
 import {
   CreateGoalRequest,
   GoalPeriod,
   PERIOD_LABEL,
   TrackingType,
-} from "../../types";
-import { addDays, todayIso } from "../dateUtils";
-import type { Category, Template } from "../types";
-import WizardProgress from "./WizardProgress";
+} from "../../../types";
+import { addDays, todayIso } from "../../dateUtils";
+import type { Category, Template } from "../../types";
+import WizardProgress from "../WizardProgress";
 
 const CHECK_PERIODS: GoalPeriod[] = ["DAILY", "WEEKLY", "MONTHLY"];
 const AMOUNT_PERIODS: GoalPeriod[] = ["WEEKLY", "MONTHLY"];

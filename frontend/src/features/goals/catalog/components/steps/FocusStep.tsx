@@ -1,6 +1,7 @@
-import { useCategoryDirections } from "../hooks/useCategoryDirections";
-import type { Category, Direction } from "../types";
-import WizardProgress from "./WizardProgress";
+/*The Focus part of picking a goal using our templates*/
+import { useCategoryDirections } from "../../hooks/useCategoryDirections";
+import type { Category, Direction } from "../../types";
+import WizardProgress from "../WizardProgress";
 
 type Props = {
   area: Category;

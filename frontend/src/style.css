@@ -15,6 +15,7 @@
   --danger: #d70015;
   --warning: #c93400;
   --goal-color: var(--accent);
+  --area-color: var(--accent);
 
   /* Type */
   --font: system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -895,6 +896,10 @@ h2 {
 }
 .area-card {
   min-height: 112px;
+  border-left: 4px solid var(--area-color);
+}
+.area-card:hover {
+  border-left-color: var(--area-color);
 }
 .wizard-progress + h3,
 .btn-outline + h3 {
@@ -1032,4 +1037,26 @@ h2 {
   border: none;
   cursor: pointer;
   text-decoration: underline;
+}
+.area-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+.area-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.area-icon {
+  display: flex;
+  flex-shrink: 0;
+  color: var(--area-color);
+}
+.area-count {
+  margin-top: auto;
+  padding-top: var(--space-xs);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
 }

@@ -1,7 +1,8 @@
-import { useDirectionTemplates } from "../hooks/useDirectionTemplates";
-import { DIFFICULTY_LABEL, describeTemplate } from "../templateDisplay";
-import type { Category, Direction, Template } from "../types";
-import WizardProgress from "./WizardProgress";
+/*The last step in creating a goal */
+import { useDirectionTemplates } from "../../hooks/useDirectionTemplates";
+import { DIFFICULTY_LABEL, describeTemplate } from "../../templateDisplay";
+import type { Category, Direction, Template } from "../../types";
+import WizardProgress from "../WizardProgress";
 
 type Props = {
   area: Category;

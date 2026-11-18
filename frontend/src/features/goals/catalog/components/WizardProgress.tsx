@@ -1,3 +1,4 @@
+/*The progress in creating a goal using a template bar*/
 const LABELS = ["Area", "Focus", "Goal"];
 
 type Props = { step: 1 | 2 | 3; color?: string | null };

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import type { Category, Direction, Template } from "../types";
 import { CreateGoalRequest } from "../../types";
-import AreaStep from "./AreaStep";
-import FocusStep from "./FocusStep";
-import TemplateStep from "./TemplateStep";
-import CustomizeStep from "./CustomizeStep";
+import AreaStep from "./steps/AreaStep";
+import FocusStep from "./steps/FocusStep";
+import TemplateStep from "./steps/TemplateStep";
+import CustomizeStep from "./steps/CustomizeStep";
 
 type WizardState =
   | { step: "area" }
