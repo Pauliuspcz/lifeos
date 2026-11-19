@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static no.kristiania.goalservice.integration.setup.GoalPayload.valid;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.nullValue;
 
 class GoalReadTest extends AbstractGoalApiTest {
 
@@ -71,5 +72,30 @@ class GoalReadTest extends AbstractGoalApiTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("ARCHIVED"))
                 .andExpect(jsonPath("$.archivedAt").isNotEmpty());
+    }
+
+    @Test
+    void templateGoal_returnsTemplateAndDirectionCode() throws Exception {
+        long templateId = jdbcTemplate.queryForObject(
+                "select id from goal_templates where code = 'WALK_10K_STEPS'", Long.class);
+        long categoryId = jdbcTemplate.queryForObject(
+                "select category_id from goal_templates where code = 'WALK_10K_STEPS'", Long.class);
+        long id = createGoalId(USER, valid().with("templateId", templateId).with("categoryId", categoryId));
+
+        getGoal(USER, id)
+                .andExpect(jsonPath("$.templateCode").value("WALK_10K_STEPS"))
+                .andExpect(jsonPath("$.directionCode").value("MOVE_MORE"));
+        listGoals(USER)
+                .andExpect(jsonPath("$[0].templateCode").value("WALK_10K_STEPS"))
+                .andExpect(jsonPath("$[0].directionCode").value("MOVE_MORE"));
+    }
+
+    @Test
+    void customGoal_hasNoTemplateCodes() throws Exception {
+        long id = createGoalId(USER);
+
+        getGoal(USER, id)
+                .andExpect(jsonPath("$.templateCode").value(nullValue()))
+                .andExpect(jsonPath("$.directionCode").value(nullValue()));
     }
 }

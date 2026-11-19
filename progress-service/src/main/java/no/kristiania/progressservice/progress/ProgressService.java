@@ -83,6 +83,17 @@ public class ProgressService {
             if (existing.isPresent()) return existing.get();
         }
 
+        boolean counted = model == TrackingModel.WEEKLY_COUNT || model == TrackingModel.MONTHLY_COUNT;
+        int targetCount = (counted && goal.timesPerPeriod() != null) ? goal.timesPerPeriod() : 1;
+        if (counted) {
+            boolean weekly = model == TrackingModel.WEEKLY_COUNT;
+            LocalDate from = weekly ? LogWindow.weekStart(request.date()) : LogWindow.monthStart(request.date());
+            LocalDate to = weekly ? from.plusWeeks(1).minusDays(1) : from.plusMonths(1).minusDays(1);
+            if (progressRepo.countByUserIdAndGoalIdAndDateBetween(userId, goal.id(), from, to) >= targetCount) {
+                throw new PeriodTargetReachedException();
+            }
+        }
+
         Progress progress = new Progress();
         progress.setGoalId(goal.id());
         progress.setDate(request.date());
@@ -90,8 +101,7 @@ public class ProgressService {
         progress.setTrackingModel(model);
         progress.setAmount(cumulative ? request.amount() : null);
 
-        boolean counted = model == TrackingModel.WEEKLY_COUNT || model == TrackingModel.MONTHLY_COUNT;
-        int targetCount = (counted && goal.timesPerPeriod() != null) ? goal.timesPerPeriod() : 1;
+
         // Amount goals count as "days with progress" in report-service
         String eventPeriod = cumulative ? "DAILY" : goal.period();
 

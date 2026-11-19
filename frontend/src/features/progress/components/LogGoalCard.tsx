@@ -84,7 +84,7 @@ export default function LogGoalCard({
               <button
                 type="button"
                 key={d}
-                disabled={busy}
+                disabled={busy || (counted && done && !entry)}
                 aria-pressed={entry !== undefined}
                 className={
                   "day-chip" +

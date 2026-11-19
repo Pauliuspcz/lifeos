@@ -7,3 +7,5 @@ export { default as LogGoalCard } from "./components/LogGoalCard";
 export { useProgressWindow } from "./hooks/useProgressWindow";
 export { modelOf } from "./utils/model";
 export { listProgressForGoal } from "./api";
+export { default as LogProgressCard } from "./components/LogProgressCard";
+export { useAmountSummaries } from "./hooks/useAmountSummaries";

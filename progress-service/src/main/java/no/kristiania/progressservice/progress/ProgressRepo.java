@@ -16,6 +16,7 @@ public interface ProgressRepo extends JpaRepository<Progress,Long> {
     Optional<Progress> findByIdAndUserId(Long id, Long userId);
     List<Progress> findByUserIdAndDateBetweenOrderByDateDesc(Long userId, LocalDate from, LocalDate to);
     Optional<Progress> findByUserIdAndGoalIdAndDate(Long userId, Long goalId, LocalDate date);
+    long countByUserIdAndGoalIdAndDateBetween(Long userId, Long goalId, LocalDate from, LocalDate to);
     @Query("select coalesce(sum(p.amount), 0) from Progress p " +
             "where p.userId = :userId and p.goalId = :goalId")
     BigDecimal sumAmount(@Param("userId") Long userId, @Param("goalId") Long goalId);
