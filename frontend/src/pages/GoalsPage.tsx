@@ -1,13 +1,15 @@
-import { useState } from "react";
-import { useNavigate } from "react-router";
-import BackButton from "../shared/components/BackButton";
+import { useMemo, useRef, useState } from "react";
+import { Check } from "lucide-react";
 import Topbar from "../shared/components/Topbar";
-import { HOME_PATH } from "../shared/config/routes";
-import { GoalStatus, useGoals } from "../features/goals";
+import { GoalStatus, useGoals, type Category } from "../features/goals";
 import GoalWizard from "../features/goals/catalog/components/GoalWizard";
 import GoalList from "../features/goals/components/GoalList";
-import { listProgressForGoal } from "../features/progress";
-import { Check } from "lucide-react";
+import {
+  countInPeriod,
+  listProgressForGoal,
+  useAmountSummaries,
+  useProgress,
+} from "../features/progress";
 import {
   RelationHints,
   titleLookup,
@@ -16,10 +18,12 @@ import {
 } from "../features/relations";
 
 export default function GoalsPage() {
-  const navigate = useNavigate();
   const [tab, setTab] = useState<GoalStatus>("ACTIVE");
   const [wizardKey, setWizardKey] = useState(0);
+  const [wizardArea, setWizardArea] = useState<Category | null>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const [actionError, setActionError] = useState("");
+  const [notice, setNotice] = useState("");
   const {
     goals,
     loading,
@@ -29,6 +33,13 @@ export default function GoalsPage() {
     unarchiveGoal,
     removeGoal,
   } = useGoals(tab);
+
+  const { entries } = useProgress();
+  const activeGoals = useMemo(
+    () => (tab === "ACTIVE" ? goals : []),
+    [tab, goals],
+  );
+  const summaries = useAmountSummaries(activeGoals, entries);
 
   const hints = useRelationHints(
     goals.map(toGoalRef),
@@ -40,17 +51,19 @@ export default function GoalsPage() {
     setActionError("");
     try {
       await action();
-      setWizardKey((k) => k + 1);
     } catch (err) {
       setActionError((err as Error).message || "Something went wrong");
     }
   }
 
-  const [notice, setNotice] = useState("");
+  function openWizard(area: Category | null) {
+    setWizardArea(area);
+    dialogRef.current?.showModal();
+  }
 
   function handleCreated() {
+    dialogRef.current?.close();
     setTab("ACTIVE");
-    setWizardKey((k) => k + 1);
     setNotice("Goal created");
     window.setTimeout(() => setNotice(""), 3000);
   }
@@ -58,8 +71,38 @@ export default function GoalsPage() {
   return (
     <>
       <Topbar />
-      <div className="page">
-        <h1>Goals</h1>
+      <div className="goals-page">
+        <header className="goals-page-head">
+          <h1>Goals</h1>
+          <button
+            type="button"
+            className="btn-dark"
+            onClick={() => openWizard(null)}
+          >
+            + New goal
+          </button>
+        </header>
+
+        <nav className="goals-tabs">
+          <button
+            type="button"
+            className={tab === "ACTIVE" ? "active" : ""}
+            onClick={() => setTab("ACTIVE")}
+          >
+            Active
+            {tab === "ACTIVE" && !loading && (
+              <span className="tab-count">{goals.length}</span>
+            )}
+          </button>
+          <button
+            type="button"
+            className={tab === "ARCHIVED" ? "active" : ""}
+            onClick={() => setTab("ARCHIVED")}
+          >
+            Archived
+          </button>
+        </nav>
+
         {tab === "ACTIVE" && (
           <RelationHints hints={hints} titleOf={titleLookup(goals)} max={3} />
         )}
@@ -68,74 +111,65 @@ export default function GoalsPage() {
             {notice} <Check size={18} />
           </p>
         )}
-        <section className="goals-box">
-          <GoalWizard
-            key={wizardKey}
-            variant="page"
-            title="Create a new goal"
-            onCreate={addGoal}
-            onDone={handleCreated}
-          />
-        </section>
+        {actionError && <p className="error">{actionError}</p>}
 
-        <section className="goals-box">
-          <div className="box-header">
-            <h2>My goals</h2>
-            <div className="tabs">
-              <button
-                type="button"
-                className={"tab" + (tab === "ACTIVE" ? " active" : "")}
-                onClick={() => setTab("ACTIVE")}
-              >
-                Active
-              </button>
-              <button
-                type="button"
-                className={"tab" + (tab === "ARCHIVED" ? " active" : "")}
-                onClick={() => setTab("ARCHIVED")}
-              >
-                Archived
-              </button>
-            </div>
-          </div>
-          {actionError && <p className="error">{actionError}</p>}
-          {tab === "ACTIVE" ? (
-            <GoalList
-              goals={goals}
-              loading={loading}
-              loadError={loadError}
-              emptyText="No goals yet. Create your first one above."
-              onArchive={(id) => run(() => archiveGoal(id))}
-            />
-          ) : (
-            <GoalList
-              goals={goals}
-              loading={loading}
-              loadError={loadError}
-              emptyText="No archived goals."
-              onUnarchive={(id) => run(() => unarchiveGoal(id))}
-              onDelete={(g) =>
-                void run(async () => {
-                  const checkins = await listProgressForGoal(g.id);
-                  if (checkins.length > 0) {
-                    setActionError(
-                      `"${g.title}" has check-ins, so it can't be deleted. It stays archived to keep your history.`,
-                    );
-                    return;
-                  }
-                  if (
-                    window.confirm(
-                      `Delete "${g.title}" permanently? This can't be undone.`,
-                    )
-                  ) {
-                    await removeGoal(g.id);
-                  }
-                })
-              }
-            />
-          )}
-        </section>
+        {tab === "ACTIVE" ? (
+          <GoalList
+            goals={goals}
+            loading={loading}
+            loadError={loadError}
+            emptyText="No goals yet."
+            showEmptyAreas
+            countFor={(g) => countInPeriod(entries, g)}
+            totalFor={(g) => summaries[g.id]?.total}
+            onAdd={openWizard}
+            onArchive={(id) => run(() => archiveGoal(id))}
+          />
+        ) : (
+          <GoalList
+            goals={goals}
+            loading={loading}
+            loadError={loadError}
+            emptyText="No archived goals."
+            onUnarchive={(id) => run(() => unarchiveGoal(id))}
+            onDelete={(g) =>
+              void run(async () => {
+                const checkins = await listProgressForGoal(g.id);
+                if (checkins.length > 0) {
+                  setActionError(
+                    `"${g.title}" has check-ins, so it can't be deleted. It stays archived to keep your history.`,
+                  );
+                  return;
+                }
+                if (
+                  window.confirm(
+                    `Delete "${g.title}" permanently? This can't be undone.`,
+                  )
+                ) {
+                  await removeGoal(g.id);
+                }
+              })
+            }
+          />
+        )}
       </div>
+
+      <dialog
+        ref={dialogRef}
+        className="goal-dialog"
+        onClose={() => setWizardKey((k) => k + 1)}
+      >
+        <GoalWizard
+          key={`${wizardKey}-${wizardArea?.id ?? "all"}`}
+          variant="dialog"
+          title="New goal"
+          initialArea={wizardArea}
+          activeGoals={tab === "ACTIVE" ? goals : undefined}
+          onClose={() => dialogRef.current?.close()}
+          onCreate={addGoal}
+          onDone={handleCreated}
+        />
+      </dialog>
     </>
   );
 }

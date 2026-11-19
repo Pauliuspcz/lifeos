@@ -21,6 +21,7 @@ type WizardState =
 type Props = {
   title: string;
   variant: "page" | "dialog";
+  initialArea?: Category | null;
   activeGoals?: Goal[];
   onClose?: () => void;
   onCreate: (req: CreateGoalRequest) => Promise<void>;
@@ -30,12 +31,15 @@ type Props = {
 export default function GoalWizard({
   title,
   variant,
+  initialArea,
   activeGoals,
   onClose,
   onCreate,
   onDone,
 }: Props) {
-  const [state, setState] = useState<WizardState>({ step: "area" });
+  const [state, setState] = useState<WizardState>(
+    initialArea ? { step: "focus", area: initialArea } : { step: "area" },
+  );
 
   function goBack() {
     switch (state.step) {

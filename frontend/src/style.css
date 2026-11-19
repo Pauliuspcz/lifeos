@@ -688,84 +688,6 @@ h2 {
   box-sizing: border-box;
   margin-bottom: var(--space-xl);
 }
-.tabs {
-  display: flex;
-  gap: var(--space-sm);
-}
-.tab {
-  background: none;
-  border: 0;
-  padding: var(--space-xs) var(--space-md);
-  cursor: pointer;
-  opacity: 0.6;
-}
-.tab.active {
-  opacity: 1;
-  border-bottom: 2px solid currentColor;
-}
-
-/* Goal list: area cards */
-.goal-area-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-lg);
-  margin-top: var(--space-md);
-  align-items: start;
-}
-@media (max-width: 640px) {
-  .goal-area-grid {
-    grid-template-columns: 1fr;
-  }
-}
-.goal-area-card {
-  padding: var(--space-md) var(--space-lg);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 4px solid var(--area-color);
-  border-radius: var(--radius-lg);
-}
-.goal-area-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-xs);
-}
-.goal-area-title {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-sm);
-  color: var(--area-color);
-}
-.goal-mini {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-sm) 0;
-}
-.goal-mini + .goal-mini {
-  border-top: 1px solid var(--separator);
-}
-.goal-mini-icon {
-  flex: none;
-  display: grid;
-  place-items: center;
-  color: var(--area-color);
-}
-.goal-mini-main {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-.goal-mini-title {
-  font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.goal-mini-sub {
-  font-size: var(--text-xs);
-}
 .show-more {
   padding: var(--space-sm) 0 var(--space-xs);
   border: 0;
@@ -787,6 +709,177 @@ h2 {
 }
 .goal-dialog::backdrop {
   background: rgba(17, 24, 39, 0.4);
+}
+
+/* ---------- Goals page: header, tabs and category cards ---------- */
+.goals-page {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: var(--space-2xl) var(--space-lg) var(--space-3xl);
+  box-sizing: border-box;
+}
+.goals-page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-xl);
+}
+.goals-page-head h1 {
+  margin: 0;
+  font-size: var(--text-2xl);
+}
+.goals-tabs {
+  display: flex;
+  gap: var(--space-xl);
+  margin-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--border);
+}
+.goals-tabs button {
+  margin-bottom: -1px;
+  padding: var(--space-sm) var(--space-xs);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--text-secondary);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+.goals-tabs button.active {
+  border-bottom-color: var(--text);
+  color: var(--text);
+  font-weight: 600;
+}
+.tab-count {
+  margin-left: var(--space-xs);
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+.area-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+.area-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.area-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--border);
+}
+.area-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--area-color);
+}
+.area-desc {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.area-add {
+  flex: none;
+  margin-left: auto;
+}
+.area-empty {
+  margin: 0;
+  padding: var(--space-md) var(--space-lg);
+}
+.goal-line {
+  padding: var(--space-md) var(--space-lg);
+}
+.goal-line + .goal-line {
+  border-top: 1px solid var(--border);
+}
+.goal-line-top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.goal-line-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.goal-line-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+.goal-line-meta.done {
+  color: var(--accent);
+}
+.goal-line .progress {
+  height: 6px;
+  margin: var(--space-sm) 0 0;
+}
+.row-menu {
+  position: relative;
+  flex: none;
+}
+.row-menu-btn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.row-menu-btn:hover,
+.row-menu-btn[aria-expanded="true"] {
+  background: var(--fill);
+  color: var(--text);
+}
+.row-menu-list {
+  position: absolute;
+  top: calc(100% + var(--space-xs));
+  right: 0;
+  z-index: 10;
+  min-width: 160px;
+  padding: var(--space-xs);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-dialog);
+}
+.row-menu-list button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+.row-menu-list button:hover {
+  background: var(--fill);
+}
+.row-menu-list button.danger {
+  color: var(--danger);
 }
 
 .wizard-header {
