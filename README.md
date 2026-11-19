@@ -261,23 +261,23 @@ TODO (recommendation-service)
 
 ## Decisions, assumptions and simplifications
 
-| Decision                                                   | Why                                                                                                |
-| ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| Database per service, no shared tables                     | Services can change their schema and be deployed independently.                                    |
-| JWT (RS256) validated in every service, not in the gateway | Only user-service holds the private key; services trust nothing they haven't checked themselves.   |
-| Progress -> report via events, report keeps its own copy   | Report keeps working when progress is down, and statistics don't slow down check-ins.              |
-| Goal settings travel inside progress events                | Report never calls goal-service. Downside: a goal edit only reaches report with the next check-in. |
-| Progress -> goal is synchronous and fail-closed (`503`)    | A check-in needs the goal's ownership and target at write time (consistency over availability).    |
-| Outdoor goals sent as events to recommendation-service     | The weather endpoint never calls goal-service.                                                     |
-| Goal events published after commit                         | A rolled-back change never produces an event.                                                      |
-| Open-Meteo instead of OpenWeather                          | No API key, so the feature works from a clean clone.                                               |
-| Stale weather (max 3 h) instead of an error                | Availability over freshness when Open-Meteo is down.                                               |
-| Weather endpoint requires JWT                              | Open-Meteo's free quota is per server IP; an open endpoint could burn it.                          |
-| Optimistic locking on goals (`@Version`)                   | Two parallel edits can't silently overwrite each other.                                            |
-| Amount goals reset per rolling period from the start date; check goals use calendar weeks/months | A goal created mid-month still gets a full month for its amount. Check goals match report's statistics, which use calendar periods. |
-| Check-ins can be fixed up to 2 days back (weekly/monthly goals: back to the start of the period, max 7 days) | Forgotten days can be logged, but never into a period that has already ended. |
-| One check-in per goal per day; sending it again returns the existing entry | A double click doesn't count twice, and no duplicate event goes to report. |
-| A goal must be archived before it can be deleted | Avoids deleting by mistake; archived goals keep their history. |
+| Decision                                                                                                     | Why                                                                                                                                 |
+| ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Database per service, no shared tables                                                                       | Services can change their schema and be deployed independently.                                                                     |
+| JWT (RS256) validated in every service, not in the gateway                                                   | Only user-service holds the private key; services trust nothing they haven't checked themselves.                                    |
+| Progress -> report via events, report keeps its own copy                                                     | Report keeps working when progress is down, and statistics don't slow down check-ins.                                               |
+| Goal settings travel inside progress events                                                                  | Report never calls goal-service. Downside: a goal edit only reaches report with the next check-in.                                  |
+| Progress -> goal is synchronous and fail-closed (`503`)                                                      | A check-in needs the goal's ownership and target at write time (consistency over availability).                                     |
+| Outdoor goals sent as events to recommendation-service                                                       | The weather endpoint never calls goal-service.                                                                                      |
+| Goal events published after commit                                                                           | A rolled-back change never produces an event.                                                                                       |
+| Open-Meteo instead of OpenWeather                                                                            | No API key, so the feature works from a clean clone.                                                                                |
+| Stale weather (max 3 h) instead of an error                                                                  | Availability over freshness when Open-Meteo is down.                                                                                |
+| Weather endpoint requires JWT                                                                                | Open-Meteo's free quota is per server IP; an open endpoint could burn it.                                                           |
+| Optimistic locking on goals (`@Version`)                                                                     | Two parallel edits can't silently overwrite each other.                                                                             |
+| Amount goals reset per rolling period from the start date; check goals use calendar weeks/months             | A goal created mid-month still gets a full month for its amount. Check goals match report's statistics, which use calendar periods. |
+| Check-ins can be fixed up to 2 days back (weekly/monthly goals: back to the start of the period, max 7 days) | Forgotten days can be logged, but never into a period that has already ended.                                                       |
+| One check-in per goal per day; sending it again returns the existing entry                                   | A double click doesn't count twice, and no duplicate event goes to report.                                                          |
+| A goal must be archived before it can be deleted                                                             | Avoids deleting by mistake; archived goals keep their history.                                                                      |
 
 ### Assumptions
 
