@@ -46,15 +46,59 @@ All errors are JSON: `status`, `error`, `message`, `timestamp`, plus `fieldError
 
 Set in `.env` at the repo root (read by Docker Compose) or as environment variables.
 
-| Variable                             | Used for                            |
-| ------------------------------------ | ----------------------------------- |
-| `POSTGRES_USER`, `POSTGRES_PASSWORD` | Database login                      |
-| `USER_DB_NAME`, `USER_DB_PORT`       | Database name and port              |
-| `JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY`  | RSA key pair, Base64-encoded PEM    |
-| `JWT_ISSUER`                         | Token issuer, default `lifeos-auth` |
-| `GOOGLE_CLIENT_ID`                   | Audience check for Google ID tokens |
+| Variable                             | Used for                                                 |
+| ------------------------------------ | -------------------------------------------------------- |
+| `POSTGRES_USER`, `POSTGRES_PASSWORD` | Database login                                           |
+| `USER_DB_NAME`, `USER_DB_PORT`       | Database name and port                                   |
+| `JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY`  | RSA key pair, Base64-encoded PEM                         |
+| `JWT_ISSUER`                         | Token issuer, default `lifeos-auth`                      |
+| `GOOGLE_CLIENT_ID`                   | Audience check for Google ID tokens                      |
+| `CORS_ALLOWED_ORIGINS`               | Allowed browser origins, default `http://localhost:5173` |
 
-Allowed CORS origins are set with `app.cors.allowed-origins`. Never commit `.env` or the private key.
+Never commit `.env` or the private key.
+
+## Generating the key pair
+
+Tokens are signed with an RSA key pair. Both keys are stored in `.env` as Base64-encoded PEM on a single line. Only user-service needs the private key. Every other service only needs the public key.
+
+1. Generate the keys (needs OpenSSL):
+
+```bash
+openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out private.pem
+openssl rsa -pubout -in private.pem -out public.pem
+```
+
+2. Encode them as one line of Base64.
+
+Linux:
+
+```bash
+base64 -w0 private.pem
+base64 -w0 public.pem
+```
+
+macOS:
+
+```bash
+base64 -i private.pem | tr -d '\n'
+base64 -i public.pem | tr -d '\n'
+```
+
+Windows PowerShell:
+
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("private.pem"))
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("public.pem"))
+```
+
+3. Put the results in `.env`:
+
+```
+JWT_PRIVATE_KEY=<base64 of private.pem>
+JWT_PUBLIC_KEY=<base64 of public.pem>
+```
+
+4. Delete `private.pem` and `public.pem`. Never commit the private key. Restart all services after changing keys, and note that tokens signed with the old key stop working.
 
 ## Database
 
@@ -107,7 +151,7 @@ user-service/
 
 Logs go to stdout as JSON in ECS format. This is set for all services in the shared Consul config (`config/application/data`: `logging.structured.format.console: ecs`). Each line carries `log.level`, `service.name` and, inside a request, `traceId` and `spanId`, so one request can be followed across services. Tracing is sampled at 100%, but OTLP export is off, so trace ids exist in the logs only (no trace backend).
 
-The log stack (Elasticsearch/Kibana) is described in `observability/README.md`.
+The rules for all services are in `docs/LOGGING.md`. The log stack (Elasticsearch/Kibana) is described in `observability/README.md`.
 
 | Where                                      | Level                | What                                                                                                             |
 | ------------------------------------------ | -------------------- | ---------------------------------------------------------------------------------------------------------------- |

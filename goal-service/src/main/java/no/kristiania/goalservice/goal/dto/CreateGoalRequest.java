@@ -1,8 +1,8 @@
 package no.kristiania.goalservice.goal.dto;
 
 import jakarta.validation.constraints.*;
-import no.kristiania.goalservice.goal.enums.GoalPeriod;
-import no.kristiania.goalservice.goal.enums.TrackingType;
+import no.kristiania.goalservice.shared.enums.GoalPeriod;
+import no.kristiania.goalservice.shared.enums.TrackingType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
