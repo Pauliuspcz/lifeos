@@ -135,8 +135,6 @@ export default function GoalsPage() {
             />
           )}
         </section>
-
-        <BackButton onBack={() => navigate(HOME_PATH)} />
       </div>
     </>
   );
