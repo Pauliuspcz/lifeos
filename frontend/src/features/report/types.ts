@@ -32,5 +32,6 @@ export type ActivityDay = {
 export type ActivityReport = {
   totalCheckins: number;
   activeDays: number;
+  last30Days: number;
   days: ActivityDay[];
 };

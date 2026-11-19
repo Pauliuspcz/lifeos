@@ -4,6 +4,7 @@ import {
   GoalInsightCard,
   useGoalReports,
   ActivityCalendar,
+  useActivity,
 } from "../features/report";
 
 export default function InsightPage() {
@@ -13,9 +14,9 @@ export default function InsightPage() {
     loadError: goalsError,
   } = useGoals("ACTIVE");
   const { reports, loading, loadError } = useGoalReports(goals);
+  const { activity, loadError: activityError } = useActivity();
   const isLoading = goalsLoading || loading;
   const statsPending = isLoading || !!goalsError;
-  const last30Total = reports.reduce((sum, r) => sum + r.last30Days, 0);
   const checkReports = reports.filter(
     (r) => goals.find((g) => g.id === r.goalId)?.trackingType === "CHECK",
   );
@@ -37,13 +38,11 @@ export default function InsightPage() {
           <p>No goals yet.</p>
         )}
         <div className="insight-grid">
-          <ActivityCalendar />
+          <ActivityCalendar activity={activity} loadError={activityError} />
           <div className="stats insight-stats">
             <div>
-              <strong>{statsPending ? "…" : last30Total}</strong>
-              <span className="muted">
-                check-ins last 30 days · active goals
-              </span>
+              <strong>{activity ? activity.last30Days : "…"}</strong>
+              <span className="muted">check-ins last 30 days</span>
             </div>
             <div>
               <strong>{statsPending ? "…" : activeStreaks}</strong>
