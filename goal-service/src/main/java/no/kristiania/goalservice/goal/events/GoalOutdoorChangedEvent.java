@@ -1,6 +1,6 @@
 package no.kristiania.goalservice.goal.events;
 
-import no.kristiania.goalservice.goal.Goal;
+import no.kristiania.goalservice.goal.entity.Goal;
 
 import java.time.Instant;
 import java.util.UUID;

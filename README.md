@@ -198,8 +198,9 @@ _Goal -> recommendation_
   in Consul as critical for about a minute before it is removed. The gateway only routes to passing instances, so it skips the old one (see [known limitations](#simplifications-and-known-limitations)).
 - **Central configuration** (Consul KV): shared settings are stored under `config/application/data`, loaded into
   Consul at startup by the `consul-importer` container, and read by all services (`spring.config.import: optional:consul:`).
-  Today this holds the discovery settings, including a random instance id per instance.
-- **Scaling:** progress-service and report-service run with two instances each (`deploy: replicas: 2`).
+  It holds the discovery settings (including a random instance id per instance), the log format
+  (`logging.structured.format.console: ecs`, so every service logs JSON) and the tracing settings
+  (sampling 100%, OTLP export off, so trace ids appear in the logs only).- **Scaling:** progress-service and report-service run with two instances each (`deploy: replicas: 2`).
   The random instance id lets both instances register separately, and the gateway spreads requests across them.
   More instances: `docker compose up -d --scale report-service=3`.
 

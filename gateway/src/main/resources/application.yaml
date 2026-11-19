@@ -1,3 +1,6 @@
+server:
+  port: 8100
+
 spring:
   application:
     name: gateway
@@ -35,7 +38,6 @@ spring:
               predicates:
                 - Path=/api/recommendations/**
 
-server.port: 8100
 management:
   endpoints:
     web:

@@ -22,9 +22,11 @@ public class GoalEventPublisher {
         try {
             rabbitTemplate.convertAndSend(RabbitConfig.EXCHANGE,
                     RabbitConfig.ROUTING_KEY_OUTDOOR_CHANGED, event);
-            log.info("Published outdoor={} for goal {}", event.outdoor(), event.goalId());
+            log.info("Outdoor changed event published goalId={} userId={} outdoor={} eventId={}",
+                    event.goalId(), event.userId(), event.outdoor(), event.eventId());
         } catch (AmqpException e) {
-            log.error("Could not publish GoalOutdoorChangedEvent {}", event.eventId(), e);
+            log.error("Outdoor changed event publish failed goalId={} eventId={}",
+                    event.goalId(), event.eventId(), e);
         }
     }
 }

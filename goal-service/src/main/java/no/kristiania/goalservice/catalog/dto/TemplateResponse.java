@@ -1,9 +1,9 @@
 package no.kristiania.goalservice.catalog.dto;
 
-import no.kristiania.goalservice.catalog.Difficulty;
-import no.kristiania.goalservice.catalog.GoalTemplate;
-import no.kristiania.goalservice.goal.enums.GoalPeriod;
-import no.kristiania.goalservice.goal.enums.TrackingType;
+import no.kristiania.goalservice.catalog.entity.Difficulty;
+import no.kristiania.goalservice.catalog.entity.GoalTemplate;
+import no.kristiania.goalservice.shared.enums.GoalPeriod;
+import no.kristiania.goalservice.shared.enums.TrackingType;
 
 import java.math.BigDecimal;
 import java.time.LocalTime;

@@ -1,6 +1,6 @@
 package no.kristiania.goalservice.catalog.dto;
 
-import no.kristiania.goalservice.catalog.Direction;
+import no.kristiania.goalservice.catalog.entity.Direction;
 
 public record DirectionResponse(Long id, Long categoryId, String code, String name, String description,
                                 String iconKey, String color, int sortOrder) {
