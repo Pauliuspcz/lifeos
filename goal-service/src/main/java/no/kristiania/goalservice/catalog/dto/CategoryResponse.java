@@ -1,6 +1,6 @@
 package no.kristiania.goalservice.catalog.dto;
 
-import no.kristiania.goalservice.catalog.Category;
+import no.kristiania.goalservice.catalog.entity.Category;
 
 public record CategoryResponse(Long id, String code, String name, String description,
                                String iconKey, String color, int sortOrder) {

@@ -1,13 +1,10 @@
-import React, { useEffect, useState, type SubmitEvent } from "react";
-import { useNavigate } from "react-router";
+import { useEffect, useState, type SubmitEvent } from "react";
 import { ApiError } from "../shared/api/client";
 import { getProfile, updateProfile, type Profile } from "../features/profile";
-import BackButton from "../shared/components/BackButton";
 import { logout } from "../features/auth";
-import { HOME_PATH } from "../shared/config/routes";
+import Topbar from "../shared/components/Topbar";
 
 export default function ProfilePage() {
-  const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [name, setName] = useState("");
   const [message, setMessage] = useState<string | null>(null);
@@ -41,29 +38,47 @@ export default function ProfilePage() {
     await logout();
   }
 
-  function handleBack() {
-    navigate(HOME_PATH);
-  }
-
-  if (!profile) return <div className="page">{message ?? "Loading..."}</div>;
-
   return (
-    <div className="page">
-      <h1>Profile</h1>
-      <p>{profile.email}</p>
-      <form onSubmit={handleSave}>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-        <button type="submit">Save</button>
-      </form>
-      {message && <p role="alert">{message}</p>}
-      <button type="button" onClick={handleLogout}>
-        Log out
-      </button>
-      <BackButton onBack={handleBack} />
-    </div>
+    <>
+      <Topbar />
+      <div className="auth">
+        <h1>Profile</h1>
+        {!profile ? (
+          <p className="muted">{message ?? "Loading…"}</p>
+        ) : (
+          <>
+            <form className="auth-form" onSubmit={handleSave}>
+              <label>
+                Email
+                <input value={profile.email} readOnly />
+              </label>
+              <label>
+                Name
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </label>
+              <button type="submit" className="btn-dark">
+                Save
+              </button>
+            </form>
+            {message && (
+              <p className="auth-message" role="alert">
+                {message}
+              </p>
+            )}
+            <button
+              type="button"
+              className="btn-outline auth-logout"
+              onClick={handleLogout}
+            >
+              Log out
+            </button>
+          </>
+        )}
+      </div>
+    </>
   );
 }

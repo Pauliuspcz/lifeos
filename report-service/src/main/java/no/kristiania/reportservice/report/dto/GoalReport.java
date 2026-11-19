@@ -10,6 +10,7 @@ public record GoalReport(
         int previous30Days,
         int currentStreak,
         int successRate,
-        List<PeriodCount> history
+        List<PeriodCount> history,
+        Suggestion suggestion
 ) {
 }

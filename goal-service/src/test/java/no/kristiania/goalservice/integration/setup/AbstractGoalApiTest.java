@@ -15,7 +15,7 @@ public abstract class AbstractGoalApiTest extends AbstractIntegrationTest {
 
     protected static final String VALID_GOAL = """
             {"title":"Run","description":"Morning runs","period":"WEEKLY",
-             "timesPerPeriod":3,"amountPerSession":5.0,"unit":"km"}""";
+             "timesPerPeriod":3,"targetAmount":5.0,"unit":"km","categoryId":1}""";
 
     protected static String authHeader(long userId) { return bearer(tokenFor(userId)); }
 

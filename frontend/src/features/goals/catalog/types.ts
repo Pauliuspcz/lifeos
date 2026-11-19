@@ -1,4 +1,4 @@
-import type { GoalPeriod, GoalType, TrackingType } from "../types";
+import type { GoalPeriod, TrackingType } from "../types";
 
 export type Category = {
   id: number;
@@ -10,21 +10,29 @@ export type Category = {
   sortOrder: number;
 };
 
-export type Direction = Category;
+export type Direction = Category & {
+  categoryId: number;
+  iconKey: string | null;
+};
+
+export type Difficulty = "EASY" | "MEDIUM" | "HARD";
 
 export type Template = {
   id: number;
+  code: string;
   categoryId: number;
+  directionId: number;
   title: string;
   description: string | null;
-  goalType: GoalType;
   trackingType: TrackingType;
   defaultPeriod: GoalPeriod | null;
   defaultTimesPerPeriod: number | null;
   defaultTargetAmount: number | null;
   defaultUnit: string | null;
   defaultTargetTime: string | null;
-  difficulty: "EASY" | "MEDIUM" | "HARD" | null;
+  defaultDurationDays: number | null;
+  outdoor: boolean;
+  difficulty: Difficulty | null;
   iconKey: string | null;
   color: string | null;
 };

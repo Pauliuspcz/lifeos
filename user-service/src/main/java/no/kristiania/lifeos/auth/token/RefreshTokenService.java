@@ -1,6 +1,7 @@
 package no.kristiania.lifeos.auth.token;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import no.kristiania.lifeos.exception.InvalidRefreshTokenException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.HexFormat;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RefreshTokenService {
@@ -55,15 +57,22 @@ public class RefreshTokenService {
     @Transactional(noRollbackFor = InvalidRefreshTokenException.class)
     public RefreshToken consume(String raw) {
         RefreshToken token = repository.findForUpdateByTokenHash(hash(raw))
-                .orElseThrow(RefreshTokenService::invalid);
+                .orElseThrow(() -> {
+                    log.warn("Refresh token not found");
+                    return invalid();
+                });
 
         if (token.isRevoked()) {
             if (!rotatedRecently(token)) {
+                log.warn("Refresh token reuse detected, revoking all tokens userId={}", token.getUserId());
                 repository.revokeAllByUserId(token.getUserId());
+            } else {
+                log.debug("Refresh token reused within grace period userId={}", token.getUserId());
             }
             throw invalid();
         }
         if (token.getExpiresAt().isBefore(Instant.now())) {
+            log.info("Expired refresh token used userId={}", token.getUserId());
             throw invalid();
         }
         token.setRevoked(true);
@@ -83,6 +92,9 @@ public class RefreshTokenService {
 
     @Transactional
     public void revoke(String raw) {
-        repository.findByTokenHash(hash(raw)).ifPresent(t -> t.setRevoked(true));
+        repository.findByTokenHash(hash(raw)).ifPresent(t -> {
+            t.setRevoked(true);
+            log.info("Refresh token revoked on logout userId={}", t.getUserId());
+        });
     }
 }

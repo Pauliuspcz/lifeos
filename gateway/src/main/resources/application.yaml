@@ -1,3 +1,6 @@
+server:
+  port: 8100
+
 spring:
   application:
     name: gateway
@@ -9,6 +12,7 @@ spring:
       port: 8500
       discovery:
         prefer-ip-address: true
+        query-passing: true
     gateway:
       server:
         webflux:
@@ -29,8 +33,11 @@ spring:
               uri: lb://report-service
               predicates:
                 - Path=/api/reports/**
+            - id: recommendation-service
+              uri: lb://recommendation-service
+              predicates:
+                - Path=/api/recommendations/**
 
-server.port: 8100
 management:
   endpoints:
     web:

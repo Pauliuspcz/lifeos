@@ -22,13 +22,13 @@ class GoalUpdateTest extends AbstractGoalApiTest {
         updateGoal(USER, id, valid()
                 .with("title", "Run more").with("description", "Evening runs")
                 .with("period", "DAILY").with("timesPerPeriod", 1)
-                .with("amountPerSession", 10.0).with("unit", "miles"))
+                .with("targetAmount", 10.0).with("unit", "miles"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Run more"))
                 .andExpect(jsonPath("$.description").value("Evening runs"))
                 .andExpect(jsonPath("$.period").value("DAILY"))
                 .andExpect(jsonPath("$.timesPerPeriod").value(1))
-                .andExpect(jsonPath("$.amountPerSession").value(10.0))
+                .andExpect(jsonPath("$.targetAmount").value(10.0))
                 .andExpect(jsonPath("$.unit").value("miles"));
         getGoal(USER, id).andExpect(jsonPath("$.title").value("Run more"));
     }
@@ -37,10 +37,10 @@ class GoalUpdateTest extends AbstractGoalApiTest {
     void update_withoutOptionalFields_clearsThem() throws Exception {
         long id = createGoalId(USER);
 
-        updateGoal(USER, id, valid().without("description").without("amountPerSession").without("unit"))
+        updateGoal(USER, id, valid().without("description").without("targetAmount").without("unit"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.description").value(nullValue()))
-                .andExpect(jsonPath("$.amountPerSession").value(nullValue()))
+                .andExpect(jsonPath("$.targetAmount").value(nullValue()))
                 .andExpect(jsonPath("$.unit").value(nullValue()));
     }
 

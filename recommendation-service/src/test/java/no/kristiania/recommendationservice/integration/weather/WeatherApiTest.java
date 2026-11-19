@@ -1,0 +1,197 @@
+package no.kristiania.recommendationservice.integration.weather;
+
+import no.kristiania.recommendationservice.integration.setup.AbstractIntegrationTest;
+import org.junit.jupiter.api.Test;
+
+import java.time.Duration;
+
+import static org.hamcrest.Matchers.nullValue;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.startsWith;
+
+class WeatherApiTest extends AbstractIntegrationTest {
+
+    private static final double LAT = 59.91;
+    private static final double LON = 10.75;
+
+    private static final String CLOUDY_NIGHT = """
+            {"current": {"time": "2026-11-12T16:00", "temperature_2m": 2.8, "apparent_temperature": -0.3,
+             "precipitation": 0.0, "weather_code": 3, "wind_speed_10m": 7.9, "is_day": 0}}""";
+
+    private static final String DRY_NOW_RAINED_EARLIER = """
+            {"current": {"time": "2026-11-12T16:15", "temperature_2m": 1.0, "apparent_temperature": -2.0,
+             "precipitation": 0.0, "weather_code": 3, "wind_speed_10m": 5.0, "is_day": 0},
+             "hourly": {"time": ["2026-11-12T14:00", "2026-11-12T15:00", "2026-11-12T16:00", "2026-11-12T17:00"],
+                        "precipitation": [0.4, 0.3, 0.0, 2.0]}}""";
+
+    private static final String RAIN_THEN_DRY = """
+            {"current": {"time": "2026-11-12T10:15", "temperature_2m": 8.0, "apparent_temperature": 6.0,
+             "precipitation": 2.0, "weather_code": 63, "wind_speed_10m": 5.0, "is_day": 1},
+             "hourly": {"time": ["2026-11-12T10:00", "2026-11-12T11:00", "2026-11-12T12:00", "2026-11-12T13:00", "2026-11-12T14:00"],
+                        "temperature_2m": [8.0, 8.0, 9.0, 9.0, 8.0],
+                        "apparent_temperature": [6.0, 6.0, 8.0, 8.0, 6.0],
+                        "precipitation": [2.0, 2.0, 0.0, 0.0, 2.0],
+                        "weather_code": [63, 63, 1, 1, 63],
+                        "wind_speed_10m": [5.0, 5.0, 5.0, 5.0, 5.0],
+                        "is_day": [1, 1, 1, 1, 1]}}""";
+
+    private static final String DRIZZLE_ALL_DAY = """
+            {"current": {"time": "2026-11-12T10:15", "temperature_2m": 8.0, "apparent_temperature": 6.0,
+             "precipitation": 0.3, "weather_code": 51, "wind_speed_10m": 5.0, "is_day": 1},
+             "hourly": {"time": ["2026-11-12T10:00", "2026-11-12T11:00", "2026-11-12T12:00"],
+                        "temperature_2m": [8.0, 8.0, 8.0],
+                        "apparent_temperature": [6.0, 6.0, 6.0],
+                        "precipitation": [0.3, 0.3, 0.3],
+                        "weather_code": [51, 51, 51],
+                        "wind_speed_10m": [5.0, 5.0, 5.0],
+                        "is_day": [1, 1, 1]}}""";
+
+    @Test
+    void get_returnsWeatherFromOpenMeteo() throws Exception {
+        openMeteoReturns(CLOUDY_NIGHT);
+
+        getWeather(LAT, LON)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.weather.temperature").value(2.8))
+                .andExpect(jsonPath("$.weather.condition").value("CLOUDY"))
+                .andExpect(jsonPath("$.weather.day").value(false))
+                .andExpect(jsonPath("$.rating").value("OK"));
+    }
+
+    @Test
+    void get_rainedEarlierNearFreezing_returnsRiskOfIce() throws Exception {
+        openMeteoReturns(DRY_NOW_RAINED_EARLIER);
+
+        getWeather(LAT, LON)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.weather.recentPrecipitationMm").value(0.7))
+                .andExpect(jsonPath("$.rating").value("POOR"))
+                .andExpect(jsonPath("$.reason").value("Risk of ice"));
+    }
+
+    @Test
+    void get_rainNowDryLater_returnsBestTime() throws Exception {
+        openMeteoReturns(RAIN_THEN_DRY);
+
+        getWeather(LAT, LON)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rating").value("POOR"))
+                .andExpect(jsonPath("$.bestTime.from").value(startsWith("2026-11-12T12:00")))
+                .andExpect(jsonPath("$.bestTime.to").value(startsWith("2026-11-12T14:00")))
+                .andExpect(jsonPath("$.bestTime.rating").value("GOOD"))
+                .andExpect(jsonPath("$.advice").value(nullValue()));
+    }
+
+    @Test
+    void get_sameWeatherAllDay_hidesBestTime() throws Exception {
+        openMeteoReturns(DRIZZLE_ALL_DAY);
+
+        getWeather(LAT, LON)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rating").value("OK"))
+                .andExpect(jsonPath("$.bestTime").value(nullValue()));
+    }
+
+    @Test
+    void get_openMeteoDown_returns503() throws Exception {
+        openMeteoFails();
+
+        getWeather(LAT, LON)
+                .andExpect(status().isServiceUnavailable());
+    }
+
+    @Test
+    void get_openMeteoTooSlow_returns503() throws Exception {
+        openMeteoRespondsAfter(1500, CLOUDY_NIGHT);
+
+        getWeather(LAT, LON)
+                .andExpect(status().isServiceUnavailable());
+    }
+    @Test
+    void get_twiceWithinTtl_callsOpenMeteoOnce() throws Exception {
+        openMeteoReturns(CLOUDY_NIGHT);
+
+        getWeather(LAT, LON).andExpect(status().isOk());
+        getWeather(LAT, LON).andExpect(status().isOk());
+
+        verifyOpenMeteoCalled(1);
+    }
+
+    @Test
+    void get_nearbyCoordinates_shareRoundedCacheEntry() throws Exception {
+        openMeteoReturns(CLOUDY_NIGHT);
+
+        getWeather(59.91, 10.75).andExpect(status().isOk());
+        getWeather(59.88, 10.78)
+                .andExpect(jsonPath("$.weather.latitude").value(59.9))
+                .andExpect(jsonPath("$.weather.longitude").value(10.8));
+
+        verifyOpenMeteoCalled(1);
+    }
+    @Test
+    void get_afterTtl_fetchesAgain() throws Exception {
+        openMeteoReturns(CLOUDY_NIGHT);
+        getWeather(LAT, LON).andExpect(status().isOk());
+
+        makeCachedWeatherOlder(LAT, LON, Duration.ofMinutes(30));
+        getWeather(LAT, LON).andExpect(jsonPath("$.weather.stale").value(false));
+
+        verifyOpenMeteoCalled(2);
+    }
+
+    @Test
+    void get_openMeteoDownAfterTtl_returnsStaleWeather() throws Exception {
+        openMeteoReturns(CLOUDY_NIGHT);
+        getWeather(LAT, LON).andExpect(status().isOk());
+
+        makeCachedWeatherOlder(LAT, LON, Duration.ofMinutes(30));
+        openMeteoFails();
+
+        getWeather(LAT, LON)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.weather.stale").value(true))
+                .andExpect(jsonPath("$.weather.temperature").value(2.8));
+    }
+
+    @Test
+    void get_openMeteoReturnsNoCurrent_returns503() throws Exception {
+        openMeteoReturns("{}");
+
+        getWeather(LAT, LON)
+                .andExpect(status().isServiceUnavailable());
+    }
+
+    @Test
+    void get_latitudeOutOfRange_returns400() throws Exception {
+        getWeather(200, LON)
+                .andExpect(status().isBadRequest());
+
+        verifyOpenMeteoCalled(0);
+    }
+    @Test
+    void getMine_withOutdoorGoal_returnsWeather() throws Exception {
+        insertOutdoorGoal(10L, 1L);
+        openMeteoReturns(CLOUDY_NIGHT);
+
+        getMyWeather(LAT, LON)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rating").value("OK"));
+    }
+
+    @Test
+    void getMine_withoutOutdoorGoal_returns204_andSkipsOpenMeteo() throws Exception {
+        getMyWeather(LAT, LON)
+                .andExpect(status().isNoContent());
+
+        verifyOpenMeteoCalled(0);
+    }
+
+    @Test
+    void getMine_onlyOtherUserHasOutdoorGoal_returns204() throws Exception {
+        insertOutdoorGoal(11L, 2L);
+
+        getMyWeather(LAT, LON)
+                .andExpect(status().isNoContent());
+    }
+}

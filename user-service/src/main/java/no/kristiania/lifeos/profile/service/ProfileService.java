@@ -1,22 +1,21 @@
 package no.kristiania.lifeos.profile.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import no.kristiania.lifeos.exception.NotFoundException;
 import no.kristiania.lifeos.profile.dto.ProfileResponse;
 import no.kristiania.lifeos.profile.dto.UpdateProfileRequest;
 import no.kristiania.lifeos.user.User;
 import no.kristiania.lifeos.user.UserRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProfileService {
 
     private final UserRepository userRepository;
-
 
     @Transactional
     public ProfileResponse updateProfile(Long userId, UpdateProfileRequest req) {
@@ -29,6 +28,7 @@ public class ProfileService {
             String url = req.profilePictureUrl().trim();
             user.setProfilePictureUrl(url.isEmpty() ? null : url);
         }
+        log.info("Profile updated userId={}", userId);
         return toResponse(user);
     }
 

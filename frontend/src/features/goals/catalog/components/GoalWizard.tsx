@@ -1,62 +1,128 @@
 import { useState } from "react";
-import DirectionStep from "../../catalog/components/DirectionStep";
-import TemplateStep from "../../catalog/components/TemplateStep";
-import type { Direction, Template } from "../types";
-import { CreateGoalRequest } from "../../types";
-import CustomizeStep from "./CustomizeStep";
+import type { Category, Direction, Template } from "../types";
+import { CreateGoalRequest, Goal } from "../../types";
+import AreaStep from "./steps/AreaStep";
+import FocusStep from "./steps/FocusStep";
+import TemplateStep from "./steps/TemplateStep";
+import CustomizeStep from "./steps/CustomizeStep";
+import WizardHeader from "./WizardHeader";
 
 type WizardState =
-  | { step: "direction" }
-  | { step: "template"; direction: Direction }
+  | { step: "area" }
+  | { step: "focus"; area: Category }
+  | { step: "template"; area: Category; direction: Direction }
   | {
       step: "customize";
+      area: Category;
       direction: Direction | null;
       template: Template | null;
     };
 
 type Props = {
+  title: string;
+  variant: "page" | "dialog";
+  initialArea?: Category | null;
+  activeGoals?: Goal[];
+  onClose?: () => void;
   onCreate: (req: CreateGoalRequest) => Promise<void>;
   onDone?: () => void;
 };
 
-export default function GoalWizard({ onCreate, onDone }: Props) {
-  const [state, setState] = useState<WizardState>({ step: "direction" });
+export default function GoalWizard({
+  title,
+  variant,
+  initialArea,
+  activeGoals,
+  onClose,
+  onCreate,
+  onDone,
+}: Props) {
+  const [state, setState] = useState<WizardState>(
+    initialArea ? { step: "focus", area: initialArea } : { step: "area" },
+  );
 
-  if (state.step === "direction") {
-    return (
-      <DirectionStep
-        onPick={(direction) => setState({ step: "template", direction })}
-        onCustom={() =>
-          setState({ step: "customize", direction: null, template: null })
-        }
-      />
-    );
+  function goBack() {
+    switch (state.step) {
+      case "area":
+        return;
+      case "focus":
+        setState({ step: "area" });
+        return;
+      case "template":
+        setState({ step: "focus", area: state.area });
+        return;
+      case "customize":
+        setState(
+          state.direction
+            ? { step: "template", area: state.area, direction: state.direction }
+            : { step: "focus", area: state.area },
+        );
+        return;
+    }
   }
 
-  if (state.step === "template") {
+  function renderStep() {
+    if (state.step === "area") {
+      return <AreaStep onPick={(area) => setState({ step: "focus", area })} />;
+    }
+
+    if (state.step === "focus") {
+      const { area } = state;
+      return (
+        <FocusStep
+          area={area}
+          onPick={(direction) =>
+            setState({ step: "template", area, direction })
+          }
+          onCustom={() =>
+            setState({
+              step: "customize",
+              area,
+              direction: null,
+              template: null,
+            })
+          }
+        />
+      );
+    }
+
+    if (state.step === "template") {
+      const { area, direction } = state;
+      return (
+        <TemplateStep
+          area={area}
+          direction={direction}
+          onPick={(template) =>
+            setState({ step: "customize", area, direction, template })
+          }
+          onCustom={() =>
+            setState({ step: "customize", area, direction, template: null })
+          }
+        />
+      );
+    }
+
     return (
-      <TemplateStep
+      <CustomizeStep
+        area={state.area}
+        template={state.template}
         direction={state.direction}
-        onBack={() => setState({ step: "direction" })}
-        onPick={(template) =>
-          setState({ step: "customize", direction: state.direction, template })
-        }
+        activeGoals={activeGoals}
+        onCreate={onCreate}
+        onDone={onDone}
       />
     );
   }
 
   return (
-    <CustomizeStep
-      template={state.template}
-      onBack={() =>
-        setState(
-          state.direction
-            ? { step: "template", direction: state.direction }
-            : { step: "direction" },
-        )
-      }
-      onCreate={onCreate}
-      onDone={onDone}
-    />
+    <div>
+      <WizardHeader
+        title={title}
+        variant={variant}
+        onBack={state.step === "area" ? undefined : goBack}
+        onClose={onClose}
+      />
+      {renderStep()}
+    </div>
   );
 }

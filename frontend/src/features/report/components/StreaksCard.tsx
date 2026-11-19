@@ -4,19 +4,32 @@ import type { GoalReport } from "../types";
 type Props = {
   goals: Goal[];
   reports: GoalReport[];
+  count: number | null;
+  loadError: string;
 };
 
-export default function StreaksCard({ goals, reports }: Props) {
+export default function StreaksCard({
+  goals,
+  reports,
+  count,
+  loadError,
+}: Props) {
   const active = goals.filter(
-    (g) => (reports.find((r) => r.goalId === g.id)?.currentStreak ?? 0) > 0,
+    (g) =>
+      g.trackingType === "CHECK" &&
+      (reports.find((r) => r.goalId === g.id)?.currentStreak ?? 0) > 0,
   );
 
   return (
     <div className="streaks-box">
       <div className="box-header">
-        <h2>Streaks</h2>
+        <h2>Streaks · {loadError ? (count ?? "…") : active.length}</h2>
+        {loadError && <span className="muted">incl. archived</span>}
       </div>
-      {active.length === 0 && <p className="muted">No active streaks yet.</p>}
+      {loadError && <p className="muted">Could not load active goals</p>}
+      {!loadError && active.length === 0 && (
+        <p className="muted">No active streaks yet.</p>
+      )}
       {active.map((g) => {
         const streak =
           reports.find((r) => r.goalId === g.id)?.currentStreak ?? 0;

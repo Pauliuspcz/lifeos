@@ -1,6 +1,6 @@
 package no.kristiania.progressservice.progress.dto;
 
-import no.kristiania.progressservice.progress.Progress;
+import no.kristiania.progressservice.progress.entity.Progress;
 
 import java.math.BigDecimal;
 import java.time.Instant;

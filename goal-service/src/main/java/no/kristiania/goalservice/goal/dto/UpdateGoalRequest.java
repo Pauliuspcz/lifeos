@@ -1,7 +1,7 @@
 package no.kristiania.goalservice.goal.dto;
 
 import jakarta.validation.constraints.*;
-import no.kristiania.goalservice.goal.enums.GoalPeriod;
+import no.kristiania.goalservice.shared.enums.GoalPeriod;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,7 +12,7 @@ public record UpdateGoalRequest(
         @Size(max = 1000) String description,
         GoalPeriod period,
         @Min(1) Integer timesPerPeriod,
-        @Positive @Digits(integer = 8, fraction = 2) BigDecimal amountPerSession,
+        @Positive @Digits(integer = 10, fraction = 2) BigDecimal targetAmount,
         @Size(max = 50) String unit,
         LocalTime targetTime,
         LocalDate startDate,
@@ -20,5 +20,6 @@ public record UpdateGoalRequest(
         @Size(max = 500) String motivation,
         @Size(max = 50) String iconKey,
         @Pattern(regexp = "^#[0-9A-Fa-f]{6}$") String color,
-        Long version
+        Long version,
+        Boolean outdoor
 ) {}

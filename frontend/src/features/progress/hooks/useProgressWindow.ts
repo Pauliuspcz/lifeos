@@ -24,8 +24,12 @@ export function useProgressWindow() {
     void load();
   }, [load]);
 
-  async function logDay(goalId: number, date: string) {
-    await createProgress({ goalId, date, amount: null });
+  async function logDay(
+    goalId: number,
+    date: string,
+    amount: number | null = null,
+  ) {
+    await createProgress({ goalId, date, amount });
     await load();
   }
 

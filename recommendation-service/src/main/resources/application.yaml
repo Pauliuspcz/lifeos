@@ -1,0 +1,76 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: recommendation-service
+  config:
+    import:
+      - "optional:file:.env[.properties]"
+      - "optional:consul:"
+      - "classpath:relations.yml"
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      config:
+        format: YAML
+      discovery:
+        prefer-ip-address: true
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:${RECOMMENDATION_DB_PORT:5436}/${RECOMMENDATION_DB_NAME:recommendation_db}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    open-in-view: false
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: ${RABBITMQ_USER:lifeos}
+    password: ${RABBITMQ_PASSWORD:lifeos_dev}
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-retries: 3
+        default-requeue-rejected: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info"
+
+app:
+  jwt:
+    issuer: ${JWT_ISSUER:lifeos-auth}
+    public-key: ${JWT_PUBLIC_KEY}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  open-meteo:
+    url: ${OPEN_METEO_URL:https://api.open-meteo.com}
+    connect-timeout: 2s
+    read-timeout: 3s
+  weather:
+    cache:
+      fresh-ttl: 10m
+      stale-max: 3h
+      max-entries: 1000
+    rating:
+      heavy-precipitation-mm: 1.0
+      poor-wind-kmh: 40
+      ok-wind-kmh: 25
+      poor-cold-feels-like: -10
+      poor-hot-feels-like: 32
+      ok-cold-feels-like: 0
+      ok-hot-feels-like: 27
+      ice-risk-min-temp: -2
+      ice-risk-max-temp: 2
+      poor-advice: "Try an indoor session today. It still counts for your streak."
+  relations:
+    overload:
+      max-daily-goals: 8

@@ -12,6 +12,7 @@ export default defineConfig({
       "/api/progress": gateway,
       "/api/reports": gateway,
       "/api/catalog": gateway,
+      "/api/recommendations": gateway,
     },
   },
   test: {

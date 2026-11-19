@@ -1,7 +1,7 @@
 package no.kristiania.goalservice.integration.error;
 
-import no.kristiania.goalservice.goal.Goal;
-import no.kristiania.goalservice.goal.GoalRepository;
+import no.kristiania.goalservice.goal.entity.Goal;
+import no.kristiania.goalservice.goal.repository.GoalRepository;
 import no.kristiania.goalservice.integration.setup.AbstractGoalApiTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;

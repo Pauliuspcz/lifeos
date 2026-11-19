@@ -1,0 +1,104 @@
+app:
+  relations:
+    rules:
+      # SUPPORTS: a makes b worth more. Keep b to one code per rule.
+      - {
+          type: SUPPORTS,
+          a: [BUILD_ENDURANCE, GET_STRONGER, MOVE_MORE],
+          b: [SLEEP_8_HOURS],
+          reason: "Sleep is when your body recovers from training.",
+        }
+      - {
+          type: SUPPORTS,
+          a: [BUILD_ENDURANCE],
+          b: [WATER_3_LITERS],
+          reason: "Staying hydrated through the day may make longer sessions feel easier.",
+        }
+      - {
+          type: SUPPORTS,
+          a: [BUILD_ENDURANCE, GET_STRONGER],
+          b: [STRETCH_10_MIN],
+          reason: "A few minutes of mobility work can keep you loose between sessions.",
+        }
+      - {
+          type: SUPPORTS,
+          a: [READ_MORE, LEARN_A_SKILL],
+          b: [SLEEP_8_HOURS],
+          reason: "Good sleep may help new knowledge stick.",
+        }
+      - {
+          type: SUPPORTS,
+          a: [READ_MORE, LEARN_A_SKILL, BE_CREATIVE],
+          b: [OUTSIDE_20_MIN],
+          reason: "A short break outside can make it easier to focus.",
+        }
+      - {
+          type: SUPPORTS,
+          a: [NO_SCREENS_22],
+          b: [READ_20_MIN],
+          reason: "Reading is an easy replacement for evening screen time.",
+        }
+      - {
+          type: SUPPORTS,
+          a: [NO_SCREENS_22],
+          b: [BED_BEFORE_23],
+          reason: "Less screen time makes an earlier bedtime easier.",
+        }
+      - {
+          type: SUPPORTS,
+          a: [WALK_10K_STEPS],
+          b: [OUTSIDE_20_MIN],
+          reason: "Your steps can double as time outside.",
+        }
+      - {
+          type: SUPPORTS,
+          a: [FRIEND_WEEKLY],
+          b: [WALK_10K_STEPS],
+          reason: "A walk with a friend counts for both goals.",
+        }
+
+      # TENSION: works fine, but mind the timing and the load
+      - {
+          type: TENSION,
+          a: [BUILD_ENDURANCE],
+          b: [GET_STRONGER],
+          reason: "Endurance and strength training compete for recovery. Put them on different days, or at least 3 hours apart.",
+        }
+      - {
+          type: TENSION,
+          a: [FRIEND_WEEKLY, SOCIAL_EVENT_MONTHLY],
+          b: [BED_BEFORE_23],
+          reason: "Evenings with friends can run late, which makes an early bedtime harder to keep.",
+        }
+      - {
+          type: TENSION,
+          a: [SOCIAL_EVENT_MONTHLY],
+          b: [NO_ALCOHOL_SWEETS_30_DAYS],
+          reason: "Social events often come with food and drinks, so plan ahead for them.",
+        }
+
+      # REDUNDANT: overlap so much that one goal may be enough
+      - {
+          type: REDUNDANT,
+          a: [JOURNAL_DAILY],
+          b: [GRATITUDE_3_THINGS],
+          reason: "Both are a daily writing habit. One of them may be enough.",
+        }
+      - {
+          type: REDUNDANT,
+          a: [PLAN_WEEK_SUNDAY],
+          b: [WEEKLY_REVIEW_SUNDAY],
+          reason: "Both are a Sunday check-in. You could do them in one sitting.",
+        }
+      - {
+          type: REDUNDANT,
+          a: [RUN_3X_WEEK],
+          b: [MARATHON_TRAINING_12_WEEKS],
+          reason: "Marathon training already includes running 3 times a week.",
+        }
+      - {
+          type: REDUNDANT,
+          a: [WALK_10K_STEPS],
+          b: [WALK_100_KM_MONTH],
+          reason: "10,000 steps a day is roughly 7-8 km, so it already covers this goal.",
+        }

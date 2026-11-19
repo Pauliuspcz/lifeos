@@ -61,10 +61,10 @@ class GoalCreateTest extends AbstractGoalApiTest {
 
     @Test
     void create_withoutOptionalFields_returns201_andNullsInResponse() throws Exception {
-        createGoal(USER, valid().without("description").without("amountPerSession").without("unit"))
+        createGoal(USER, valid().without("description").without("targetAmount").without("unit"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.description").value(nullValue()))
-                .andExpect(jsonPath("$.amountPerSession").value(nullValue()))
+                .andExpect(jsonPath("$.targetAmount").value(nullValue()))
                 .andExpect(jsonPath("$.unit").value(nullValue()));
     }
 
