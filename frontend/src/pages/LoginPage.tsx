@@ -4,6 +4,7 @@ import { googleLogin, login, register, useAuth } from "../features/auth";
 import { ApiError } from "../shared/api/client";
 import { GoogleLogin } from "@react-oauth/google";
 import { HOME_PATH } from "../shared/config/routes";
+import logo from "../assets/logo-only.png";
 
 function errorText(err: unknown): string {
   if (err instanceof ApiError) {
@@ -45,37 +46,54 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="page">
+    <div className="auth auth-screen">
+      <img src={logo} alt="LifeOS" className="auth-logo" />
       <h1>{mode === "login" ? "Log in" : "Create account"}</h1>
-      <form onSubmit={handleSubmit}>
+      <form className="auth-form" onSubmit={handleSubmit}>
         {mode === "register" && (
+          <label>
+            Name
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </label>
+        )}
+        <label>
+          Email
           <input
-            placeholder="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
-        )}
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit" disabled={loading}>
-          {loading ? "..." : mode === "login" ? "Log in" : "Register"}
+        </label>
+        <label>
+          Password
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </label>
+        <button type="submit" className="btn-dark" disabled={loading}>
+          {loading ? "…" : mode === "login" ? "Log in" : "Register"}
         </button>
       </form>
-      {error && <p role="alert">{error}</p>}
+      {error && (
+        <p className="error" role="alert">
+          {error}
+        </p>
+      )}
+      <div className="auth-divider">or</div>
       <GoogleLogin
+        text="continue_with"
+        theme="outline"
+        size="large"
+        width={320}
         onSuccess={async (res) => {
           if (!res.credential) return;
           try {
@@ -87,12 +105,19 @@ export default function LoginPage() {
         }}
         onError={() => setError("Google login failed.")}
       />
-      <button
-        type="button"
-        onClick={() => setMode(mode === "login" ? "register" : "login")}
-      >
-        {mode === "login" ? "No account? Register" : "Have an account? Log in"}
-      </button>
+      <p className="auth-switch">
+        {mode === "login" ? "No account? " : "Have an account? "}
+        <button
+          type="button"
+          className="link-btn"
+          onClick={() => {
+            setMode(mode === "login" ? "register" : "login");
+            setError(null);
+          }}
+        >
+          {mode === "login" ? "Register" : "Log in"}
+        </button>
+      </p>
     </div>
   );
 }
