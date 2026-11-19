@@ -34,6 +34,6 @@ public abstract class AbstractIntegrationTest {
 
     @BeforeEach
     protected void cleanDatabase() {
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, "progress_record");
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, "progress_record", "day_log");
     }
 }
