@@ -2,9 +2,9 @@ package no.kristiania.lifeos.profile.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import no.kristiania.lifeos.profile.service.ProfileService;
 import no.kristiania.lifeos.profile.dto.ProfileResponse;
 import no.kristiania.lifeos.profile.dto.UpdateProfileRequest;
+import no.kristiania.lifeos.profile.service.ProfileService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 

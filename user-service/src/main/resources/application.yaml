@@ -22,7 +22,7 @@ spring:
     password: ${POSTGRES_PASSWORD}
   jpa:
     open-in-view: false
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: validate
 app:
@@ -35,7 +35,7 @@ app:
   google:
     client-id: ${GOOGLE_CLIENT_ID}
   cors:
-    allowed-origins: http://localhost:5173
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
 
 management:
   endpoints:

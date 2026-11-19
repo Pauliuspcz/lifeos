@@ -1,5 +1,6 @@
 package no.kristiania.lifeos.auth.google;
 
+import lombok.extern.slf4j.Slf4j;
 import no.kristiania.lifeos.exception.InvalidGoogleTokenException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
@@ -9,10 +10,10 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
-
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class GoogleTokenVerifier {
 
@@ -40,11 +41,13 @@ public class GoogleTokenVerifier {
         try {
             Jwt jwt = decoder.decode(idToken);
             if (!Boolean.TRUE.equals(jwt.getClaimAsBoolean("email_verified"))) {
+                log.warn("Google token rejected: email not verified");
                 throw new InvalidGoogleTokenException();
             }
             return new GoogleUser(jwt.getSubject(), jwt.getClaimAsString("email"),
                     jwt.getClaimAsString("name"), jwt.getClaimAsString("picture"));
         } catch (JwtException e) {
+            log.warn("Google token verification failed: {}", e.getMessage());
             throw new InvalidGoogleTokenException();
         }
     }

@@ -1,0 +1,20 @@
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enabled: true
+      hints.default_config:
+        enabled: false
+        type: filestream
+        id: container-${data.container.id}
+        prospector.scanner.symlinks: true
+        parsers:
+          - container: ~
+          - ndjson:
+              overwrite_keys: true
+              add_error_key: true
+              expand_keys: true
+        paths:
+          - /var/lib/docker/containers/${data.container.id}/*.log
+
+output.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]

@@ -1,10 +1,6 @@
 package no.kristiania.lifeos.auth.service;
 
-import no.kristiania.lifeos.auth.dto.AuthResponse;
-import no.kristiania.lifeos.auth.dto.LoginRequest;
-import no.kristiania.lifeos.auth.dto.RefreshRequest;
-import no.kristiania.lifeos.auth.dto.RegisterRequest;
-import no.kristiania.lifeos.auth.dto.RegisterResponse;
+import no.kristiania.lifeos.auth.dto.*;
 import no.kristiania.lifeos.auth.token.RefreshToken;
 import no.kristiania.lifeos.auth.token.RefreshTokenService;
 import no.kristiania.lifeos.exception.EmailAlreadyRegisteredException;
@@ -25,10 +21,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {

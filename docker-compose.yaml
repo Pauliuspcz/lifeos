@@ -1,3 +1,5 @@
+include:
+  - observability/compose.logging.yaml
 services:
   user-db:
     image: postgres:15-alpine
@@ -17,6 +19,8 @@ services:
 
   user-service:
     build: ./user-service
+    labels:
+      co.elastic.logs/enabled: "true"
     depends_on:
       consul-importer:
         condition: service_completed_successfully
@@ -51,6 +55,8 @@ services:
 
   goal-service:
     build: ./goal-service
+    labels:
+      co.elastic.logs/enabled: "true"
     depends_on:
       consul-importer:
         condition: service_completed_successfully
@@ -69,7 +75,6 @@ services:
       SPRING_RABBITMQ_HOST: rabbitmq
       RABBITMQ_USER: ${RABBITMQ_USER}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
-
   progress-db:
     image: postgres:15-alpine
     environment:
@@ -89,6 +94,8 @@ services:
 
   progress-service:
     build: ./progress-service
+    labels:
+      co.elastic.logs/enabled: "true"
     deploy:
       replicas: 2
     depends_on:
@@ -129,6 +136,8 @@ services:
 
   report-service:
     build: ./report-service
+    labels:
+      co.elastic.logs/enabled: "true"
     deploy:
       replicas: 2
     depends_on:
@@ -172,6 +181,8 @@ services:
 
   recommendation-service:
     build: ./recommendation-service
+    labels:
+      co.elastic.logs/enabled: "true"
     depends_on:
       consul-importer:
         condition: service_completed_successfully
@@ -222,8 +233,16 @@ services:
     container_name: gateway
     build:
       context: ./gateway
+    labels:
+      co.elastic.logs/enabled: "true"
     environment:
       SPRING_CLOUD_CONSUL_HOST: "consul"
+      LOGGING_STRUCTURED_FORMAT_CONSOLE: ecs
+      MANAGEMENT_TRACING_SAMPLING_PROBABILITY: "1.0"
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: "false"
+      MANAGEMENT_TRACING_EXPORT_OTLP_ENABLED: "false"
+      MANAGEMENT_LOGGING_EXPORT_OTLP_ENABLED: "false"
+      SPRING_REACTOR_CONTEXTPROPAGATION: auto
     ports:
       - "8100:8100"
     depends_on:
