@@ -1,7 +1,7 @@
-package no.kristiania.progressservice.progress;
+package no.kristiania.progressservice.progress.utils;
 
+import no.kristiania.progressservice.exceptions.UnsupportedTrackingException;
 import no.kristiania.progressservice.progress.dto.DateRange;
-import no.kristiania.progressservice.progress.exceptions.UnsupportedTrackingException;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;

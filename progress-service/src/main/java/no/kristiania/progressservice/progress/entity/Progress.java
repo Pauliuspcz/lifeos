@@ -1,9 +1,8 @@
-package no.kristiania.progressservice.progress;
+package no.kristiania.progressservice.progress.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import no.kristiania.progressservice.client.TrackingModel;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -24,7 +23,7 @@ public class Progress {
     private UUID eventId; // unique id sent in the RabbitMQ event
 
     @Column(nullable = false)
-    private Long userId; //hardcoded before user finished
+    private Long userId;
 
     @Column(nullable = false)
     private Long goalId; // Which goal it counts for

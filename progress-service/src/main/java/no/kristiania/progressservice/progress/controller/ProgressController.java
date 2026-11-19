@@ -1,9 +1,12 @@
-package no.kristiania.progressservice.progress;
+package no.kristiania.progressservice.progress.controller;
+
 import jakarta.validation.Valid;
 import no.kristiania.progressservice.progress.dto.CreateProgressRequest;
 import no.kristiania.progressservice.progress.dto.GoalProgressSummary;
 import no.kristiania.progressservice.progress.dto.ProgressResponse;
 import no.kristiania.progressservice.progress.dto.ProgressWindowResponse;
+import no.kristiania.progressservice.progress.entity.Progress;
+import no.kristiania.progressservice.progress.service.ProgressService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

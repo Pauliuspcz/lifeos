@@ -1,6 +1,6 @@
-package no.kristiania.progressservice.progress;
+package no.kristiania.progressservice.progress.utils;
 
-import no.kristiania.progressservice.client.TrackingModel;
+import no.kristiania.progressservice.progress.entity.TrackingModel;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;

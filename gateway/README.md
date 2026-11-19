@@ -103,4 +103,4 @@ Gateway error status=503 routeId=goal-service method=GET path=/api/catalog/categ
 
 Successful requests are not logged, and neither are errors the services return themselves (a `401` or `409` from a service passes through; the service logs it). Spring also logs 5xx errors with a stack trace.
 
-The rules for all services are in `docs/LOGGING.md`; the log stack is described in `observability/README.md`. To see DEBUG lines from our own code, set `logging.level.no.kristiania.gateway=DEBUG`.
+To see DEBUG lines from our own code, set `logging.level.no.kristiania.gateway=DEBUG`.

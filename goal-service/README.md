@@ -146,4 +146,4 @@ no/kristiania/goalservice/
 
 ## Logging
 
-Logs go to stdout as JSON in ECS format, set for all services in the shared Consul config. Each line has `log.level`, `service.name` and, inside a request, `traceId` and `spanId`. The plan and rules are in `docs/LOGGING.md`; the log stack is described in `observability/README.md`.
+Logs go to stdout as JSON in ECS format, set for all services in the shared Consul config. Each line has `log.level`, `service.name` and, inside a request, `traceId` and `spanId`.

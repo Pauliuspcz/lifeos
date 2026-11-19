@@ -3,15 +3,15 @@ package no.kristiania.progressservice.unit;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import no.kristiania.progressservice.client.GoalClient;
 import no.kristiania.progressservice.client.GoalSummary;
-import no.kristiania.progressservice.progress.Progress;
-import no.kristiania.progressservice.progress.ProgressRepo;
-import no.kristiania.progressservice.progress.ProgressService;
+import no.kristiania.progressservice.progress.entity.Progress;
+import no.kristiania.progressservice.progress.repository.ProgressRepository;
+import no.kristiania.progressservice.progress.service.ProgressService;
 import no.kristiania.progressservice.progress.dto.CreateProgressRequest;
 import no.kristiania.progressservice.progress.dto.DateRange;
 import no.kristiania.progressservice.progress.dto.GoalProgressSummary;
-import no.kristiania.progressservice.progress.exceptions.AmountRequiredException;
-import no.kristiania.progressservice.progress.exceptions.LogDateOutsideWindowException;
-import no.kristiania.progressservice.progress.exceptions.PeriodTargetReachedException;
+import no.kristiania.progressservice.exceptions.AmountRequiredException;
+import no.kristiania.progressservice.exceptions.LogDateOutsideWindowException;
+import no.kristiania.progressservice.exceptions.PeriodTargetReachedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,7 +40,7 @@ class ProgressServiceTest {
             Instant.parse("2026-11-20T12:00:00Z"), ZoneId.of("Europe/Oslo"));
 
     @Mock
-    ProgressRepo repo;
+    ProgressRepository repo;
     @Mock
     RabbitTemplate rabbitTemplate;
     @Mock

@@ -36,8 +36,14 @@ public class RestClientConfig {
     @Bean
     CircuitBreaker goalCircuitBreaker(CircuitBreakerRegistry registry) {
         CircuitBreaker breaker = registry.circuitBreaker("goal");
-        breaker.getEventPublisher()
-                .onStateTransition(event -> log.warn("goal circuit breaker {}", event.getStateTransition()));
+        breaker.getEventPublisher().onStateTransition(event -> {
+            CircuitBreaker.StateTransition transition = event.getStateTransition();
+            if (transition.getToState() == CircuitBreaker.State.CLOSED) {
+                log.info("Goal circuit breaker state changed transition={}", transition);
+            } else {
+                log.warn("Goal circuit breaker state changed transition={}", transition);
+            }
+        });
         return breaker;
     }
 

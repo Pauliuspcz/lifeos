@@ -1,4 +1,4 @@
-package no.kristiania.progressservice.progress;
+package no.kristiania.progressservice.progress.utils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

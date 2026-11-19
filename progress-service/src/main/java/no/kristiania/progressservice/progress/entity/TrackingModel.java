@@ -1,6 +1,7 @@
-package no.kristiania.progressservice.client;
+package no.kristiania.progressservice.progress.entity;
 
-import no.kristiania.progressservice.progress.exceptions.UnsupportedTrackingException;
+import no.kristiania.progressservice.client.GoalSummary;
+import no.kristiania.progressservice.exceptions.UnsupportedTrackingException;
 
 public enum TrackingModel {
     DAILY_CHECK, WEEKLY_COUNT, MONTHLY_COUNT, CUMULATIVE_SUM;

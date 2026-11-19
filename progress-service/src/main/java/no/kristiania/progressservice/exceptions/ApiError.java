@@ -1,4 +1,4 @@
-package no.kristiania.progressservice.progress.exceptions;
+package no.kristiania.progressservice.exceptions;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

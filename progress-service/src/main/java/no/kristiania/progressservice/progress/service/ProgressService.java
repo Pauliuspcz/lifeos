@@ -1,4 +1,4 @@
-package no.kristiania.progressservice.progress;
+package no.kristiania.progressservice.progress.service;
 
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
@@ -6,16 +6,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.kristiania.progressservice.client.GoalClient;
 import no.kristiania.progressservice.client.GoalSummary;
-import no.kristiania.progressservice.client.TrackingModel;
 import no.kristiania.progressservice.config.RabbitConfig;
-import no.kristiania.progressservice.progress.dto.CreateProgressRequest;
-import no.kristiania.progressservice.progress.dto.DateRange;
-import no.kristiania.progressservice.progress.dto.GoalProgressSummary;
-import no.kristiania.progressservice.progress.dto.ProgressEntryView;
-import no.kristiania.progressservice.progress.dto.ProgressWindowResponse;
+import no.kristiania.progressservice.exceptions.*;
+import no.kristiania.progressservice.progress.dto.*;
+import no.kristiania.progressservice.progress.entity.Progress;
+import no.kristiania.progressservice.progress.entity.TrackingModel;
 import no.kristiania.progressservice.progress.events.ProgressCreatedEvent;
 import no.kristiania.progressservice.progress.events.ProgressDeletedEvent;
-import no.kristiania.progressservice.progress.exceptions.*;
+import no.kristiania.progressservice.progress.repository.ProgressRepository;
+import no.kristiania.progressservice.progress.utils.AmountPeriod;
+import no.kristiania.progressservice.progress.utils.LogWindow;
+import no.kristiania.progressservice.progress.utils.Pace;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -37,7 +38,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProgressService {
 
-    private final ProgressRepo progressRepo;
+    private final ProgressRepository progressRepository;
     private final RabbitTemplate rabbitTemplate;
     private final GoalClient goalClient;
     private final CircuitBreaker goalCircuitBreaker;
@@ -47,19 +48,23 @@ public class ProgressService {
         try {
             return goalCircuitBreaker.executeSupplier(() -> goalClient.getGoal(goalId));
         } catch (CallNotPermittedException e) {
-            log.warn("goal circuit breaker is open, failing fast for goal {}", goalId);
+            log.warn("Goal circuit breaker open, failing fast goalId={}", goalId);
             throw new GoalUnavailableException();
         } catch (HttpClientErrorException.NotFound e) {
             throw new GoalNotFoundException(goalId);
         } catch (HttpClientErrorException e) {
-            log.error("goal-service rejected the request with {}", e.getStatusCode(), e);
+            log.error("goal-service rejected the request status={} goalId={}",
+                    e.getStatusCode().value(), goalId, e);
             throw new GoalUnavailableException();
         } catch (ResourceAccessException | HttpServerErrorException e) {
-            log.error("goal-service unavailable", e);
+            log.warn("goal-service unavailable goalId={} type={}", goalId, e.getClass().getSimpleName());
+            log.debug("goal-service call failed", e);
             throw new GoalUnavailableException();
         }
     }
 
+    // Not @Transactional on purpose: the DataIntegrityViolationException catch below only works
+    // when save() commits by itself.
     public Progress create(Long userId, CreateProgressRequest request) {
         GoalSummary goal = fetchGoal(request.goalId());
         if (!"ACTIVE".equals(goal.status())) {
@@ -84,9 +89,13 @@ public class ProgressService {
         }
 
         if (!cumulative) {
-            Optional<Progress> existing = progressRepo
+            Optional<Progress> existing = progressRepository
                     .findByUserIdAndGoalIdAndDate(userId, goal.id(), request.date());
-            if (existing.isPresent()) return existing.get();
+            if (existing.isPresent()) {
+                log.debug("Progress already logged progressId={} userId={} goalId={}",
+                        existing.get().getId(), userId, goal.id());
+                return existing.get();
+            }
         }
 
         boolean counted = model == TrackingModel.WEEKLY_COUNT || model == TrackingModel.MONTHLY_COUNT;
@@ -95,7 +104,7 @@ public class ProgressService {
             boolean weekly = model == TrackingModel.WEEKLY_COUNT;
             LocalDate from = weekly ? LogWindow.weekStart(request.date()) : LogWindow.monthStart(request.date());
             LocalDate to = weekly ? from.plusWeeks(1).minusDays(1) : from.plusMonths(1).minusDays(1);
-            if (progressRepo.countByUserIdAndGoalIdAndDateBetween(userId, goal.id(), from, to) >= targetCount) {
+            if (progressRepository.countByUserIdAndGoalIdAndDateBetween(userId, goal.id(), from, to) >= targetCount) {
                 throw new PeriodTargetReachedException();
             }
         }
@@ -107,48 +116,55 @@ public class ProgressService {
         progress.setTrackingModel(model);
         progress.setAmount(cumulative ? request.amount() : null);
 
-
         // Amount goals count as "days with progress" in report-service
         String eventPeriod = cumulative ? "DAILY" : goal.period();
 
         Progress saved;
         try {
-            saved = progressRepo.save(progress);
+            saved = progressRepository.save(progress);
         } catch (DataIntegrityViolationException e) {
-            return progressRepo.findByUserIdAndGoalIdAndDate(userId, goal.id(), request.date())
+            log.debug("Duplicate progress ignored userId={} goalId={}", userId, goal.id());
+            return progressRepository.findByUserIdAndGoalIdAndDate(userId, goal.id(), request.date())
                     .orElseThrow(() -> e);
         }
+        log.info("Progress created progressId={} userId={} goalId={} trackingModel={}",
+                saved.getId(), userId, goal.id(), model);
         try {
             rabbitTemplate.convertAndSend(RabbitConfig.EXCHANGE,
                     RabbitConfig.ROUTING_KEY_CREATED,
                     ProgressCreatedEvent.from(saved, targetCount, eventPeriod));
+            log.debug("Progress created event published progressId={} eventId={}",
+                    saved.getId(), saved.getEventId());
         } catch (AmqpException e) {
-            log.error("Could not publish ProgressCreatedEvent {}", saved.getEventId(), e);
+            log.error("Progress created event publish failed progressId={} eventId={}",
+                    saved.getId(), saved.getEventId(), e);
         }
         return saved;
     }
 
     public List<Progress> findAll(Long userId, Long goalId) {
         if (goalId == null) {
-            return progressRepo.findByUserIdOrderByDateDesc(userId);
+            return progressRepository.findByUserIdOrderByDateDesc(userId);
         }
-        return progressRepo.findByGoalIdAndUserIdOrderByDateDesc(goalId, userId);
+        return progressRepository.findByGoalIdAndUserIdOrderByDateDesc(goalId, userId);
     }
 
     public void delete(Long userId, Long id) {
-        Progress progress = progressRepo.findByIdAndUserId(id, userId)
+        Progress progress = progressRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new ProgressNotFoundException(id));
         LocalDate today = LocalDate.now(clock);
         if (!LogWindow.contains(progress.getTrackingModel(), today, progress.getDate())) {
             throw new LogDateOutsideWindowException(
                     LogWindow.earliest(progress.getTrackingModel(), today), today);
         }
-        progressRepo.delete(progress);
+        progressRepository.delete(progress);
+        log.info("Progress deleted progressId={} userId={} goalId={}",
+                progress.getId(), userId, progress.getGoalId());
         try {
             rabbitTemplate.convertAndSend(RabbitConfig.EXCHANGE,
                     RabbitConfig.ROUTING_KEY_DELETED, ProgressDeletedEvent.from(progress));
         } catch (AmqpException e) {
-            log.error("Could not publish ProgressDeletedEvent for progress {}", progress.getId(), e);
+            log.error("Progress deleted event publish failed progressId={}", progress.getId(), e);
         }
     }
 
@@ -159,7 +175,7 @@ public class ProgressService {
         LocalDate from = today.minusDays(6);
         LocalDate fetchFrom = monthStart.isBefore(from) ? monthStart : from;
 
-        List<ProgressEntryView> entries = progressRepo
+        List<ProgressEntryView> entries = progressRepository
                 .findByUserIdAndDateBetweenOrderByDateDesc(userId, fetchFrom, today).stream()
                 .filter(p -> goalId == null || p.getGoalId().equals(goalId))
                 .map(p -> ProgressEntryView.from(p,
@@ -183,8 +199,8 @@ public class ProgressService {
                 : AmountPeriod.current(goal.period(), goal.startDate(), today);
 
         BigDecimal total = current == null
-                ? progressRepo.sumAmount(userId, goalId)
-                : progressRepo.sumAmountBetween(userId, goalId, current.from(), current.to());
+                ? progressRepository.sumAmount(userId, goalId)
+                : progressRepository.sumAmountBetween(userId, goalId, current.from(), current.to());
         LocalDate paceFrom = current == null ? goal.startDate() : current.from();
         LocalDate paceTo = current == null ? goal.targetDate() : current.to();
         BigDecimal expected = Pace.expected(goal.targetAmount(), paceFrom, paceTo, today);

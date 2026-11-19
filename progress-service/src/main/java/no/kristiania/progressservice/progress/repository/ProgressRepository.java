@@ -1,4 +1,5 @@
-package no.kristiania.progressservice.progress;
+package no.kristiania.progressservice.progress.repository;
+import no.kristiania.progressservice.progress.entity.Progress;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ProgressRepo extends JpaRepository<Progress,Long> {
+public interface ProgressRepository extends JpaRepository<Progress,Long> {
     List<Progress> findByGoalIdAndUserIdOrderByDateDesc(Long goalId, Long userId);
     List<Progress> findByUserIdOrderByDateDesc(Long userId);
     Optional<Progress> findByIdAndUserId(Long id, Long userId);

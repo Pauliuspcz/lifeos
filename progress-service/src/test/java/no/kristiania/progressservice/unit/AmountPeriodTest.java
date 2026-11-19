@@ -1,8 +1,8 @@
 package no.kristiania.progressservice.unit;
 
-import no.kristiania.progressservice.progress.AmountPeriod;
+import no.kristiania.progressservice.progress.utils.AmountPeriod;
 import no.kristiania.progressservice.progress.dto.DateRange;
-import no.kristiania.progressservice.progress.exceptions.UnsupportedTrackingException;
+import no.kristiania.progressservice.exceptions.UnsupportedTrackingException;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;

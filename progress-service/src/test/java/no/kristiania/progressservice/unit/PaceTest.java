@@ -1,6 +1,6 @@
 package no.kristiania.progressservice.unit;
 
-import no.kristiania.progressservice.progress.Pace;
+import no.kristiania.progressservice.progress.utils.Pace;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

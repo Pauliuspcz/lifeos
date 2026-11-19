@@ -1,7 +1,7 @@
 package no.kristiania.progressservice.progress.events;
 
-import no.kristiania.progressservice.client.TrackingModel;
-import no.kristiania.progressservice.progress.Progress;
+import no.kristiania.progressservice.progress.entity.Progress;
+import no.kristiania.progressservice.progress.entity.TrackingModel;
 
 import java.math.BigDecimal;
 import java.time.Instant;
