@@ -10,6 +10,7 @@ import no.kristiania.progressservice.progress.dto.DateRange;
 import no.kristiania.progressservice.progress.dto.GoalProgressSummary;
 import no.kristiania.progressservice.progress.exceptions.AmountRequiredException;
 import no.kristiania.progressservice.progress.exceptions.LogDateOutsideWindowException;
+import no.kristiania.progressservice.progress.exceptions.PeriodTargetReachedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -67,6 +68,10 @@ class ProgressServiceTest {
 
     private static GoalSummary dailyGoal() {
         return new GoalSummary(GOAL_ID, "ACTIVE", "CHECK", 1, "DAILY", null, null, TODAY, null);
+    }
+
+    private static GoalSummary monthlyCheckGoal(int times) {
+        return new GoalSummary(GOAL_ID, "ACTIVE", "CHECK", times, "MONTHLY", null, null, TODAY, null);
     }
 
     @Test
@@ -143,5 +148,26 @@ class ProgressServiceTest {
         assertThat(result).isSameAs(existing);
         verify(repo, never()).save(any());
         verifyNoInteractions(rabbitTemplate);
+    }
+
+    @Test
+    void createWhenMonthlyTargetReachedThrows() {
+        when(goalClient.getGoal(GOAL_ID)).thenReturn(monthlyCheckGoal(1));
+        when(repo.countByUserIdAndGoalIdAndDateBetween(any(), any(), any(), any())).thenReturn(1L);
+
+        assertThatThrownBy(() -> service.create(USER_ID, new CreateProgressRequest(GOAL_ID, TODAY, null)))
+                .isInstanceOf(PeriodTargetReachedException.class);
+        verify(repo, never()).save(any());
+    }
+
+    @Test
+    void createBelowMonthlyTargetSaves() {
+        when(goalClient.getGoal(GOAL_ID)).thenReturn(monthlyCheckGoal(3));
+        when(repo.countByUserIdAndGoalIdAndDateBetween(any(), any(), any(), any())).thenReturn(2L);
+        when(repo.save(any(Progress.class))).thenAnswer(i -> i.getArgument(0));
+
+        Progress saved = service.create(USER_ID, new CreateProgressRequest(GOAL_ID, TODAY, null));
+
+        assertThat(saved.getDate()).isEqualTo(TODAY);
     }
 }
