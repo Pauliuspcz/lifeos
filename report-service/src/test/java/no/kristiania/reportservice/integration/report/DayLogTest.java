@@ -3,6 +3,8 @@ package no.kristiania.reportservice.integration.report;
 import no.kristiania.reportservice.integration.setup.AbstractReportApiTest;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -43,5 +45,20 @@ class DayLogTest extends AbstractReportApiTest {
         getDayLogToday(OTHER)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.mood").isEmpty());
+    }
+
+    @Test
+    void summary_combinesDayLogWithCheckins() throws Exception {
+        putDayLog(USER, "{\"mood\":4,\"sleepHours\":8}");
+        insertRecord(USER, 10L, LocalDate.now());
+        insertRecord(USER, 20L, LocalDate.now());
+
+        getDayLogSummary(USER)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.avgMood").value(4.0))
+                .andExpect(jsonPath("$.avgSleep").value(8.0))
+                .andExpect(jsonPath("$.checkinsWellRested").value(2.0))
+                .andExpect(jsonPath("$.checkinsOtherDays").isEmpty())
+                .andExpect(jsonPath("$.daysLogged").value(1));
     }
 }

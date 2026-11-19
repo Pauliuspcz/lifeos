@@ -2,6 +2,7 @@ package no.kristiania.reportservice.report.daylog;
 
 import no.kristiania.reportservice.report.dto.DayLogRequest;
 import no.kristiania.reportservice.report.dto.DayLogView;
+import no.kristiania.reportservice.report.dto.Wellbeing;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,5 +23,9 @@ public class DayLogController {
     @GetMapping("/today")
     public DayLogView today(@AuthenticationPrincipal Long userId) {
         return dayLogService.today(userId);
+    }
+    @GetMapping("/summary")
+    public Wellbeing summary(@AuthenticationPrincipal Long userId) {
+        return dayLogService.summary(userId);
     }
 }

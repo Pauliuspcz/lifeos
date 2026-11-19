@@ -46,6 +46,11 @@ public abstract class AbstractReportApiTest extends AbstractIntegrationTest {
                 .header(AUTHORIZATION, bearer(tokenFor(userId))));
     }
 
+    protected ResultActions getDayLogSummary(long userId) throws Exception {
+        return mockMvc.perform(get("/api/reports/day-log/summary")
+                .header(AUTHORIZATION, bearer(tokenFor(userId))));
+    }
+
     protected void insertRecord(long userId, long goalId, LocalDate date) {
         jdbcTemplate.update("""
                 INSERT INTO progress_record (id, event_id, progress_id, user_id, goal_id, date, received_at)
