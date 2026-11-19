@@ -1,4 +1,4 @@
-package no.kristiania.recommendationservice.relations;
+package no.kristiania.recommendationservice.relations.props;
 
 
 import org.springframework.boot.context.properties.ConfigurationProperties;

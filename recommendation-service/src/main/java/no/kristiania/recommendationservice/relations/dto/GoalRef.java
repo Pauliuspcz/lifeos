@@ -1,4 +1,4 @@
-package no.kristiania.recommendationservice.relations;
+package no.kristiania.recommendationservice.relations.dto;
 
 public record GoalRef(String templateCode, String directionCode, String period) {
     public boolean matches(String code) {

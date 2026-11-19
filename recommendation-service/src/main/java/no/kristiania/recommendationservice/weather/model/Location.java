@@ -1,4 +1,4 @@
-package no.kristiania.recommendationservice.weather;
+package no.kristiania.recommendationservice.weather.model;
 
 public record Location(double lat, double lon) {
 

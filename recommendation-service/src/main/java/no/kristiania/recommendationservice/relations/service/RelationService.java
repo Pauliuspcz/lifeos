@@ -1,5 +1,9 @@
-package no.kristiania.recommendationservice.relations;
+package no.kristiania.recommendationservice.relations.service;
 
+import no.kristiania.recommendationservice.relations.utils.RelationFinder;
+import no.kristiania.recommendationservice.relations.dto.RelationHint;
+import no.kristiania.recommendationservice.relations.props.RelationProperties;
+import no.kristiania.recommendationservice.relations.dto.RelationRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

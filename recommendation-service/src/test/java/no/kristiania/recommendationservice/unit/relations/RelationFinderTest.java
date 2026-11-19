@@ -1,6 +1,11 @@
 package no.kristiania.recommendationservice.unit.relations;
 
-import no.kristiania.recommendationservice.relations.*;
+import no.kristiania.recommendationservice.relations.dto.GoalRef;
+import no.kristiania.recommendationservice.relations.dto.RelationHint;
+import no.kristiania.recommendationservice.relations.enums.RelationType;
+import no.kristiania.recommendationservice.relations.props.RelationProperties;
+import no.kristiania.recommendationservice.relations.props.RelationRule;
+import no.kristiania.recommendationservice.relations.utils.RelationFinder;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

@@ -1,6 +1,9 @@
-package no.kristiania.recommendationservice.relations;
+package no.kristiania.recommendationservice.relations.controller;
 
 import jakarta.validation.Valid;
+import no.kristiania.recommendationservice.relations.dto.RelationHint;
+import no.kristiania.recommendationservice.relations.dto.RelationRequest;
+import no.kristiania.recommendationservice.relations.service.RelationService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

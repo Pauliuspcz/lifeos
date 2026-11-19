@@ -1,4 +1,6 @@
-package no.kristiania.recommendationservice.relations;
+package no.kristiania.recommendationservice.relations.props;
+
+import no.kristiania.recommendationservice.relations.enums.RelationType;
 
 import java.util.List;
 

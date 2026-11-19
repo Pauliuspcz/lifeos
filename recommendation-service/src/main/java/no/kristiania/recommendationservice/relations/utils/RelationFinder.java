@@ -1,4 +1,10 @@
-package no.kristiania.recommendationservice.relations;
+package no.kristiania.recommendationservice.relations.utils;
+
+import no.kristiania.recommendationservice.relations.dto.GoalRef;
+import no.kristiania.recommendationservice.relations.dto.RelationHint;
+import no.kristiania.recommendationservice.relations.enums.RelationType;
+import no.kristiania.recommendationservice.relations.props.RelationProperties;
+import no.kristiania.recommendationservice.relations.props.RelationRule;
 
 import java.util.*;
 import java.util.stream.Stream;

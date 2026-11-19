@@ -1,4 +1,4 @@
-package no.kristiania.recommendationservice.relations;
+package no.kristiania.recommendationservice.relations.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

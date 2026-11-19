@@ -1,6 +1,6 @@
 package no.kristiania.recommendationservice.weather.openmeteo;
 
-import no.kristiania.recommendationservice.weather.Location;
+import no.kristiania.recommendationservice.weather.model.Location;
 import no.kristiania.recommendationservice.weather.dto.WeatherResponse;
 import no.kristiania.recommendationservice.weather.enums.WeatherCondition;
 

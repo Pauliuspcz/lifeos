@@ -1,4 +1,4 @@
-package no.kristiania.recommendationservice.outdoor;
+package no.kristiania.recommendationservice.outdoor.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

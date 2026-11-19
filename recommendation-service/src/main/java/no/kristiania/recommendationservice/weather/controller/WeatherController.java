@@ -1,7 +1,8 @@
-package no.kristiania.recommendationservice.weather;
+package no.kristiania.recommendationservice.weather.controller;
 
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
+import no.kristiania.recommendationservice.weather.service.WeatherService;
 import no.kristiania.recommendationservice.weather.dto.WeatherRecommendation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

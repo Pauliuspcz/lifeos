@@ -1,4 +1,4 @@
-package no.kristiania.recommendationservice.weather;
+package no.kristiania.recommendationservice.weather.model;
 
 import no.kristiania.recommendationservice.weather.dto.WeatherResponse;
 import java.time.Instant;

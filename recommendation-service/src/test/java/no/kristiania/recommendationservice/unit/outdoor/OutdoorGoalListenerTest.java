@@ -1,8 +1,8 @@
 package no.kristiania.recommendationservice.unit.outdoor;
 
-import no.kristiania.recommendationservice.outdoor.OutdoorGoal;
-import no.kristiania.recommendationservice.outdoor.OutdoorGoalListener;
-import no.kristiania.recommendationservice.outdoor.OutdoorGoalRepo;
+import no.kristiania.recommendationservice.outdoor.entity.OutdoorGoal;
+import no.kristiania.recommendationservice.outdoor.listener.OutdoorGoalListener;
+import no.kristiania.recommendationservice.outdoor.repository.OutdoorGoalRepository;
 import no.kristiania.recommendationservice.outdoor.events.GoalOutdoorChangedEvent;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class OutdoorGoalListenerTest {
     @Mock
-    OutdoorGoalRepo repo;
+    OutdoorGoalRepository repo;
     @InjectMocks
     OutdoorGoalListener listener;
 

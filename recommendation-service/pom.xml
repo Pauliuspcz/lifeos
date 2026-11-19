@@ -13,19 +13,6 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>recommendation-service</name>
     <description>recommendation-service</description>
-    <url/>
-    <licenses>
-        <license/>
-    </licenses>
-    <developers>
-        <developer/>
-    </developers>
-    <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
-    </scm>
     <properties>
         <java.version>21</java.version>
         <spring-cloud.version>2025.1.3</spring-cloud.version>
@@ -90,6 +77,8 @@
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
         </dependency>
+
+        <!-- Tests -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator-test</artifactId>
@@ -146,6 +135,7 @@
             <artifactId>testcontainers-rabbitmq</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Used only to sign test tokens; the service itself never creates tokens -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>

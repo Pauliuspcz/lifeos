@@ -1,20 +1,23 @@
-package no.kristiania.recommendationservice.weather;
+package no.kristiania.recommendationservice.weather.service;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import lombok.extern.slf4j.Slf4j;
-import no.kristiania.recommendationservice.outdoor.OutdoorGoalRepo;
+import no.kristiania.recommendationservice.exceptions.WeatherUnavailableException;
+import no.kristiania.recommendationservice.outdoor.repository.OutdoorGoalRepository;
 import no.kristiania.recommendationservice.weather.dto.BestTime;
-import no.kristiania.recommendationservice.weather.openmeteo.OpenMeteoResponse;
 import no.kristiania.recommendationservice.weather.dto.WeatherRecommendation;
-import no.kristiania.recommendationservice.weather.exceptions.WeatherUnavailableException;
+import no.kristiania.recommendationservice.weather.model.CachedWeather;
+import no.kristiania.recommendationservice.weather.model.Location;
 import no.kristiania.recommendationservice.weather.openmeteo.OpenMeteoClient;
 import no.kristiania.recommendationservice.weather.openmeteo.OpenMeteoMapper;
+import no.kristiania.recommendationservice.weather.openmeteo.OpenMeteoResponse;
 import no.kristiania.recommendationservice.weather.props.WeatherCacheProperties;
 import no.kristiania.recommendationservice.weather.props.WeatherRatingProperties;
 import no.kristiania.recommendationservice.weather.rules.BestWindow;
 import no.kristiania.recommendationservice.weather.rules.WeatherRating;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
-import com.github.benmanes.caffeine.cache.Cache;
+
 import java.time.Instant;
 import java.util.Optional;
 
@@ -23,16 +26,18 @@ import java.util.Optional;
 public class WeatherService {
 
     private final OpenMeteoClient openMeteoClient;
-    private final OutdoorGoalRepo outdoorGoalRepo;
+    private final OutdoorGoalRepository outdoorGoalRepository;
 
     private final Cache<Location, CachedWeather> weatherCache;
     private final WeatherCacheProperties weatherCacheProperties;
     private final WeatherRatingProperties weatherRatingProperties;
 
-    public WeatherService(OpenMeteoClient openMeteoClient,OutdoorGoalRepo outdoorGoalRepo, Cache<Location, CachedWeather> weatherCache,
-                          WeatherCacheProperties weatherCacheProperties, WeatherRatingProperties weatherRatingProperties) {
+    public WeatherService(OpenMeteoClient openMeteoClient, OutdoorGoalRepository outdoorGoalRepository,
+                          Cache<Location, CachedWeather> weatherCache,
+                          WeatherCacheProperties weatherCacheProperties,
+                          WeatherRatingProperties weatherRatingProperties) {
         this.openMeteoClient = openMeteoClient;
-        this.outdoorGoalRepo = outdoorGoalRepo;
+        this.outdoorGoalRepository = outdoorGoalRepository;
         this.weatherCache = weatherCache;
         this.weatherCacheProperties = weatherCacheProperties;
         this.weatherRatingProperties = weatherRatingProperties;
@@ -48,7 +53,7 @@ public class WeatherService {
     }
 
     public Optional<WeatherRecommendation> getRecommendationForUser(Long userId, double lat, double lon) {
-        if (!outdoorGoalRepo.existsByUserId(userId)) {
+        if (!outdoorGoalRepository.existsByUserId(userId)) {
             return Optional.empty();
         }
         return Optional.of(getRecommendation(lat, lon));
@@ -69,24 +74,25 @@ public class WeatherService {
             if (cached == null) {
                 throw e;
             }
-            log.warn("Serving stale weather for {} fetched at {}", location, cached.fetchedAt());
+            log.warn("Serving stale weather fetchedAt={}", cached.fetchedAt());
             return new CachedWeather(cached.weather().asStale(), cached.forecast(), cached.fetchedAt());
         }
     }
 
     private CachedWeather fetch(Location location) {
-        log.info("Fetching weather from Open-Meteo for {}", location);
         OpenMeteoResponse response;
         try {
             response = openMeteoClient.getCurrent(location.lat(), location.lon());
         } catch (RestClientException e) {
-            log.warn("Open-Meteo call failed for {}: {}", location, e.getMessage());
+            log.warn("Open-Meteo call failed type={}", e.getClass().getSimpleName());
+            log.debug("Open-Meteo call failed", e);
             throw new WeatherUnavailableException();
         }
         if (response == null || response.current() == null) {
-            log.warn("Open-Meteo returned no current weather for {}", location);
+            log.warn("Open-Meteo returned no current weather");
             throw new WeatherUnavailableException();
         }
+        log.debug("Weather fetched from Open-Meteo");
         return new CachedWeather(OpenMeteoMapper.current(response, location),
                 OpenMeteoMapper.forecast(response.hourly(), location), Instant.now());
     }
