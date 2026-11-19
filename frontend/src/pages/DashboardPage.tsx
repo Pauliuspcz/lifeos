@@ -1,5 +1,5 @@
 import Topbar from "../shared/components/Topbar";
-import { GoalsCard, useGoals } from "../features/goals";
+import { GoalsCard, useAreas, useGoals } from "../features/goals";
 import { StreaksCard, useGoalReports } from "../features/report";
 import { CheckinCard, useProgress } from "../features/progress";
 import { countInPeriod } from "../features/progress";
@@ -20,6 +20,7 @@ export default function DashboardPage() {
     useGoals("ACTIVE");
   const { entries, addProgress, removeProgress } = useProgress();
   const { reports } = useGoalReports(goals, entries);
+  const { areas } = useAreas();
 
   return (
     <>
@@ -36,6 +37,7 @@ export default function DashboardPage() {
         <OutdoorWeatherCard goals={goals} />
         <CheckinCard
           goals={goals}
+          categories={areas}
           entries={entries}
           onCheck={addProgress}
           onUncheck={removeProgress}
