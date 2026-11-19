@@ -29,7 +29,7 @@ export function useProgress() {
 
   async function addProgress(req: CreateProgressRequest) {
     const created = await createProgress(req);
-    setEntries((prev) => [created, ...prev]);
+    setEntries((prev) => [created, ...prev.filter((p) => p.id !== created.id)]);
   }
 
   async function removeProgress(id: number) {

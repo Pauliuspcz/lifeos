@@ -63,11 +63,7 @@ export default function GoalsCard({
           <p className="muted">No goals created yet.</p>
         )}
         {goals.map((g) => (
-          <div
-            className="goal-row"
-            key={g.id}
-            style={{ borderLeft: `4px solid ${g.color ?? "#ccc"}` }}
-          >
+          <div className="goal-row" key={g.id}>
             <div className="goal-top">
               <span>{g.title}</span>
               <span className="muted">{describeGoal(g)}</span>
@@ -86,6 +82,7 @@ export default function GoalsCard({
                   className="progress-fill"
                   style={{
                     width: `${Math.min(100, (countFor(g) / g.timesPerPeriod) * 100)}%`,
+                    background: g.color ?? undefined,
                   }}
                 />
               </div>

@@ -1,6 +1,6 @@
 import { type Goal, PERIOD_LABEL, periodOf, timesOf } from "../../goals";
 import type { CreateProgressRequest, Progress } from "../types";
-import { countInPeriod } from "../utils/period";
+import { countInPeriod, periodStart } from "../utils/period";
 
 type Props = {
   goals: Goal[];
@@ -23,10 +23,17 @@ export default function CheckinCard({
   const entryToday = (goalId: number) =>
     entries.find((e) => e.goalId === goalId && e.date === today);
 
-  async function handleToggle(goal: Goal) {
-    const entry = entryToday(goal.id);
+  function latestInPeriod(goal: Goal) {
+    const start = periodStart(periodOf(goal));
+    return entries
+      .filter((e) => e.goalId === goal.id && e.date >= start)
+      .sort((a, b) => b.date.localeCompare(a.date))[0];
+  }
+
+  async function handleToggle(goal: Goal, done: boolean) {
+    const entry = entryToday(goal.id) ?? latestInPeriod(goal);
     try {
-      if (entry) {
+      if (done && entry) {
         await onUncheck(entry.id);
       } else {
         await onCheck({
@@ -48,15 +55,15 @@ export default function CheckinCard({
       </div>
       {checkGoals.length === 0 && <p className="muted">No habits today.</p>}
       {checkGoals.map((g) => {
-        const done = entryToday(g.id) !== undefined;
         const count = countInPeriod(entries, g);
+        const done = entryToday(g.id) !== undefined || count >= timesOf(g);
         return (
           <button
             type="button"
             key={g.id}
             className={"habit-row" + (done ? " done" : "")}
             aria-pressed={done}
-            onClick={() => handleToggle(g)}
+            onClick={() => handleToggle(g, done)}
           >
             <span className="check">{done && "✓"}</span>
             <span className="habit-text">
