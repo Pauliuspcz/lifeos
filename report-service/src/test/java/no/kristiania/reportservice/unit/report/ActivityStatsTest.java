@@ -3,6 +3,7 @@ package no.kristiania.reportservice.unit.report;
 import no.kristiania.reportservice.report.ActivityStats;
 import no.kristiania.reportservice.report.ProgressRecord;
 import no.kristiania.reportservice.report.dto.ActivityDay;
+import no.kristiania.reportservice.report.enums.TrackingModel;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -17,6 +18,13 @@ class ActivityStatsTest {
     private static ProgressRecord entry(String date) {
         ProgressRecord r = new ProgressRecord();
         r.setDate(LocalDate.parse(date));
+        return r;
+    }
+
+    private static ProgressRecord entry(long goalId, String date, TrackingModel model) {
+        ProgressRecord r = entry(date);
+        r.setGoalId(goalId);
+        r.setTrackingModel(model);
         return r;
     }
 
@@ -68,5 +76,21 @@ class ActivityStatsTest {
                 day("2026-10-27", 2, 2),
                 day("2026-10-28", 1, 1));
         assertThat(ActivityStats.sumLast(days, 2)).isEqualTo(3);
+    }
+
+    @Test
+    void activeStreaksCountsGoalsWithRunningStreak() {
+        List<ProgressRecord> entries = List.of(
+                entry(1L, "2026-10-28", TrackingModel.DAILY_CHECK),
+                entry(2L, "2026-10-27", TrackingModel.DAILY_CHECK),
+                entry(3L, "2026-10-25", TrackingModel.DAILY_CHECK));
+        assertThat(ActivityStats.activeStreaks(entries, WEDNESDAY)).isEqualTo(2);
+    }
+
+    @Test
+    void activeStreaksIgnoresAmountGoals() {
+        List<ProgressRecord> entries = List.of(
+                entry(1L, "2026-10-28", TrackingModel.CUMULATIVE_SUM));
+        assertThat(ActivityStats.activeStreaks(entries, WEDNESDAY)).isZero();
     }
 }
