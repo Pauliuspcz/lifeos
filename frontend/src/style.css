@@ -1349,19 +1349,10 @@ h2 {
 }
 
 /* ---------- Insights ---------- */
-.history {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: var(--space-xs);
-  margin: var(--space-sm) 0;
-}
-.history .week-bar {
-  height: 40px;
-}
 .insight-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: var(--space-3xl) 80px;
+  gap: var(--space-3xl) var(--space-2xl);
   width: 100%;
   max-width: 1280px;
   padding: var(--space-lg) var(--space-3xl);
@@ -1371,11 +1362,66 @@ h2 {
   border-top: 1px solid var(--border);
   padding-top: var(--space-lg);
 }
-.insight-goal p {
-  margin: var(--space-sm) 0;
+.insight-goal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
 }
-.insight-goal .box-header {
-  margin-bottom: var(--space-sm);
+.insight-goal-head h2 {
+  font-size: var(--text-md);
+}
+.insight-goal-head .muted {
+  white-space: nowrap;
+}
+.insight-stats {
+  margin: 0;
+}
+.insight-stat {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-xs) 0;
+  font-size: var(--text-sm);
+}
+.insight-stat dt {
+  color: var(--text-secondary);
+}
+.insight-stat dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.insight-label {
+  margin: var(--space-xl) 0 var(--space-sm);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+}
+.insight-bars {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--space-xs);
+}
+.insight-bar {
+  display: flex;
+  align-items: flex-end;
+  height: 32px;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--fill);
+}
+.insight-bar-fill {
+  width: 100%;
+  background: var(--goal-color);
+}
+.insight-tip {
+  margin: var(--space-md) 0 0;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+.insight-try {
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: underline;
 }
 /* "Last 30 days" card on Insights */
 .last30 {
