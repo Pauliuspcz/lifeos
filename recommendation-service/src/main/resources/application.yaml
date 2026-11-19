@@ -1,6 +1,9 @@
 server:
   port: 8084
+
 spring:
+  application:
+    name: recommendation-service
   config:
     import:
       - "optional:file:.env[.properties]"
@@ -14,15 +17,16 @@ spring:
         format: YAML
       discovery:
         prefer-ip-address: true
-  application:
-    name: recommendation-service
   datasource:
     driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:${RECOMMENDATION_DB_PORT:5436}/${RECOMMENDATION_DB_NAME:recommendation_db}
     username: ${POSTGRES_USER:postgres}
     password: ${POSTGRES_PASSWORD}
-    url: jdbc:postgresql://localhost:${RECOMMENDATION_DB_PORT:5436}/${RECOMMENDATION_DB_NAME:recommendation_db}
   jpa:
+    open-in-view: false
     show-sql: false
+    hibernate:
+      ddl-auto: validate
   rabbitmq:
     host: localhost
     port: 5672
@@ -39,7 +43,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "health, info"
+        include: "health,info"
 
 app:
   jwt:

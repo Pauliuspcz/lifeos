@@ -1,6 +1,6 @@
 package no.kristiania.progressservice.progress.dto;
 
-import no.kristiania.progressservice.client.TrackingModel;
+import no.kristiania.progressservice.progress.entity.TrackingModel;
 
 import java.time.LocalDate;
 import java.util.List;

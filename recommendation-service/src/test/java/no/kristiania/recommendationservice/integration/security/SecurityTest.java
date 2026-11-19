@@ -2,8 +2,8 @@ package no.kristiania.recommendationservice.integration.security;
 
 import no.kristiania.recommendationservice.config.JsonAuthenticationEntryPoint;
 import no.kristiania.recommendationservice.config.SecurityConfig;
-import no.kristiania.recommendationservice.weather.WeatherController;
-import no.kristiania.recommendationservice.weather.WeatherService;
+import no.kristiania.recommendationservice.weather.controller.WeatherController;
+import no.kristiania.recommendationservice.weather.service.WeatherService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;

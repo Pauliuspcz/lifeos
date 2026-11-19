@@ -1,6 +1,6 @@
 package no.kristiania.reportservice.unit.report;
 
-import no.kristiania.reportservice.report.daylog.WellbeingStats;
+import no.kristiania.reportservice.daylog.utils.WellbeingStats;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;

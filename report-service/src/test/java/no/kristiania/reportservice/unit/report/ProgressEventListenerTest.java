@@ -1,8 +1,8 @@
 package no.kristiania.reportservice.unit.report;
 
-import no.kristiania.reportservice.report.ProgressEventListener;
-import no.kristiania.reportservice.report.ProgressRecord;
-import no.kristiania.reportservice.report.ProgressRecordRepo;
+import no.kristiania.reportservice.report.listener.ProgressEventListener;
+import no.kristiania.reportservice.report.entity.ProgressRecord;
+import no.kristiania.reportservice.report.repository.ProgressRecordRepository;
 import no.kristiania.reportservice.report.enums.TrackingModel;
 import no.kristiania.reportservice.report.events.ProgressCreatedEvent;
 import no.kristiania.reportservice.report.events.ProgressDeletedEvent;
@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ProgressEventListenerTest {
     @Mock
-    ProgressRecordRepo repo;
+    ProgressRecordRepository repo;
     @InjectMocks
     ProgressEventListener listener;
 

@@ -1,7 +1,7 @@
 package no.kristiania.progressservice.unit;
 
-import no.kristiania.progressservice.client.TrackingModel;
-import no.kristiania.progressservice.progress.LogWindow;
+import no.kristiania.progressservice.progress.entity.TrackingModel;
+import no.kristiania.progressservice.progress.utils.LogWindow;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;

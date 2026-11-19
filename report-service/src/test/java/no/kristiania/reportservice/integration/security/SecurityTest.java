@@ -2,8 +2,8 @@ package no.kristiania.reportservice.integration.security;
 
 import no.kristiania.reportservice.config.JsonAuthenticationEntryPoint;
 import no.kristiania.reportservice.config.SecurityConfig;
-import no.kristiania.reportservice.report.ReportController;
-import no.kristiania.reportservice.report.ReportService;
+import no.kristiania.reportservice.report.controller.ReportController;
+import no.kristiania.reportservice.report.service.ReportService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;

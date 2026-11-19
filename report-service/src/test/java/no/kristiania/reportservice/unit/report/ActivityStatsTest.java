@@ -1,7 +1,7 @@
 package no.kristiania.reportservice.unit.report;
 
-import no.kristiania.reportservice.report.ActivityStats;
-import no.kristiania.reportservice.report.ProgressRecord;
+import no.kristiania.reportservice.report.utils.ActivityStats;
+import no.kristiania.reportservice.report.entity.ProgressRecord;
 import no.kristiania.reportservice.report.dto.ActivityDay;
 import no.kristiania.reportservice.report.enums.TrackingModel;
 import org.junit.jupiter.api.Test;

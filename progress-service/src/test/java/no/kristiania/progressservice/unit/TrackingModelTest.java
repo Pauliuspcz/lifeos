@@ -1,8 +1,8 @@
 package no.kristiania.progressservice.unit;
 
 import no.kristiania.progressservice.client.GoalSummary;
-import no.kristiania.progressservice.client.TrackingModel;
-import no.kristiania.progressservice.progress.exceptions.UnsupportedTrackingException;
+import no.kristiania.progressservice.progress.entity.TrackingModel;
+import no.kristiania.progressservice.exceptions.UnsupportedTrackingException;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

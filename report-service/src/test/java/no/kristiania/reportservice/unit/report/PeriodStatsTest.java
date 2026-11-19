@@ -1,7 +1,7 @@
 package no.kristiania.reportservice.unit.report;
 
-import no.kristiania.reportservice.report.PeriodStats;
-import no.kristiania.reportservice.report.ProgressRecord;
+import no.kristiania.reportservice.report.utils.PeriodStats;
+import no.kristiania.reportservice.report.entity.ProgressRecord;
 import no.kristiania.reportservice.report.dto.PeriodCount;
 import no.kristiania.reportservice.report.dto.Suggestion;
 import no.kristiania.reportservice.report.enums.Recommendation;

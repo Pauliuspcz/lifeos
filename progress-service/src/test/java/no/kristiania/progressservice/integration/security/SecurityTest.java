@@ -2,8 +2,8 @@ package no.kristiania.progressservice.integration.security;
 
 import no.kristiania.progressservice.config.JsonAuthenticationEntryPoint;
 import no.kristiania.progressservice.config.SecurityConfig;
-import no.kristiania.progressservice.progress.ProgressController;
-import no.kristiania.progressservice.progress.ProgressService;
+import no.kristiania.progressservice.progress.controller.ProgressController;
+import no.kristiania.progressservice.progress.service.ProgressService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;

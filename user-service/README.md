@@ -151,8 +151,6 @@ user-service/
 
 Logs go to stdout as JSON in ECS format. This is set for all services in the shared Consul config (`config/application/data`: `logging.structured.format.console: ecs`). Each line carries `log.level`, `service.name` and, inside a request, `traceId` and `spanId`, so one request can be followed across services. Tracing is sampled at 100%, but OTLP export is off, so trace ids exist in the logs only (no trace backend).
 
-The rules for all services are in `docs/LOGGING.md`. The log stack (Elasticsearch/Kibana) is described in `observability/README.md`.
-
 | Where                                      | Level                | What                                                                                                             |
 | ------------------------------------------ | -------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | `GlobalExceptionHandler`                   | WARN / ERROR / DEBUG | Rejected requests (status + message), unexpected errors with stack trace, validation problems (field names only) |
