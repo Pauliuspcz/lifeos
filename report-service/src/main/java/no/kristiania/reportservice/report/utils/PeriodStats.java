@@ -1,7 +1,8 @@
-package no.kristiania.reportservice.report;
+package no.kristiania.reportservice.report.utils;
 
 import no.kristiania.reportservice.report.dto.PeriodCount;
 import no.kristiania.reportservice.report.dto.Suggestion;
+import no.kristiania.reportservice.report.entity.ProgressRecord;
 import no.kristiania.reportservice.report.enums.Recommendation;
 
 import java.time.DayOfWeek;

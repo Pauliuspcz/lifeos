@@ -1,6 +1,6 @@
-package no.kristiania.reportservice.report.dto;
+package no.kristiania.reportservice.daylog.dto;
 
-import no.kristiania.reportservice.report.daylog.DayLog;
+import no.kristiania.reportservice.daylog.entity.DayLog;
 
 import java.time.LocalDate;
 

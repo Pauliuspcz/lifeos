@@ -1,15 +1,13 @@
-package no.kristiania.reportservice.report.exceptions;
+package no.kristiania.reportservice.exceptions;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
-import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -21,17 +19,20 @@ import java.time.Instant;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
+    @ExceptionHandler(ApiException.class)
+    ResponseEntity<ApiError> handleApi(ApiException ex) {
+        log.warn("Request rejected status={} message={}", ex.getStatus().value(), ex.getMessage());
+        return build(ex.getStatus(), ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     ResponseEntity<ApiError> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        log.debug("Invalid value for parameter name={}", ex.getName());
         return build(HttpStatus.BAD_REQUEST, "Invalid value for parameter '" + ex.getName() + "'");
     }
 
     @ExceptionHandler(Exception.class)
-    ResponseEntity<ApiError> handleAny(Exception ex) {
-        ResponseStatus rs = AnnotatedElementUtils.findMergedAnnotation(ex.getClass(), ResponseStatus.class);
-        if (rs != null) {
-            return build(rs.code(), ex.getMessage());
-        }
+    ResponseEntity<ApiError> handleUnexpected(Exception ex) {
         log.error("Unexpected error", ex);
         return build(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error");
     }
@@ -46,6 +47,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(
             Exception ex, @Nullable Object body, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        if (status.is5xxServerError()) {
+            log.error("Request failed status={}", status.value(), ex);
+        } else {
+            log.debug("Request failed status={} type={}", status.value(), ex.getClass().getSimpleName());
+        }
         Object apiBody = body instanceof ApiError ? body : apiError(status, defaultMessage(status));
         return super.handleExceptionInternal(ex, apiBody, headers, status, request);
     }

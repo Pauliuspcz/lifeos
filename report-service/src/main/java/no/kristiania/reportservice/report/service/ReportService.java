@@ -1,5 +1,9 @@
-package no.kristiania.reportservice.report;
+package no.kristiania.reportservice.report.service;
 
+import no.kristiania.reportservice.report.utils.ActivityStats;
+import no.kristiania.reportservice.report.utils.PeriodStats;
+import no.kristiania.reportservice.report.entity.ProgressRecord;
+import no.kristiania.reportservice.report.repository.ProgressRecordRepository;
 import no.kristiania.reportservice.report.dto.*;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
@@ -13,14 +17,14 @@ import java.util.Map;
 public class ReportService {
     private static final int HISTORY_SIZE = 12;
     private static final int ACTIVITY_WEEKS = 53;
-    private final ProgressRecordRepo progressRecordRepo;
-    public ReportService(ProgressRecordRepo progressRecordRepo) {
-        this.progressRecordRepo = progressRecordRepo;
+    private final ProgressRecordRepository progressRecordRepository;
+    public ReportService(ProgressRecordRepository progressRecordRepository) {
+        this.progressRecordRepository = progressRecordRepository;
     }
 
     public GoalReport getGoalReport(Long userId, Long goalId){
         List<ProgressRecord> entries = onePerGoalDay(
-                progressRecordRepo.findByUserIdAndGoalIdOrderByDateAsc(userId, goalId));
+                progressRecordRepository.findByUserIdAndGoalIdOrderByDateAsc(userId, goalId));
         LocalDate lastDate = entries.isEmpty() ? null : entries.getLast().getDate();
         LocalDate today = LocalDate.now();
         LocalDate last30Start = today.minusDays(29);
@@ -48,7 +52,7 @@ public class ReportService {
         LocalDate today = LocalDate.now();
         LocalDate from = ActivityStats.start(today, ACTIVITY_WEEKS);
         List<ProgressRecord> entries = onePerGoalDay(
-                progressRecordRepo.findByUserIdAndDateGreaterThanEqual(userId, from));
+                progressRecordRepository.findByUserIdAndDateGreaterThanEqual(userId, from));
         List<ActivityDay> days = ActivityStats.days(entries, today, ACTIVITY_WEEKS);
 
         int totalCheckins = 0;

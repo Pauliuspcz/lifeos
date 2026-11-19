@@ -1,8 +1,9 @@
-package no.kristiania.reportservice.report.daylog;
+package no.kristiania.reportservice.daylog.controller;
 
-import no.kristiania.reportservice.report.dto.DayLogRequest;
-import no.kristiania.reportservice.report.dto.DayLogView;
-import no.kristiania.reportservice.report.dto.Wellbeing;
+import no.kristiania.reportservice.daylog.dto.DayLogRequest;
+import no.kristiania.reportservice.daylog.service.DayLogService;
+import no.kristiania.reportservice.daylog.dto.DayLogView;
+import no.kristiania.reportservice.daylog.dto.Wellbeing;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 

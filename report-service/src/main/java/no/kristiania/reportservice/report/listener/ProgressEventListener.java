@@ -1,7 +1,9 @@
-package no.kristiania.reportservice.report;
+package no.kristiania.reportservice.report.listener;
 
 import lombok.extern.slf4j.Slf4j;
 import no.kristiania.reportservice.config.RabbitConfig;
+import no.kristiania.reportservice.report.entity.ProgressRecord;
+import no.kristiania.reportservice.report.repository.ProgressRecordRepository;
 import no.kristiania.reportservice.report.events.ProgressCreatedEvent;
 import no.kristiania.reportservice.report.events.ProgressDeletedEvent;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -10,14 +12,17 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class ProgressEventListener {
-    private final ProgressRecordRepo progressRecordRepo;
-    public ProgressEventListener(ProgressRecordRepo progressRecordRepo) {
-        this.progressRecordRepo = progressRecordRepo;
+    private final ProgressRecordRepository progressRecordRepository;
+
+    public ProgressEventListener(ProgressRecordRepository progressRecordRepository) {
+        this.progressRecordRepository = progressRecordRepository;
     }
+
     @RabbitListener(queues = RabbitConfig.QUEUE_CREATED)
     public void onProgressCreated(ProgressCreatedEvent event) {
-        if(progressRecordRepo.existsByEventId(event.eventId())){
-            log.info("Skipping duplicate event {}", event.eventId());
+        if (progressRecordRepository.existsByEventId(event.eventId())) {
+            log.info("Duplicate progress event skipped eventId={} progressId={}",
+                    event.eventId(), event.progressId());
             return;
         }
         ProgressRecord entry = new ProgressRecord();
@@ -30,13 +35,15 @@ public class ProgressEventListener {
         entry.setTrackingModel(event.trackingModel());
         entry.setTargetCount(event.targetCount());
         entry.setPeriod(event.period());
-        progressRecordRepo.save(entry);
-        log.info("Saved progress {} for goal {}", event.progressId(), event.goalId());
+        progressRecordRepository.save(entry);
+        log.info("Progress record saved progressId={} userId={} goalId={}",
+                event.progressId(), event.userId(), event.goalId());
     }
 
     @RabbitListener(queues = RabbitConfig.QUEUE_DELETED)
     public void onProgressDeleted(ProgressDeletedEvent event) {
-        progressRecordRepo.deleteByProgressId(event.progressId());
-        log.info("Deleted progress {} for goal {}", event.progressId(), event.goalId());
+        progressRecordRepository.deleteByProgressId(event.progressId());
+        log.info("Progress delete event handled progressId={} userId={} goalId={}",
+                event.progressId(), event.userId(), event.goalId());
     }
 }

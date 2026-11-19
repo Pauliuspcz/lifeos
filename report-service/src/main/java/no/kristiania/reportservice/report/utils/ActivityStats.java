@@ -1,6 +1,7 @@
-package no.kristiania.reportservice.report;
+package no.kristiania.reportservice.report.utils;
 
 import no.kristiania.reportservice.report.dto.ActivityDay;
+import no.kristiania.reportservice.report.entity.ProgressRecord;
 import no.kristiania.reportservice.report.enums.TrackingModel;
 
 import java.time.LocalDate;

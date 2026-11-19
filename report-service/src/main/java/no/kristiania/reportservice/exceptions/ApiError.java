@@ -1,4 +1,4 @@
-package no.kristiania.reportservice.report.exceptions;
+package no.kristiania.reportservice.exceptions;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

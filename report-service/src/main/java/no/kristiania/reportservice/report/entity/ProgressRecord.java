@@ -1,4 +1,4 @@
-package no.kristiania.reportservice.report;
+package no.kristiania.reportservice.report.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

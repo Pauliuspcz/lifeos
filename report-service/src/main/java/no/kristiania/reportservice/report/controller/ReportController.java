@@ -1,5 +1,6 @@
-package no.kristiania.reportservice.report;
+package no.kristiania.reportservice.report.controller;
 
+import no.kristiania.reportservice.report.service.ReportService;
 import no.kristiania.reportservice.report.dto.ActivityReport;
 import no.kristiania.reportservice.report.dto.GoalReport;
 import org.springframework.http.CacheControl;

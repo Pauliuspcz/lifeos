@@ -1,3 +1,3 @@
-package no.kristiania.reportservice.report.dto;
+package no.kristiania.reportservice.daylog.dto;
 
 public record Wellbeing(Double avgMood, Double avgSleep, int daysLogged) { }
