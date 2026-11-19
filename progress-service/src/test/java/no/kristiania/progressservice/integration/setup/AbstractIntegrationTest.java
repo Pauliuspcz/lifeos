@@ -1,5 +1,6 @@
 package no.kristiania.progressservice.integration.setup;
 
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import no.kristiania.progressservice.client.GoalClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -26,6 +27,7 @@ public abstract class AbstractIntegrationTest {
     @Autowired protected MockMvc mockMvc;
     @Autowired protected JdbcTemplate jdbcTemplate;
     @Autowired protected RabbitTemplate rabbitTemplate;
+    @Autowired protected CircuitBreaker goalCircuitBreaker;
     @MockitoBean protected GoalClient goalClient;
 
     @DynamicPropertySource
@@ -38,5 +40,6 @@ public abstract class AbstractIntegrationTest {
     @BeforeEach
     protected void cleanDatabase() {
         JdbcTestUtils.deleteFromTables(jdbcTemplate, "progress");
+        goalCircuitBreaker.reset();
     }
 }
