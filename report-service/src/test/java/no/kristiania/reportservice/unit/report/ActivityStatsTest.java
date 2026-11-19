@@ -60,4 +60,13 @@ class ActivityStatsTest {
         List<ActivityDay> days = ActivityStats.days(entries, WEDNESDAY, 2);
         assertThat(days).contains(day("2026-10-28", 6, 4));
     }
+
+    @Test
+    void sumLastAddsOnlyTheLastDays() {
+        List<ActivityDay> days = List.of(
+                day("2026-10-26", 5, 4),
+                day("2026-10-27", 2, 2),
+                day("2026-10-28", 1, 1));
+        assertThat(ActivityStats.sumLast(days, 2)).isEqualTo(3);
+    }
 }

@@ -31,4 +31,12 @@ public final class ActivityStats {
         }
         return days;
     }
+
+    public static int sumLast(List<ActivityDay> days, int n) {
+        int sum = 0;
+        for (int i = Math.max(0, days.size() - n); i < days.size(); i++) {
+            sum += days.get(i).count();
+        }
+        return sum;
+    }
 }

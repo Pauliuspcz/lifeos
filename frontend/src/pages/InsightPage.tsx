@@ -7,9 +7,14 @@ import {
 } from "../features/report";
 
 export default function InsightPage() {
-  const { goals, loading: goalsLoading } = useGoals("ACTIVE");
+  const {
+    goals,
+    loading: goalsLoading,
+    loadError: goalsError,
+  } = useGoals("ACTIVE");
   const { reports, loading, loadError } = useGoalReports(goals);
   const isLoading = goalsLoading || loading;
+  const statsPending = isLoading || !!goalsError;
   const last30Total = reports.reduce((sum, r) => sum + r.last30Days, 0);
   const checkReports = reports.filter(
     (r) => goals.find((g) => g.id === r.goalId)?.trackingType === "CHECK",
@@ -28,22 +33,24 @@ export default function InsightPage() {
       <div className="page">
         {isLoading && <p>Loading…</p>}
         {loadError && <p className="error">{loadError}</p>}
-        {!isLoading && !loadError && goals.length === 0 && <p>No goals yet.</p>}
+        {!isLoading && !loadError && !goalsError && goals.length === 0 && (
+          <p>No goals yet.</p>
+        )}
         <div className="insight-grid">
           <ActivityCalendar />
           <div className="stats insight-stats">
             <div>
-              <strong>{last30Total}</strong>
+              <strong>{statsPending ? "…" : last30Total}</strong>
               <span className="muted">
                 check-ins last 30 days · active goals
               </span>
             </div>
             <div>
-              <strong>{activeStreaks}</strong>
+              <strong>{statsPending ? "…" : activeStreaks}</strong>
               <span className="muted">active streaks</span>
             </div>
             <div>
-              <strong>{avgCompletion}%</strong>
+              <strong>{statsPending ? "…" : `${avgCompletion}%`}</strong>
               <span className="muted">avg completion</span>
             </div>
           </div>
@@ -55,6 +62,7 @@ export default function InsightPage() {
             />
           ))}
         </div>
+        {goalsError && <p className="error">{goalsError}</p>}
       </div>
     </>
   );
