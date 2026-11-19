@@ -17,7 +17,7 @@ export default function ActivityCalendar({ activity, loadError }: Props) {
       <p className="activity-total">
         {total} {total === 1 ? "check-in" : "check-ins"}
         <span>
-          {active} {active === 1 ? "active day" : "active days"}
+          {active} {active === 1 ? "active day" : "active days"} · past year
         </span>
       </p>
       {loadError && <p className="error">{loadError}</p>}

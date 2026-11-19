@@ -1,10 +1,12 @@
 import Topbar from "../shared/components/Topbar";
-import { useGoals } from "../features/goals";
+import { useCategories, useGoals } from "../features/goals";
 import {
   GoalInsightCard,
   useGoalReports,
   ActivityCalendar,
+  Last30Card,
   useActivity,
+  useWellbeing,
 } from "../features/report";
 
 export default function InsightPage() {
@@ -15,24 +17,19 @@ export default function InsightPage() {
   } = useGoals("ACTIVE");
   const { reports, loading, loadError } = useGoalReports(goals);
   const { activity, loadError: activityError } = useActivity();
+  const { wellbeing } = useWellbeing();
+  const categories = useCategories();
   const isLoading = goalsLoading || loading;
-  const statsPending = isLoading || !!goalsError;
-  const checkReports = reports.filter(
-    (r) => goals.find((g) => g.id === r.goalId)?.trackingType === "CHECK",
+  const streakGoals = goals.filter(
+    (g) =>
+      g.trackingType === "CHECK" &&
+      (reports.find((r) => r.goalId === g.id)?.currentStreak ?? 0) > 0,
   );
-  const listStreaks = checkReports.filter((r) => r.currentStreak > 0).length;
   const streakCount = goalsError
     ? activity?.activeStreaks
     : isLoading
       ? undefined
-      : listStreaks;
-  const avgCompletion =
-    checkReports.length === 0
-      ? 0
-      : Math.round(
-          checkReports.reduce((sum, r) => sum + r.successRate, 0) /
-            checkReports.length,
-        );
+      : streakGoals.length;
   return (
     <>
       <Topbar />
@@ -44,22 +41,14 @@ export default function InsightPage() {
         )}
         <div className="insight-grid">
           <ActivityCalendar activity={activity} loadError={activityError} />
-          <div className="stats insight-stats">
-            <div>
-              <strong>{activity ? activity.last30Days : "…"}</strong>
-              <span className="muted">check-ins last 30 days</span>
-            </div>
-            <div>
-              <strong>{streakCount ?? "…"}</strong>
-              <span className="muted">
-                active streaks{goalsError ? " · incl. archived" : ""}
-              </span>
-            </div>
-            <div>
-              <strong>{statsPending ? "…" : `${avgCompletion}%`}</strong>
-              <span className="muted">avg completion</span>
-            </div>
-          </div>
+          <Last30Card
+            activity={activity}
+            wellbeing={wellbeing}
+            streakGoals={streakGoals}
+            streakCount={streakCount}
+            categories={categories}
+            goalsError={goalsError}
+          />
           {goals.map((g) => (
             <GoalInsightCard
               key={g.id}

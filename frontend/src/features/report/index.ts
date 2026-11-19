@@ -5,3 +5,6 @@ export { default as GoalInsightCard } from "./components/GoalInsightCard";
 export { default as StreaksCard } from "./components/StreaksCard";
 export { default as ActivityCalendar } from "./components/ActivityCalendar";
 export { useActivity } from "./hooks/useActivity";
+export { default as QuickLogCard } from "./components/QuickLogCard";
+export { useWellbeing } from "./hooks/useWellbeing";
+export { default as Last30Card } from "./components/Last30Card";

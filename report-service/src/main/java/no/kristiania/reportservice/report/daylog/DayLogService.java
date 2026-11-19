@@ -1,34 +1,30 @@
 package no.kristiania.reportservice.report.daylog;
 
-import no.kristiania.reportservice.report.ProgressRecordRepo;
 import no.kristiania.reportservice.report.dto.DayLogRequest;
 import no.kristiania.reportservice.report.dto.DayLogView;
 import no.kristiania.reportservice.report.dto.Wellbeing;
-import org.springframework.http.HttpStatus;
+import no.kristiania.reportservice.report.exceptions.InvalidDayLogException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
+
 
 @Service
 public class DayLogService {
     private static final int SUMMARY_DAYS = 30;
     private final DayLogRepo dayLogRepo;
-    private final ProgressRecordRepo progressRecordRepo;
 
-    public DayLogService(DayLogRepo dayLogRepo, ProgressRecordRepo progressRecordRepo) {
+    public DayLogService(DayLogRepo dayLogRepo) {
         this.dayLogRepo = dayLogRepo;
-        this.progressRecordRepo = progressRecordRepo;
     }
 
     public DayLogView saveToday(Long userId, DayLogRequest request) {
         if (request.mood() != null && (request.mood() < 1 || request.mood() > 5)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "mood must be between 1 and 5");
+            throw new InvalidDayLogException("mood must be between 1 and 5");
         }
         if (request.sleepHours() != null && (request.sleepHours() < 0 || request.sleepHours() > 24)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "sleepHours must be between 0 and 24");
+            throw new InvalidDayLogException("sleepHours must be between 0 and 24");
         }
         LocalDate today = LocalDate.now();
         DayLog log = dayLogRepo.findByUserIdAndDate(userId, today).orElseGet(() -> {
@@ -52,13 +48,9 @@ public class DayLogService {
     public Wellbeing summary(Long userId) {
         LocalDate from = LocalDate.now().minusDays(SUMMARY_DAYS - 1);
         List<DayLog> logs = dayLogRepo.findByUserIdAndDateGreaterThanEqual(userId, from);
-        Map<LocalDate, Integer> checkins = WellbeingStats.checkinsByDay(
-                progressRecordRepo.findByUserIdAndDateGreaterThanEqual(userId, from));
         return new Wellbeing(
                 WellbeingStats.average(logs.stream().map(DayLog::getMood).toList()),
                 WellbeingStats.average(logs.stream().map(DayLog::getSleepHours).toList()),
-                WellbeingStats.checkinsPerDay(logs, checkins, true),
-                WellbeingStats.checkinsPerDay(logs, checkins, false),
                 logs.size());
     }
 }

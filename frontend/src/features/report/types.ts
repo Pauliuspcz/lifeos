@@ -36,3 +36,15 @@ export type ActivityReport = {
   activeStreaks: number;
   days: ActivityDay[];
 };
+
+export type DayLog = {
+  date: string;
+  mood: number | null;
+  sleepHours: number | null;
+};
+
+export type Wellbeing = {
+  avgMood: number | null;
+  avgSleep: number | null;
+  daysLogged: number;
+};

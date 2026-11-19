@@ -35,7 +35,9 @@ class DayLogTest extends AbstractReportApiTest {
 
     @Test
     void put_moodOutOfRange_returns400() throws Exception {
-        putDayLog(USER, "{\"mood\":9}").andExpect(status().isBadRequest());
+        putDayLog(USER, "{\"mood\":9}")
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("mood must be between 1 and 5"));
     }
 
     @Test
@@ -48,17 +50,13 @@ class DayLogTest extends AbstractReportApiTest {
     }
 
     @Test
-    void summary_combinesDayLogWithCheckins() throws Exception {
+    void summary_returnsAveragesAndDaysLogged() throws Exception {
         putDayLog(USER, "{\"mood\":4,\"sleepHours\":8}");
-        insertRecord(USER, 10L, LocalDate.now());
-        insertRecord(USER, 20L, LocalDate.now());
 
         getDayLogSummary(USER)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.avgMood").value(4.0))
                 .andExpect(jsonPath("$.avgSleep").value(8.0))
-                .andExpect(jsonPath("$.checkinsWellRested").value(2.0))
-                .andExpect(jsonPath("$.checkinsOtherDays").isEmpty())
                 .andExpect(jsonPath("$.daysLogged").value(1));
     }
 }
