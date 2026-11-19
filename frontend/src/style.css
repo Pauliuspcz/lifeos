@@ -451,6 +451,10 @@ h2 {
 .scale-btn:hover {
   border-color: var(--accent);
 }
+.scale-btn.selected {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+}
 .journal {
   display: flex;
   gap: var(--space-sm);
@@ -1173,19 +1177,136 @@ h2 {
 .insight-goal .box-header {
   margin-bottom: var(--space-sm);
 }
-.stats.insight-stats {
+/* "Last 30 days" card on Insights */
+.last30 {
   grid-column: 1 / -1;
+  padding: var(--space-xl);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  box-sizing: border-box;
+}
+.last30-cols {
+  display: grid;
   grid-template-columns: repeat(3, 1fr);
-  padding-top: 0;
-  border-top: none;
+  margin-top: var(--space-lg);
 }
-.stats.insight-stats div {
-  align-items: center;
+.last30-col {
+  padding: 0 var(--space-xl);
+  border-left: 1px solid var(--border);
 }
-.stats.insight-stats strong {
-  font-size: var(--text-xl);
+.last30-col:first-child {
+  padding-left: 0;
+  border-left: none;
+}
+.last30-col:last-child {
+  padding-right: 0;
+}
+.last30-col h3 {
+  margin: 0 0 var(--space-sm);
+  font-size: var(--text-md);
+  font-weight: 600;
+}
+.last30-hero {
+  margin: 0;
+  font-size: var(--text-hero);
+  font-weight: 300;
+  line-height: 1.1;
+}
+.last30-hero span {
+  margin-left: var(--space-sm);
+  font-size: var(--text-sm);
   font-weight: 500;
-  color: var(--text);
+  color: var(--text-secondary);
+}
+.last30-bar {
+  display: grid;
+  grid-template-columns: repeat(30, 1fr);
+  gap: 2px;
+  margin: var(--space-md) 0;
+}
+.last30-cell {
+  height: 12px;
+  border-radius: 2px;
+  background: var(--fill-strong);
+}
+.last30-cell.on {
+  background: var(--accent);
+}
+.last30-note {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+.last30-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) 0;
+}
+.last30-row + .last30-row {
+  border-top: 1px solid var(--border);
+}
+.last30-row > span:first-child {
+  margin-right: auto;
+  color: var(--text-secondary);
+}
+.last30-row strong {
+  font-size: var(--text-xl);
+  font-weight: 600;
+}
+.last30-row strong span {
+  margin-left: 2px;
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+.mood-dots {
+  display: flex;
+  gap: var(--space-xs);
+}
+.mood-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--fill-strong);
+}
+.mood-dot.on {
+  background: var(--accent);
+}
+.last30-list {
+  margin: var(--space-md) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.last30-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 3px 0;
+  font-size: var(--text-sm);
+}
+.last30-dot {
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+@media (max-width: 800px) {
+  .last30-cols {
+    grid-template-columns: 1fr;
+  }
+  .last30-col {
+    padding: var(--space-lg) 0;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+  .last30-col:first-child {
+    padding-top: 0;
+    border-top: none;
+  }
 }
 
 /* Activity calendar: same label → hero → detail pattern as the outdoor card */

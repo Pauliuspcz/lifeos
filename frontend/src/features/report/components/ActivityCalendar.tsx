@@ -1,8 +1,12 @@
 import { format, parseISO } from "date-fns";
-import { useActivity } from "../hooks/useActivity";
+import type { ActivityReport } from "../types";
 
-export default function ActivityCalendar() {
-  const { activity, loadError } = useActivity();
+type Props = {
+  activity: ActivityReport | null;
+  loadError: string;
+};
+
+export default function ActivityCalendar({ activity, loadError }: Props) {
   const days = activity?.days ?? [];
   const total = activity?.totalCheckins ?? 0;
   const active = activity?.activeDays ?? 0;
@@ -13,7 +17,7 @@ export default function ActivityCalendar() {
       <p className="activity-total">
         {total} {total === 1 ? "check-in" : "check-ins"}
         <span>
-          {active} {active === 1 ? "active day" : "active days"}
+          {active} {active === 1 ? "active day" : "active days"} · past year
         </span>
       </p>
       {loadError && <p className="error">{loadError}</p>}

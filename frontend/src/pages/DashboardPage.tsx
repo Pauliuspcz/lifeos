@@ -1,6 +1,11 @@
 import Topbar from "../shared/components/Topbar";
 import { GoalsCard, useCategories, useGoals } from "../features/goals";
-import { StreaksCard, useGoalReports } from "../features/report";
+import {
+  QuickLogCard,
+  StreaksCard,
+  useActivity,
+  useGoalReports,
+} from "../features/report";
 import {
   LogProgressCard,
   CheckinCard,
@@ -10,21 +15,12 @@ import {
 import { countInPeriod } from "../features/progress";
 import { OutdoorWeatherCard } from "../features/weather";
 
-const MOODS = [
-  { n: 1, word: "Awful" },
-  { n: 2, word: "Low" },
-  { n: 3, word: "Ok" },
-  { n: 4, word: "Good" },
-  { n: 5, word: "Great" },
-];
-
-const SLEEP = ["≤5", "6", "7", "8", "9+"];
-
 export default function DashboardPage() {
   const { goals, loading, loadError, addGoal, archiveGoal } =
     useGoals("ACTIVE");
   const { entries, addProgress, removeProgress } = useProgress();
   const { reports } = useGoalReports(goals, entries);
+  const { activity } = useActivity(entries);
   const categories = useCategories();
   const summaries = useAmountSummaries(goals, entries);
 
@@ -39,39 +35,15 @@ export default function DashboardPage() {
             entries={entries}
             onCheck={addProgress}
             onUncheck={removeProgress}
+            loadError={loadError}
           />
           <LogProgressCard
             goals={goals}
             summaries={summaries}
             onLog={addProgress}
+            loadError={loadError}
           />
-          <div className="scale-box">
-            <h2>Quick log</h2>
-            <p className="label">Mood today</p>
-            <div className="scale">
-              {MOODS.map((m) => (
-                <button type="button" className="scale-btn" key={m.n}>
-                  <strong>{m.n}</strong>
-                  <span className="muted">{m.word}</span>
-                </button>
-              ))}
-            </div>
-            <p className="label">Sleep last night (hours)</p>
-            <div className="scale">
-              {SLEEP.map((s) => (
-                <button type="button" className="scale-btn" key={s}>
-                  {s}
-                </button>
-              ))}
-            </div>
-            <p className="label">One line a day</p>
-            <div className="journal">
-              <input type="text" placeholder="What went well today?" />
-              <button type="button" className="btn-dark">
-                Save
-              </button>
-            </div>
-          </div>
+          <QuickLogCard />
         </div>
         <div className="dash-col">
           <GoalsCard
@@ -84,7 +56,12 @@ export default function DashboardPage() {
             totalFor={(g) => summaries[g.id]?.total}
           />
           <OutdoorWeatherCard goals={goals} />
-          <StreaksCard goals={goals} reports={reports} />
+          <StreaksCard
+            goals={goals}
+            reports={reports}
+            count={activity?.activeStreaks ?? null}
+            loadError={loadError}
+          />
         </div>
       </div>
     </>

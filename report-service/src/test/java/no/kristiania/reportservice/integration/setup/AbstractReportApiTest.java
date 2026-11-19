@@ -10,7 +10,9 @@ import static no.kristiania.reportservice.integration.setup.JwtTestSupport.beare
 import static no.kristiania.reportservice.integration.setup.JwtTestSupport.tokenFor;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.IF_NONE_MATCH;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
 public abstract class AbstractReportApiTest extends AbstractIntegrationTest {
 
@@ -30,6 +32,23 @@ public abstract class AbstractReportApiTest extends AbstractIntegrationTest {
         return mockMvc.perform(get("/api/reports/activity")
                 .header(AUTHORIZATION, bearer(tokenFor(userId)))
                 .header(IF_NONE_MATCH, etag));
+    }
+
+    protected ResultActions putDayLog(long userId, String json) throws Exception {
+        return mockMvc.perform(put("/api/reports/day-log")
+                .header(AUTHORIZATION, bearer(tokenFor(userId)))
+                .contentType(APPLICATION_JSON)
+                .content(json));
+    }
+
+    protected ResultActions getDayLogToday(long userId) throws Exception {
+        return mockMvc.perform(get("/api/reports/day-log/today")
+                .header(AUTHORIZATION, bearer(tokenFor(userId))));
+    }
+
+    protected ResultActions getDayLogSummary(long userId) throws Exception {
+        return mockMvc.perform(get("/api/reports/day-log/summary")
+                .header(AUTHORIZATION, bearer(tokenFor(userId))));
     }
 
     protected void insertRecord(long userId, long goalId, LocalDate date) {

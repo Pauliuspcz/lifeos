@@ -16,6 +16,7 @@ type Props = {
   entries: Progress[];
   onCheck: (req: CreateProgressRequest) => Promise<void>;
   onUncheck: (progressId: number) => Promise<void>;
+  loadError: string;
 };
 
 export default function CheckinCard({
@@ -24,6 +25,7 @@ export default function CheckinCard({
   entries,
   onCheck,
   onUncheck,
+  loadError,
 }: Props) {
   const today = new Date().toLocaleDateString("sv-SE");
 
@@ -63,6 +65,7 @@ export default function CheckinCard({
         <h2>Today's checkins</h2>
         <span className="muted">Click to check off</span>
       </div>
+      {loadError && <p className="muted">Could not load active goals</p>}
       <div className="area-grid">
         {categories.map((c) => {
           const areaGoals = checkGoals.filter((g) => g.categoryId === c.id);

@@ -1,9 +1,11 @@
 package no.kristiania.reportservice.report;
 
 import no.kristiania.reportservice.report.dto.ActivityDay;
+import no.kristiania.reportservice.report.enums.TrackingModel;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,5 +32,27 @@ public final class ActivityStats {
             days.add(new ActivityDay(date, count, Math.min(count, MAX_LEVEL)));
         }
         return days;
+    }
+
+    public static int sumLast(List<ActivityDay> days, int n) {
+        int sum = 0;
+        for (int i = Math.max(0, days.size() - n); i < days.size(); i++) {
+            sum += days.get(i).count();
+        }
+        return sum;
+    }
+
+    public static int activeStreaks(List<ProgressRecord> entries, LocalDate today) {
+        Map<Long, List<ProgressRecord>> byGoal = new HashMap<>();
+        for (ProgressRecord entry : entries) {
+            byGoal.computeIfAbsent(entry.getGoalId(), id -> new ArrayList<>()).add(entry);
+        }
+        int active = 0;
+        for (List<ProgressRecord> goalEntries : byGoal.values()) {
+            goalEntries.sort(Comparator.comparing(ProgressRecord::getDate));
+            boolean amountGoal = goalEntries.getLast().getTrackingModel() == TrackingModel.CUMULATIVE_SUM;
+            if (!amountGoal && PeriodStats.currentStreak(goalEntries, today) > 0) active++;
+        }
+        return active;
     }
 }

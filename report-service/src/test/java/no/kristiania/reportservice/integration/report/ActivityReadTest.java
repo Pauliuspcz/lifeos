@@ -25,6 +25,8 @@ class ActivityReadTest extends AbstractReportApiTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalCheckins").value(3))
                 .andExpect(jsonPath("$.activeDays").value(2))
+                .andExpect(jsonPath("$.last30Days").value(3))
+                .andExpect(jsonPath("$.activeStreaks").value(2))
                 .andExpect(jsonPath("$.days[-1].date").value(today.toString()))
                 .andExpect(jsonPath("$.days[-1].count").value(2))
                 .andExpect(jsonPath("$.days[-1].level").value(2));

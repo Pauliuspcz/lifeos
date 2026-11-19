@@ -57,7 +57,8 @@ public class ReportService {
             totalCheckins += day.count();
             if (day.count() > 0) activeDays++;
         }
-        return new ActivityReport(totalCheckins, activeDays, days);
+        return new ActivityReport(totalCheckins, activeDays, ActivityStats.sumLast(days, 30),
+                ActivityStats.activeStreaks(entries, today), days);
     }
 
     private static List<ProgressRecord> onePerGoalDay(List<ProgressRecord> entries) {
