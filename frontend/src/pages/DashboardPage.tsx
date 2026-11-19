@@ -1,6 +1,6 @@
 import Topbar from "../shared/components/Topbar";
 import { GoalsCard, useCategories, useGoals } from "../features/goals";
-import { StreaksCard, useGoalReports } from "../features/report";
+import { StreaksCard, useActivity, useGoalReports } from "../features/report";
 import {
   LogProgressCard,
   CheckinCard,
@@ -25,6 +25,7 @@ export default function DashboardPage() {
     useGoals("ACTIVE");
   const { entries, addProgress, removeProgress } = useProgress();
   const { reports } = useGoalReports(goals, entries);
+  const { activity } = useActivity(entries);
   const categories = useCategories();
   const summaries = useAmountSummaries(goals, entries);
 
@@ -39,11 +40,13 @@ export default function DashboardPage() {
             entries={entries}
             onCheck={addProgress}
             onUncheck={removeProgress}
+            loadError={loadError}
           />
           <LogProgressCard
             goals={goals}
             summaries={summaries}
             onLog={addProgress}
+            loadError={loadError}
           />
           <div className="scale-box">
             <h2>Quick log</h2>
@@ -84,7 +87,12 @@ export default function DashboardPage() {
             totalFor={(g) => summaries[g.id]?.total}
           />
           <OutdoorWeatherCard goals={goals} />
-          <StreaksCard goals={goals} reports={reports} />
+          <StreaksCard
+            goals={goals}
+            reports={reports}
+            count={activity?.activeStreaks ?? null}
+            loadError={loadError}
+          />
         </div>
       </div>
     </>

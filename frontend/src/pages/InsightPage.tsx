@@ -20,7 +20,12 @@ export default function InsightPage() {
   const checkReports = reports.filter(
     (r) => goals.find((g) => g.id === r.goalId)?.trackingType === "CHECK",
   );
-  const activeStreaks = checkReports.filter((r) => r.currentStreak > 0).length;
+  const listStreaks = checkReports.filter((r) => r.currentStreak > 0).length;
+  const streakCount = goalsError
+    ? activity?.activeStreaks
+    : isLoading
+      ? undefined
+      : listStreaks;
   const avgCompletion =
     checkReports.length === 0
       ? 0
@@ -45,8 +50,10 @@ export default function InsightPage() {
               <span className="muted">check-ins last 30 days</span>
             </div>
             <div>
-              <strong>{statsPending ? "…" : activeStreaks}</strong>
-              <span className="muted">active streaks</span>
+              <strong>{streakCount ?? "…"}</strong>
+              <span className="muted">
+                active streaks{goalsError ? " · incl. archived" : ""}
+              </span>
             </div>
             <div>
               <strong>{statsPending ? "…" : `${avgCompletion}%`}</strong>

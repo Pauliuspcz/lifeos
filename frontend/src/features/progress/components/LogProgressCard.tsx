@@ -8,9 +8,15 @@ type Props = {
   goals: Goal[];
   summaries: Record<number, GoalProgressSummary>;
   onLog: (req: CreateProgressRequest) => Promise<void>;
+  loadError: string;
 };
 
-export default function LogProgressCard({ goals, summaries, onLog }: Props) {
+export default function LogProgressCard({
+  goals,
+  summaries,
+  onLog,
+  loadError,
+}: Props) {
   const amountGoals = goals.filter((g) => g.trackingType === "AMOUNT");
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [value, setValue] = useState("");
@@ -42,7 +48,10 @@ export default function LogProgressCard({ goals, summaries, onLog }: Props) {
     <div className="amount-box">
       <h2>Log progress</h2>
       <p className="muted">Goals with a running total</p>
-      {amountGoals.length === 0 && <p className="muted">No amount goals yet</p>}
+      {loadError && <p className="muted">Could not load active goals</p>}
+      {!loadError && amountGoals.length === 0 && (
+        <p className="muted">No amount goals yet</p>
+      )}
       {amountGoals.map((g) => {
         const s = summaries[g.id];
         const isSelected = g.id === selected?.id;

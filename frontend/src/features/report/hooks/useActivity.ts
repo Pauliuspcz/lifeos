@@ -3,7 +3,7 @@ import { ApiError } from "../../../shared/api/client";
 import { getActivity } from "../api";
 import type { ActivityReport } from "../types";
 
-export function useActivity() {
+export function useActivity(refreshKey?: unknown) {
   const [activity, setActivity] = useState<ActivityReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -25,7 +25,7 @@ export function useActivity() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [refreshKey]);
 
   return { activity, loading, loadError };
 }
