@@ -1,5 +1,6 @@
 package no.kristiania.progressservice.integration.error;
 
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import no.kristiania.progressservice.integration.setup.AbstractProgressApiTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
@@ -12,6 +13,8 @@ import org.springframework.web.client.ResourceAccessException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 class GoalServiceFailureTest extends AbstractProgressApiTest {
 
@@ -56,6 +59,31 @@ class GoalServiceFailureTest extends AbstractProgressApiTest {
                 HttpStatus.UNAUTHORIZED, "Unauthorized", new HttpHeaders(), null, null));
 
         postProgress(USER, GOAL_ID, TODAY).andExpect(status().isServiceUnavailable());
+    }
+
+    @Test
+    void post_goalServiceKeepsFailing_opensBreakerAndStopsCallingGoal() throws Exception {
+        when(goalClient.getGoal(GOAL_ID)).thenThrow(new ResourceAccessException("Connection refused"));
+
+        for (int i = 0; i < 6; i++) {
+            postProgress(USER, GOAL_ID, TODAY).andExpect(status().isServiceUnavailable());
+        }
+
+        verify(goalClient, times(5)).getGoal(GOAL_ID);
+        assertThat(goalCircuitBreaker.getState()).isEqualTo(CircuitBreaker.State.OPEN);
+    }
+
+    @Test
+    void post_goalNotFoundManyTimes_keepsBreakerClosed() throws Exception {
+        when(goalClient.getGoal(GOAL_ID)).thenThrow(HttpClientErrorException.create(
+                HttpStatus.NOT_FOUND, "Not Found", new HttpHeaders(), null, null));
+
+        for (int i = 0; i < 6; i++) {
+            postProgress(USER, GOAL_ID, TODAY).andExpect(status().isNotFound());
+        }
+
+        verify(goalClient, times(6)).getGoal(GOAL_ID);
+        assertThat(goalCircuitBreaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
     }
 
     @Test

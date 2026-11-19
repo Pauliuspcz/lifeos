@@ -1,5 +1,6 @@
 package no.kristiania.progressservice.unit;
 
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import no.kristiania.progressservice.client.GoalClient;
 import no.kristiania.progressservice.client.GoalSummary;
 import no.kristiania.progressservice.progress.Progress;
@@ -49,7 +50,7 @@ class ProgressServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new ProgressService(repo, rabbitTemplate, goalClient, CLOCK);
+        service = new ProgressService(repo, rabbitTemplate, goalClient, CircuitBreaker.ofDefaults("goal"), CLOCK);
     }
 
     private static GoalSummary monthlyGoal(LocalDate start) {

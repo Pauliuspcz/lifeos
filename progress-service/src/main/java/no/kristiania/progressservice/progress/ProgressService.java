@@ -1,5 +1,7 @@
 package no.kristiania.progressservice.progress;
 
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.kristiania.progressservice.client.GoalClient;
@@ -38,11 +40,15 @@ public class ProgressService {
     private final ProgressRepo progressRepo;
     private final RabbitTemplate rabbitTemplate;
     private final GoalClient goalClient;
+    private final CircuitBreaker goalCircuitBreaker;
     private final Clock clock;
 
     private GoalSummary fetchGoal(Long goalId) {
         try {
-            return goalClient.getGoal(goalId);
+            return goalCircuitBreaker.executeSupplier(() -> goalClient.getGoal(goalId));
+        } catch (CallNotPermittedException e) {
+            log.warn("goal circuit breaker is open, failing fast for goal {}", goalId);
+            throw new GoalUnavailableException();
         } catch (HttpClientErrorException.NotFound e) {
             throw new GoalNotFoundException(goalId);
         } catch (HttpClientErrorException e) {
