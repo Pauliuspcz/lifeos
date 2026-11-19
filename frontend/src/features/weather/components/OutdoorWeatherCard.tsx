@@ -51,7 +51,12 @@ export default function OutdoorWeatherCard({ goals }: Props) {
         <p className="outdoor-reason">{mine.advice}</p>
       )}
       {bestText && <p className="outdoor-reason">{bestText}</p>}
-      {names.length > 0 && <p className="outdoor-goals">{names.join(" · ")}</p>}
+      {names.length > 0 && (
+        <div className="outdoor-goals">
+          <p className="outdoor-label">Outdoor goals</p>
+          <p className="outdoor-goal">{names.join(" · ")}</p>
+        </div>
+      )}
     </div>
   );
 }
