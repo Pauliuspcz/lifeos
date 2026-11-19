@@ -11,6 +11,7 @@ type Props = {
   onCreate: (req: CreateGoalRequest) => Promise<void>;
   onArchive: (goalId: number) => Promise<void>;
   countFor?: (goal: Goal) => number;
+  totalFor?: (goal: Goal) => number | undefined;
 };
 
 export default function GoalsCard({
@@ -20,6 +21,7 @@ export default function GoalsCard({
   onCreate,
   onArchive,
   countFor,
+  totalFor,
 }: Props) {
   const [wizardKey, setWizardKey] = useState(0);
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -82,6 +84,17 @@ export default function GoalsCard({
                   className="progress-fill"
                   style={{
                     width: `${Math.min(100, (countFor(g) / g.timesPerPeriod) * 100)}%`,
+                    background: g.color ?? undefined,
+                  }}
+                />
+              </div>
+            )}
+            {totalFor && g.trackingType === "AMOUNT" && g.targetAmount && (
+              <div className="progress">
+                <div
+                  className="progress-fill"
+                  style={{
+                    width: `${Math.min(100, ((totalFor(g) ?? 0) / g.targetAmount) * 100)}%`,
                     background: g.color ?? undefined,
                   }}
                 />

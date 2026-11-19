@@ -234,11 +234,6 @@ h2 {
 .dashboard {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  grid-template-areas:
-    "checkin goals"
-    "scale   outdoor"
-    "scale   streaks"
-    "scale   streak";
   gap: var(--space-xl);
   align-items: start;
   max-width: 1440px;
@@ -248,32 +243,20 @@ h2 {
 @media (max-width: 800px) {
   .dashboard {
     grid-template-columns: 1fr;
-    grid-template-areas: "checkin" "outdoor" "goals" "streaks" "scale" "streak";
   }
 }
-.checkin-box {
-  grid-area: checkin;
-}
-.scale-box {
-  grid-area: scale;
-}
-.goals-box {
-  grid-area: goals;
-}
-.streak-box {
-  grid-area: streak;
-}
-.streaks-box {
-  grid-area: streaks;
-}
-.outdoor-box {
-  grid-area: outdoor;
+.dash-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  min-width: 0;
 }
 .goals-box,
 .streak-box,
 .scale-box,
 .streaks-box,
-.outdoor-box {
+.outdoor-box,
+.amount-box {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -359,6 +342,39 @@ h2 {
 .area-card > .muted {
   margin: 2px 0 var(--space-md);
   font-size: var(--text-sm);
+}
+
+/* Log progress (amount goals) */
+.amount-box h2 {
+  margin: 0;
+}
+.amount-box > .muted {
+  margin: 2px 0 var(--space-md);
+  font-size: var(--text-sm);
+}
+.amount-box .amount-field {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 0 var(--space-md);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+.amount-box .amount-field:focus-within {
+  border-color: var(--text-tertiary);
+}
+.amount-box .amount-field input {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-md) 0;
+  border: 0;
+  outline: 0;
+  background: none;
+}
+.amount-box .amount-unit {
+  color: var(--text-secondary);
 }
 .habit-row {
   display: flex;

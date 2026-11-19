@@ -1,7 +1,12 @@
 import Topbar from "../shared/components/Topbar";
-import { GoalsCard, useAreas, useGoals } from "../features/goals";
+import { GoalsCard, useCategories, useGoals } from "../features/goals";
 import { StreaksCard, useGoalReports } from "../features/report";
-import { CheckinCard, useProgress } from "../features/progress";
+import {
+  LogProgressCard,
+  CheckinCard,
+  useAmountSummaries,
+  useProgress,
+} from "../features/progress";
 import { countInPeriod } from "../features/progress";
 import { OutdoorWeatherCard } from "../features/weather";
 
@@ -20,55 +25,66 @@ export default function DashboardPage() {
     useGoals("ACTIVE");
   const { entries, addProgress, removeProgress } = useProgress();
   const { reports } = useGoalReports(goals, entries);
-  const { areas } = useAreas();
+  const categories = useCategories();
+  const summaries = useAmountSummaries(goals, entries);
 
   return (
     <>
       <Topbar />
       <div className="dashboard">
-        <GoalsCard
-          goals={goals}
-          loading={loading}
-          loadError={loadError}
-          onCreate={addGoal}
-          onArchive={archiveGoal}
-          countFor={(g) => countInPeriod(entries, g)}
-        />
-        <OutdoorWeatherCard goals={goals} />
-        <CheckinCard
-          goals={goals}
-          categories={areas}
-          entries={entries}
-          onCheck={addProgress}
-          onUncheck={removeProgress}
-        />
-        <StreaksCard goals={goals} reports={reports} />
-        <div className="scale-box">
-          <h2>Quick log</h2>
-          <p className="label">Mood today</p>
-          <div className="scale">
-            {MOODS.map((m) => (
-              <button type="button" className="scale-btn" key={m.n}>
-                <strong>{m.n}</strong>
-                <span className="muted">{m.word}</span>
+        <div className="dash-col">
+          <CheckinCard
+            goals={goals}
+            categories={categories}
+            entries={entries}
+            onCheck={addProgress}
+            onUncheck={removeProgress}
+          />
+          <LogProgressCard
+            goals={goals}
+            summaries={summaries}
+            onLog={addProgress}
+          />
+          <div className="scale-box">
+            <h2>Quick log</h2>
+            <p className="label">Mood today</p>
+            <div className="scale">
+              {MOODS.map((m) => (
+                <button type="button" className="scale-btn" key={m.n}>
+                  <strong>{m.n}</strong>
+                  <span className="muted">{m.word}</span>
+                </button>
+              ))}
+            </div>
+            <p className="label">Sleep last night (hours)</p>
+            <div className="scale">
+              {SLEEP.map((s) => (
+                <button type="button" className="scale-btn" key={s}>
+                  {s}
+                </button>
+              ))}
+            </div>
+            <p className="label">One line a day</p>
+            <div className="journal">
+              <input type="text" placeholder="What went well today?" />
+              <button type="button" className="btn-dark">
+                Save
               </button>
-            ))}
+            </div>
           </div>
-          <p className="label">Sleep last night (hours)</p>
-          <div className="scale">
-            {SLEEP.map((s) => (
-              <button type="button" className="scale-btn" key={s}>
-                {s}
-              </button>
-            ))}
-          </div>
-          <p className="label">One line a day</p>
-          <div className="journal">
-            <input type="text" placeholder="What went well today?" />
-            <button type="button" className="btn-dark">
-              Save
-            </button>
-          </div>
+        </div>
+        <div className="dash-col">
+          <GoalsCard
+            goals={goals}
+            loading={loading}
+            loadError={loadError}
+            onCreate={addGoal}
+            onArchive={archiveGoal}
+            countFor={(g) => countInPeriod(entries, g)}
+            totalFor={(g) => summaries[g.id]?.total}
+          />
+          <OutdoorWeatherCard goals={goals} />
+          <StreaksCard goals={goals} reports={reports} />
         </div>
       </div>
     </>

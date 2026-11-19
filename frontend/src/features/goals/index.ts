@@ -3,7 +3,7 @@ export type { CreateGoalRequest, Goal, GoalPeriod, GoalStatus } from "./types";
 export { default as GoalsCard } from "./components/GoalsCard";
 export { useGoals } from "./hooks/useGoals";
 
-export { useAreas } from "./catalog/hooks/useAreas";
+export { useCategories } from "./catalog/hooks/useCategories";
 export type { Category } from "./catalog/types";
 //Midlertidig
 export { periodOf, timesOf } from "./types";
