@@ -216,9 +216,10 @@ services:
       - rabbitmq-data:/var/lib/rabbitmq
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 60s
 
   consul:
     image: hashicorp/consul:2.0.0
