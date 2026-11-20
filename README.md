@@ -317,7 +317,16 @@ Log in with `demo@lifeos.no` / `demo1234`. The demo user already has three goals
 
 ## API (postman)
 
-**Expected changes:** add later
+The Postman collection is in [`docs/LifeOS.postman_collection.json`](docs/LifeOS.postman_collection.json).
+
+1. In Postman: **Import** → select the file.
+2. Read the **Instructions** folder first.
+3. Run **Auth → Passing → Login (200)**. It saves the token, which the other requests use.
+4. Each folder (Auth, Profile, Catalog, Goal, Progress, Report, Recommendation) has a **Passing** folder with
+   normal requests and a **Failing (on purpose)** folder that shows error handling. The expected status code
+   is in each request's name.
+
+All requests go through the gateway (`baseUrl` = `http://localhost:8100`), so the stack must be running.
 
 ## Decisions, assumptions and simplifications
 
