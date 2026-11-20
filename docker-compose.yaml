@@ -252,6 +252,7 @@ services:
     build: ./frontend
     environment:
       GATEWAY_URL: http://gateway:8100
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
     ports:
       - "5173:5173"
     depends_on:

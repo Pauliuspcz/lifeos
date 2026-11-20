@@ -1,9 +1,15 @@
 import { defineConfig } from "vitest/config";
 import { loadEnv } from "vite";
 
-const gateway = loadEnv("", ".", "").GATEWAY_URL ?? "http://localhost:8100";
+const env = loadEnv("", "..", "");
+const gateway = env.GATEWAY_URL ?? "http://localhost:8100";
 
 export default defineConfig({
+  define: {
+    "import.meta.env.VITE_GOOGLE_CLIENT_ID": JSON.stringify(
+      env.GOOGLE_CLIENT_ID ?? "",
+    ),
+  },
   server: {
     proxy: {
       "/auth": gateway,
